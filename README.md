@@ -1001,18 +1001,7 @@ Pada kolom f(x), f'(x), dan f(x,y), Anda dapat menulis ekspresi secara natural:
 ## 💾 Sistem Histori
 
 ### Fitur
-- ✅ Menyimpan hingga 50 perhitungan terakhir
-- ✅ Tersimpan di `localStorage` (tidak hilang setelah refresh)
-- ✅ Menampilkan metode, parameter, hasil, dan timestamp
-- ✅ Dapat menghapus satu atau semua histori
-
-### Struktur Data
-```javascript
-{
-  id: 1702123456789,
-  method: "Gauss-Jordan",
-  params: "n=3",
-  resultText: "x=2.0000, y=3.0000, z=-1.0000",
-  time: "12/12/2024, 14:30:00"
-}
-```
+-  Menyimpan hingga 50 perhitungan terakhir
+-  Tersimpan di `localStorage` (tidak hilang setelah refresh)
+-  Menampilkan metode, parameter, hasil, dan timestamp
+-  Dapat menghapus satu atau semua histori
