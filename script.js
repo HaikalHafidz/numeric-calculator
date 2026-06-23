@@ -75,12 +75,6 @@ function clearResult(id) {
   if (el) { el.innerHTML = ''; el.classList.remove('show'); }
   clearErr(id);
 }
-// ============================================
-// PARSER NOTASI MATEMATIKA NATURAL
-// Mengizinkan: x^2 (pangkat), 2x (perkalian implisit),
-// 2(x+1), x(x+1), sin x, dll — tanpa user perlu menulis
-// Math.pow / ** / tanda * secara eksplisit.
-// ============================================
 function parseMathExpr(expr) {
   let s = expr.trim();
   if (!s) throw new Error('Ekspresi kosong');
@@ -88,21 +82,16 @@ function parseMathExpr(expr) {
   // Ganti notasi pangkat ^ menjadi ** (operator pangkat JS)
   s = s.replace(/\^/g, '**');
 
-  // Daftar nama fungsi/konstanta yang dikenali agar tidak
-  // ikut diberi tanda kali implisit secara keliru (mis. "sin" tidak boleh jadi "s*i*n")
   const FN = 'sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|log10|log2|log|ln|pow|min|max|floor|ceil|round|sign|cbrt';
 
   // 1) angka diikuti langsung variabel/fungsi/kurung buka => sisipkan *
-  //    contoh: 2x -> 2*x , 3(x+1) -> 3*(x+1), 2sin(x) -> 2*sin(x)
   s = s.replace(new RegExp(`(\\d)\\s*(?=(${FN})\\b)`, 'g'), '$1*');
   s = s.replace(/(\d)\s*(?=[a-zA-Z(])/g, '$1*');
 
   // 2) kurung tutup diikuti angka/variabel/kurung buka => sisipkan *
-  //    contoh: (x+1)(x-1) -> (x+1)*(x-1), (x+1)2 -> (x+1)*2, (x+1)x -> (x+1)*x
   s = s.replace(/\)\s*(?=[\w(])/g, ')*');
 
   // 3) variabel x atau y diikuti langsung kurung buka => sisipkan *
-  //    contoh: x(x+1) -> x*(x+1) ; tapi JANGAN ganggu nama fungsi seperti sin(x)
   s = s.replace(/(?<![a-zA-Z])([xy])\(/g, '$1*(');
 
   // 4) "ln(" -> "log(" karena Math.log = ln secara matematis
@@ -140,7 +129,7 @@ function fmt(n, d = 6) {
   if (Math.abs(n) < 1e-9) n = 0;
   let out = n.toFixed(d);
   // buang trailing zero berlebih tapi minimal 1 angka desimal jika ada koma
-  if (out.includes('.')) out = out.replace(/0+$/,'').replace(/\.$/, '.0');
+  if (out.includes('.')) out = out.replace(/0+$/, '').replace(/\.$/, '.0');
   return out;
 }
 function fmtDec(n, d = 6) {
@@ -155,16 +144,16 @@ let currentPanel = null;
 
 function showPanel(id) {
   console.log('showPanel dipanggil dengan id:', id);
-  
+
   // Sembunyikan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'none';
-  
+
   // Sembunyikan semua panel
   document.querySelectorAll('.panel').forEach(p => {
     p.style.display = 'none';
   });
-  
+
   // Tampilkan panel yang dipilih
   const panel = document.getElementById('panel-' + id);
   if (panel) {
@@ -173,7 +162,7 @@ function showPanel(id) {
   } else {
     console.log('Panel tidak ditemukan:', 'panel-' + id);
   }
-  
+
   // Update active class pada menu
   document.querySelectorAll('.menu-item').forEach(m => {
     m.classList.remove('active');
@@ -182,14 +171,14 @@ function showPanel(id) {
       m.classList.add('active');
     }
   });
-  
+
   currentPanel = id;
-  
+
   // Initialize matrix jika diperlukan
   if (id === 'gauss-jordan') buildMatrix('gj');
   if (id === 'invers') buildMatrix('inv');
   if (id === 'lagrange') buildLagrangePoints();
-  
+
   // Tutup sidebar di mobile setelah pilih menu
   closeMobileSidebar();
 }
@@ -235,16 +224,16 @@ function buildMatrix(prefix) {
   const cols = isInv ? n : n + 1;
   const container = document.getElementById(prefix + '-matrix');
   if (!container) return;
-  
+
   container.style.gridTemplateColumns = `repeat(${cols}, minmax(45px, 60px))`;
   let html = '';
-  
+
   // Header kolom
   for (let j = 0; j < cols; j++) {
-    const label = isInv ? `a<sub>${j+1}</sub>` : (j < n ? `a<sub>${j+1}</sub>` : 'b');
+    const label = isInv ? `a<sub>${j + 1}</sub>` : (j < n ? `a<sub>${j + 1}</sub>` : 'b');
     html += `<div style="text-align:center;font-size:9px;color:var(--text-faint);padding:2px">${label}</div>`;
   }
-  
+
   // Isi matriks
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < cols; j++) {
@@ -261,9 +250,9 @@ function getMatrix(prefix, rows, cols) {
     M.push([]);
     for (let j = 0; j < cols; j++) {
       const el = document.getElementById(`${prefix}-${i}-${j}`);
-      if (!el) throw new Error(`Elemen matriks [${i+1}][${j+1}] tidak ditemukan`);
+      if (!el) throw new Error(`Elemen matriks [${i + 1}][${j + 1}] tidak ditemukan`);
       const v = parseFloat(el.value);
-      if (isNaN(v)) throw new Error(`Nilai matriks [${i+1}][${j+1}] tidak valid`);
+      if (isNaN(v)) throw new Error(`Nilai matriks [${i + 1}][${j + 1}] tidak valid`);
       M[i].push(v);
     }
   }
@@ -304,33 +293,33 @@ function solveGaussJordan() {
   const n = parseInt(nInput.value);
   let M;
   try { M = getMatrix('gj', n, n + 1); }
-  catch(e) { showErr('gj', e.message); return; }
+  catch (e) { showErr('gj', e.message); return; }
 
   const A = M.map(row => [...row]);
-  const names = Array.from({length: n}, (_, i) => varName(i, n));
+  const names = Array.from({ length: n }, (_, i) => varName(i, n));
   const stepLog = [];
   stepLog.push({ label: 'Matriks augmented awal [A | b]', matrix: A.map(r => [...r]) });
 
   for (let k = 0; k < n; k++) {
     let maxIdx = k;
-    for (let i = k+1; i < n; i++)
+    for (let i = k + 1; i < n; i++)
       if (Math.abs(A[i][k]) > Math.abs(A[maxIdx][k])) maxIdx = i;
     if (maxIdx !== k) {
       [A[k], A[maxIdx]] = [A[maxIdx], A[k]];
-      stepLog.push({ label: `Tukar baris R${k+1} ↔ R${maxIdx+1} (partial pivoting)`, matrix: A.map(r => [...r]) });
+      stepLog.push({ label: `Tukar baris R${k + 1} ↔ R${maxIdx + 1} (partial pivoting)`, matrix: A.map(r => [...r]) });
     }
     if (Math.abs(A[k][k]) < 1e-12) { showErr('gj', 'Matriks singular — tidak ada solusi unik'); return; }
 
     const piv = A[k][k];
     if (Math.abs(piv - 1) > 1e-12) {
       for (let j = 0; j <= n; j++) A[k][j] /= piv;
-      stepLog.push({ label: `Normalisasi pivot: R${k+1} → R${k+1} ÷ (${fmtDec(piv,4)})`, matrix: A.map(r => [...r]) });
+      stepLog.push({ label: `Normalisasi pivot: R${k + 1} → R${k + 1} ÷ (${fmtDec(piv, 4)})`, matrix: A.map(r => [...r]) });
     }
     for (let i = 0; i < n; i++) {
       if (i !== k && Math.abs(A[i][k]) > 1e-15) {
         const f = A[i][k];
         for (let j = 0; j <= n; j++) A[i][j] -= f * A[k][j];
-        stepLog.push({ label: `R${i+1} → R${i+1} − (${fmtDec(f,4)}) × R${k+1}`, matrix: A.map(r => [...r]) });
+        stepLog.push({ label: `R${i + 1} → R${i + 1} − (${fmtDec(f, 4)}) × R${k + 1}`, matrix: A.map(r => [...r]) });
       }
     }
   }
@@ -351,7 +340,7 @@ function solveGaussJordan() {
   html += '</div>';
 
   showResult('gj', html);
-  addHistory('Gauss-Jordan', `n=${n}`, x.map((v,i) => `${names[i]}=${fmtDec(v,4)}`).join(', '));
+  addHistory('Gauss-Jordan', `n=${n}`, x.map((v, i) => `${names[i]}=${fmtDec(v, 4)}`).join(', '));
 }
 
 // INVERS MATRIKS
@@ -362,7 +351,7 @@ function solveInvers() {
   const n = parseInt(nInput.value);
   let A;
   try { A = getMatrix('inv', n, n); }
-  catch(e) { showErr('inv', e.message); return; }
+  catch (e) { showErr('inv', e.message); return; }
 
   const M = A.map((row, i) => {
     const id = new Array(n).fill(0);
@@ -374,24 +363,24 @@ function solveInvers() {
 
   for (let k = 0; k < n; k++) {
     let maxIdx = k;
-    for (let i = k+1; i < n; i++)
+    for (let i = k + 1; i < n; i++)
       if (Math.abs(M[i][k]) > Math.abs(M[maxIdx][k])) maxIdx = i;
     if (maxIdx !== k) {
       [M[k], M[maxIdx]] = [M[maxIdx], M[k]];
-      stepLog.push({ label: `Tukar baris R${k+1} ↔ R${maxIdx+1} (partial pivoting)`, matrix: M.map(r => [...r]) });
+      stepLog.push({ label: `Tukar baris R${k + 1} ↔ R${maxIdx + 1} (partial pivoting)`, matrix: M.map(r => [...r]) });
     }
     if (Math.abs(M[k][k]) < 1e-12) { showErr('inv', 'Matriks singular — tidak dapat diinvers'); return; }
 
     const piv = M[k][k];
     if (Math.abs(piv - 1) > 1e-12) {
-      for (let j = 0; j < 2*n; j++) M[k][j] /= piv;
-      stepLog.push({ label: `Normalisasi pivot: R${k+1} → R${k+1} ÷ (${fmtDec(piv,4)})`, matrix: M.map(r => [...r]) });
+      for (let j = 0; j < 2 * n; j++) M[k][j] /= piv;
+      stepLog.push({ label: `Normalisasi pivot: R${k + 1} → R${k + 1} ÷ (${fmtDec(piv, 4)})`, matrix: M.map(r => [...r]) });
     }
     for (let i = 0; i < n; i++) {
       if (i !== k && Math.abs(M[i][k]) > 1e-15) {
         const f = M[i][k];
-        for (let j = 0; j < 2*n; j++) M[i][j] -= f * M[k][j];
-        stepLog.push({ label: `R${i+1} → R${i+1} − (${fmtDec(f,4)}) × R${k+1}`, matrix: M.map(r => [...r]) });
+        for (let j = 0; j < 2 * n; j++) M[i][j] -= f * M[k][j];
+        stepLog.push({ label: `R${i + 1} → R${i + 1} − (${fmtDec(f, 4)}) × R${k + 1}`, matrix: M.map(r => [...r]) });
       }
     }
   }
@@ -400,7 +389,7 @@ function solveInvers() {
   let html = `<div class="result-header">// INVERS MATRIKS A⁻¹</div>`;
   html += '<table class="result-table"><tbody>';
   for (let i = 0; i < n; i++) {
-    html += '<tr>' + Ainv[i].map(v => `<td style="text-align:right">${fmtDec(v,4)}</td>`).join('') + '</tr>';
+    html += '<tr>' + Ainv[i].map(v => `<td style="text-align:right">${fmtDec(v, 4)}</td>`).join('') + '</tr>';
   }
   html += '</table>';
 
@@ -433,11 +422,11 @@ function solveRegulaFalsi() {
 
   let fa, fb;
   try { fa = evalFn(fxStr, a); fb = evalFn(fxStr, b); }
-  catch(e) { showErr('rf', e.message); return; }
+  catch (e) { showErr('rf', e.message); return; }
 
-  if (fa === 0) { showErr('rf', `f(a) = 0 — a = ${fmtDec(a,6)} sudah merupakan akar eksak`); return; }
-  if (fb === 0) { showErr('rf', `f(b) = 0 — b = ${fmtDec(b,6)} sudah merupakan akar eksak`); return; }
-  if (fa * fb > 0) { showErr('rf', `f(a)·f(b) = ${fmtDec(fa*fb,4)} > 0 — interval tidak mengurung akar. Coba ubah a/b.`); return; }
+  if (fa === 0) { showErr('rf', `f(a) = 0 — a = ${fmtDec(a, 6)} sudah merupakan akar eksak`); return; }
+  if (fb === 0) { showErr('rf', `f(b) = 0 — b = ${fmtDec(b, 6)} sudah merupakan akar eksak`); return; }
+  if (fa * fb > 0) { showErr('rf', `f(a)·f(b) = ${fmtDec(fa * fb, 4)} > 0 — interval tidak mengurung akar. Coba ubah a/b.`); return; }
 
   const rows = [];
   let c = a, fc = fa, converged = false;
@@ -472,19 +461,19 @@ function solveRegulaFalsi() {
   rows.forEach(r => {
     html += `<tr>
       <td>${r.i}</td>
-      <td>${fmtDec(r.a,6)}</td>
-      <td>${fmtDec(r.b,6)}</td>
-      <td>${fmtDec(r.fa,6)}</td>
-      <td>${fmtDec(r.fb,6)}</td>
-      <td style="color:var(--accent3)">${fmtDec(r.c,6)}</td>
-      <td>${fmtDec(r.fc,6)}</td>
-      <td>${r.err === null ? '—' : fmtDec(r.err,6)}</td>
+      <td>${fmtDec(r.a, 6)}</td>
+      <td>${fmtDec(r.b, 6)}</td>
+      <td>${fmtDec(r.fa, 6)}</td>
+      <td>${fmtDec(r.fb, 6)}</td>
+      <td style="color:var(--accent3)">${fmtDec(r.c, 6)}</td>
+      <td>${fmtDec(r.fc, 6)}</td>
+      <td>${r.err === null ? '—' : fmtDec(r.err, 6)}</td>
     </tr>`;
   });
   html += `</tbody></table></div>`;
 
   showResult('rf', html);
-  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0,30)}`, `x ≈ ${fmtDec(c,6)}`);
+  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 6)}`);
 }
 
 // NEWTON-RAPHSON
@@ -504,9 +493,9 @@ function solveNewtonRaphson() {
 
   for (let i = 1; i <= maxIter; i++) {
     try { fx = evalFn(fxStr, x); dfx = evalFn(dfxStr, x); }
-    catch(e) { showErr('nr', e.message); return; }
+    catch (e) { showErr('nr', e.message); return; }
 
-    if (Math.abs(dfx) < 1e-12) { showErr('nr', `f'(x) ≈ 0 pada iterasi ${i} (x = ${fmtDec(x,6)}) — Newton-Raphson gagal konvergen, coba tebakan awal lain`); return; }
+    if (Math.abs(dfx) < 1e-12) { showErr('nr', `f'(x) ≈ 0 pada iterasi ${i} (x = ${fmtDec(x, 6)}) — Newton-Raphson gagal konvergen, coba tebakan awal lain`); return; }
 
     xNew = x - fx / dfx;
     const err = Math.abs(xNew - x);
@@ -528,17 +517,17 @@ function solveNewtonRaphson() {
   rows.forEach(r => {
     html += `<tr>
       <td>${r.i}</td>
-      <td>${fmtDec(r.x,6)}</td>
-      <td>${fmtDec(r.fx,6)}</td>
-      <td>${fmtDec(r.dfx,6)}</td>
-      <td style="color:var(--accent3)">${fmtDec(r.xNew,6)}</td>
-      <td>${fmtDec(r.err,6)}</td>
+      <td>${fmtDec(r.x, 6)}</td>
+      <td>${fmtDec(r.fx, 6)}</td>
+      <td>${fmtDec(r.dfx, 6)}</td>
+      <td style="color:var(--accent3)">${fmtDec(r.xNew, 6)}</td>
+      <td>${fmtDec(r.err, 6)}</td>
     </tr>`;
   });
   html += `</tbody></table></div>`;
 
   showResult('nr', html);
-  addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0,30)}`, `x ≈ ${fmtDec(x,6)}`);
+  addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(x, 6)}`);
 }
 
 // LAGRANGE
@@ -548,14 +537,14 @@ function buildLagrangePoints() {
   const n = parseInt(nInput.value) || 4;
   const container = document.getElementById('lag-points-container');
   if (!container) return;
-  
-  const defaults = [[1,1],[2,4],[3,9],[4,16],[5,25],[6,36],[7,49],[8,64],[9,81],[10,100]];
+
+  const defaults = [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25], [6, 36], [7, 49], [8, 64], [9, 81], [10, 100]];
   let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   for (let i = 0; i < n; i++) {
-    const d = defaults[i] || [i+1, (i+1)*(i+1)];
-    html += `<div class="field"><label>x${i+1}</label>
+    const d = defaults[i] || [i + 1, (i + 1) * (i + 1)];
+    html += `<div class="field"><label>x${i + 1}</label>
              <input type="number" id="lag-x${i}" value="${d[0]}" step="any"></div>
-             <div class="field"><label>y${i+1}</label>
+             <div class="field"><label>y${i + 1}</label>
              <input type="number" id="lag-y${i}" value="${d[1]}" step="any"></div>`;
   }
   html += '</div>';
@@ -569,31 +558,141 @@ function solveLagrange() {
   const n = parseInt(nInput.value);
   const xt = parseFloat(document.getElementById('lag-xt').value);
   if (isNaN(xt)) { showErr('lag', 'x taksir tidak valid'); return; }
-  
+
   const xs = [], ys = [];
   for (let i = 0; i < n; i++) {
     const xi = parseFloat(document.getElementById(`lag-x${i}`).value);
     const yi = parseFloat(document.getElementById(`lag-y${i}`).value);
-    if (isNaN(xi) || isNaN(yi)) { showErr('lag', `Nilai titik ${i+1} tidak valid`); return; }
+    if (isNaN(xi) || isNaN(yi)) { showErr('lag', `Nilai titik ${i + 1} tidak valid`); return; }
     xs.push(xi); ys.push(yi);
   }
-  
+
+  // --- LANGKAH PENYELESAIAN (ditambah tabel langkah + kesimpulan tabel) ---
+  // P(x) = Σ y_i * L_i(x), dimana L_i(x) = Π_{j≠i} (x - x_j)/(x_i - x_j)
   let Px = 0;
+
+  const stepRows = []; // simpan tiap i dan faktor-faktornya
+  const LiValues = [];
+
   for (let i = 0; i < n; i++) {
     let Li = 1;
+    const factors = [];
     for (let j = 0; j < n; j++) {
       if (i !== j) {
         if (Math.abs(xs[i] - xs[j]) < 1e-15) { showErr('lag', 'Nilai x tidak boleh sama'); return; }
-        Li *= (xt - xs[j]) / (xs[i] - xs[j]);
+        const num = (xt - xs[j]);
+        const den = (xs[i] - xs[j]);
+        const frac = num / den;
+        factors.push({ j, num, den, frac });
+        Li *= frac;
       }
     }
+    LiValues.push(Li);
     Px += Li * ys[i];
+
+    stepRows.push({
+      i,
+      xi: xs[i],
+      yi: ys[i],
+      Li,
+      factors
+    });
   }
-  
+
+  // Kesimpulan untuk tabel akhir: kontribusi tiap komponen
+  const conclusionRows = stepRows.map(s => ({
+    i: s.i + 1,
+    xi: s.xi,
+    yi: s.yi,
+    Li: s.Li,
+    contrib: s.Li * s.yi
+  }));
+
   let html = `<div class="result-header">// HASIL — INTERPOLASI LAGRANGE</div>
     <div class="result-value">P(${xt}) ≈ ${fmtDec(Px, 6)}</div>`;
+
+  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// LANGKAH PENYELESAIAN — TABEL PERHITUNGAN Lᵢ(x)</div>`;
+  html += `<div style="overflow-x:auto;margin-top:8px">
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>i</th>
+          <th>xᵢ</th>
+          <th>yᵢ</th>
+          <th>Lᵢ(x)</th>
+          <th>Kontribusi yᵢ·Lᵢ(x)</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  stepRows.forEach(s => {
+    const contrib = s.Li * s.yi;
+    html += `<tr>
+      <td>${s.i + 1}</td>
+      <td>${fmtDec(s.xi, 6)}</td>
+      <td>${fmtDec(s.yi, 6)}</td>
+      <td style="color:var(--accent3)">${fmtDec(s.Li, 6)}</td>
+      <td>${fmtDec(contrib, 6)}</td>
+    </tr>`;
+  });
+
+  html += `
+      </tbody>
+    </table>
+  </div>`;
+
+  // Tambahan: detail faktor (opsional, tapi membantu “langkah penyelesaian” lebih jelas)
+  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// RINCIAN FAKTOR (PRODUK Π_{j≠i})</div>`;
+  html += `<div style="margin-top:8px;display:flex;flex-direction:column;gap:12px">`;
+  stepRows.forEach(s => {
+    html += `<div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Langkah ${s.i + 1}: Hitung L_${s.i + 1}(x) = Π_{j≠i} (x − xⱼ)/(xᵢ − xⱼ)</div>
+      <div style="font-size:11px;color:var(--text-dim);line-height:1.7;">
+        ${s.factors.map(f => {
+      const left = `(x − x${f.j + 1}) = (${fmtDec(xt, 4)} − ${fmtDec(f.num + xs[f.j], 4)})`;
+      return `
+            <div style="margin:3px 0">&bull; (${fmtDec(f.num, 4)} / ${fmtDec(f.den, 4)}) = <b style="color:var(--accent3)">${fmtDec(f.frac, 6)}</b></div>`;
+    }).join('')}
+        <div style="margin-top:6px">⇒ L_${s.i + 1}(x) = <b style="color:var(--accent3)">${fmtDec(s.Li, 6)}</b></div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // (2) Kesimpulan di akhir langkah penyelesaian yang jawabannya table
+  html += `<div style="margin-top:18px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// KESIMPULAN (TABEL)</div>`;
+  html += `<div style="overflow-x:auto;margin-top:8px">
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>Komponen</th>
+          <th>i</th>
+          <th>yᵢ</th>
+          <th>Lᵢ(x)</th>
+          <th>yᵢ·Lᵢ(x)</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  conclusionRows.forEach((r, idx) => {
+    html += `<tr>
+      <td>${idx + 1}</td>
+      <td>${r.i}</td>
+      <td>${fmtDec(r.yi, 6)}</td>
+      <td style="color:var(--accent3)">${fmtDec(r.Li, 6)}</td>
+      <td>${fmtDec(r.contrib, 6)}</td>
+    </tr>`;
+  });
+
+  html += `<tr>
+      <td colspan="4" style="font-weight:700;">Jumlah Σ yᵢ·Lᵢ(x)</td>
+      <td style="color:var(--accent)"><b>${fmtDec(Px, 6)}</b></td>
+    </tr>`;
+
+  html += `</tbody></table></div>`;
+
   showResult('lag', html);
-  addHistory('Interpolasi Lagrange', `x=${xt}, n=${n}`, `P(${xt}) ≈ ${fmtDec(Px,6)}`);
+  addHistory('Interpolasi Lagrange', `x=${xt}, n=${n}`, `P(${xt}) ≈ ${fmtDec(Px, 6)}`);
 }
 
 // SIMPSON 1/3
@@ -617,7 +716,7 @@ function solveSimpson() {
     const x = a + i * h;
     let fx;
     try { fx = evalFn(fxStr, x); }
-    catch(e) { showErr('simp', e.message); return; }
+    catch (e) { showErr('simp', e.message); return; }
     let coef;
     if (i === 0 || i === n) coef = 1;
     else if (i % 2 === 0) coef = 2;
@@ -633,17 +732,17 @@ function solveSimpson() {
   try {
     const mid = (a + b) / 2;
     const hd = Math.max(h, 1e-3); // step untuk diferensiasi numerik
-    const f2  = (xx) => evalFn(fxStr, xx);
-    const f4mid = (f2(mid - 2*hd) - 4*f2(mid - hd) + 6*f2(mid) - 4*f2(mid + hd) + f2(mid + 2*hd)) / Math.pow(hd, 4);
+    const f2 = (xx) => evalFn(fxStr, xx);
+    const f4mid = (f2(mid - 2 * hd) - 4 * f2(mid - hd) + 6 * f2(mid) - 4 * f2(mid + hd) + f2(mid + 2 * hd)) / Math.pow(hd, 4);
     const errEst = -((b - a) * Math.pow(h, 4) / 180) * f4mid;
     if (isFinite(errEst)) {
       errEstText = `${fmtDec(errEst, 8)}  (E ≈ −(b−a)h⁴f⁽⁴⁾(ξ)/180, f⁽⁴⁾(ξ) didekati secara numerik di titik tengah)`;
     }
-  } catch(e) { /* biarkan pesan default */ }
+  } catch (e) { /* biarkan pesan default */ }
 
   let html = `<div class="result-header">// HASIL — SIMPSON 1/3</div>
     <div class="result-value">∫f(x)dx ≈ ${fmtDec(I, 6)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">h = ${fmtDec(h,6)} · n = ${n} subinterval</div>`;
+    <div style="font-size:11px;color:var(--text-dim)">h = ${fmtDec(h, 6)} · n = ${n} subinterval</div>`;
 
   html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// CARA PERHITUNGAN — TABEL TITIK</div>`;
   html += `<div style="overflow-x:auto;margin-top:8px"><table class="result-table"><thead><tr>
@@ -652,24 +751,24 @@ function solveSimpson() {
   points.forEach(p => {
     html += `<tr>
       <td>${p.i}</td>
-      <td>${fmtDec(p.x,6)}</td>
-      <td>${fmtDec(p.fx,6)}</td>
-      <td>${p.coef}${p.i===0||p.i===n ? ' (ujung)' : (p.i%2!==0?' (ganjil)':' (genap)')}</td>
-      <td>${fmtDec(p.coef*p.fx,6)}</td>
+      <td>${fmtDec(p.x, 6)}</td>
+      <td>${fmtDec(p.fx, 6)}</td>
+      <td>${p.coef}${p.i === 0 || p.i === n ? ' (ujung)' : (p.i % 2 !== 0 ? ' (ganjil)' : ' (genap)')}</td>
+      <td>${fmtDec(p.coef * p.fx, 6)}</td>
     </tr>`;
   });
   html += `</tbody></table></div>`;
 
   html += `<div style="margin-top:12px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    Σ(koef × f(xᵢ)) = ${fmtDec(sum,6)}<br>
-    ∫f(x)dx ≈ (h/3) × Σ = (${fmtDec(h,6)}/3) × ${fmtDec(sum,6)} = <b style="color:var(--accent3)">${fmtDec(I,6)}</b>
+    Σ(koef × f(xᵢ)) = ${fmtDec(sum, 6)}<br>
+    ∫f(x)dx ≈ (h/3) × Σ = (${fmtDec(h, 6)}/3) × ${fmtDec(sum, 6)} = <b style="color:var(--accent3)">${fmtDec(I, 6)}</b>
   </div>`;
 
   html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// ESTIMASI GALAT</div>
     <div style="margin-top:6px;font-size:11px;color:var(--text-dim);line-height:1.8">${errEstText}</div>`;
 
   showResult('simp', html);
-  addHistory('Simpson 1/3', `[${a},${b}], n=${n}`, `∫ ≈ ${fmtDec(I,6)}`);
+  addHistory('Simpson 1/3', `[${a},${b}], n=${n}`, `∫ ≈ ${fmtDec(I, 6)}`);
 }
 
 // METODE EULER
@@ -689,7 +788,7 @@ function solveEuler() {
   for (let i = 1; i <= steps; i++) {
     let fxy;
     try { fxy = evalFn(fxyStr, x, y); }
-    catch(e) { showErr('eu', e.message); return; }
+    catch (e) { showErr('eu', e.message); return; }
     const yNew = y + h * fxy;
     const xNew = x + h;
     rows.push({ i, x: xNew, y: yNew, fxy, xPrev: x, yPrev: y });
@@ -697,8 +796,8 @@ function solveEuler() {
   }
 
   let html = `<div class="result-header">// HASIL — METODE EULER</div>
-    <div class="result-value">y(${fmtDec(x,4)}) ≈ ${fmtDec(y, 6)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">h = ${fmtDec(h,4)} · ${steps} langkah</div>`;
+    <div class="result-value">y(${fmtDec(x, 4)}) ≈ ${fmtDec(y, 6)}</div>
+    <div style="font-size:11px;color:var(--text-dim)">h = ${fmtDec(h, 4)} · ${steps} langkah</div>`;
 
   html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// CARA PERHITUNGAN — TABEL LANGKAH</div>`;
   html += `<div style="overflow-x:auto;margin-top:8px"><table class="result-table"><thead><tr>
@@ -706,100 +805,100 @@ function solveEuler() {
   </tr></thead><tbody>`;
   rows.forEach(r => {
     if (r.i === 0) {
-      html += `<tr><td>0</td><td>${fmtDec(r.x,6)}</td><td>${fmtDec(r.y,6)}</td><td>—</td><td>(nilai awal)</td></tr>`;
+      html += `<tr><td>0</td><td>${fmtDec(r.x, 6)}</td><td>${fmtDec(r.y, 6)}</td><td>—</td><td>(nilai awal)</td></tr>`;
     } else {
       html += `<tr>
         <td>${r.i}</td>
-        <td>${fmtDec(r.xPrev,6)}</td>
-        <td>${fmtDec(r.yPrev,6)}</td>
-        <td>${fmtDec(r.fxy,6)}</td>
-        <td style="color:var(--accent3)">${fmtDec(r.y,6)}</td>
+        <td>${fmtDec(r.xPrev, 6)}</td>
+        <td>${fmtDec(r.yPrev, 6)}</td>
+        <td>${fmtDec(r.fxy, 6)}</td>
+        <td style="color:var(--accent3)">${fmtDec(r.y, 6)}</td>
       </tr>`;
     }
   });
   html += `</tbody></table></div>`;
 
   showResult('eu', html);
-  addHistory('Metode Euler', `y'=${fxyStr.substring(0,30)}`, `y(${fmtDec(x,4)}) ≈ ${fmtDec(y,6)}`);
+  addHistory('Metode Euler', `y'=${fxyStr.substring(0, 30)}`, `y(${fmtDec(x, 4)}) ≈ ${fmtDec(y, 6)}`);
 }
 
 // INISIALISASI MOBILE & EVENT
 function initMobile() {
   console.log('Init mobile dipanggil');
-  
+
   // Tombol menu mobile
   const menuBtn = document.getElementById('mobileMenuBtn');
   const historyBtn = document.getElementById('mobileHistoryBtn');
   const closeSidebarBtn = document.getElementById('closeSidebar');
   const closeHistoryBtn = document.getElementById('closeHistory');
   const overlay = document.getElementById('mobileOverlay');
-  
+
   if (menuBtn) {
     // Hapus event listener lama dengan clone
     const newMenuBtn = menuBtn.cloneNode(true);
     menuBtn.parentNode.replaceChild(newMenuBtn, menuBtn);
-    newMenuBtn.addEventListener('click', function(e) {
+    newMenuBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       console.log('Menu button diklik');
       openMobileSidebar();
     });
   }
-  
+
   if (historyBtn) {
     const newHistoryBtn = historyBtn.cloneNode(true);
     historyBtn.parentNode.replaceChild(newHistoryBtn, historyBtn);
-    newHistoryBtn.addEventListener('click', function(e) {
+    newHistoryBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       console.log('History button diklik');
       openMobileHistory();
     });
   }
-  
+
   if (closeSidebarBtn) {
     const newCloseSidebar = closeSidebarBtn.cloneNode(true);
     closeSidebarBtn.parentNode.replaceChild(newCloseSidebar, closeSidebarBtn);
     newCloseSidebar.addEventListener('click', closeMobileSidebar);
   }
-  
+
   if (closeHistoryBtn) {
     const newCloseHistory = closeHistoryBtn.cloneNode(true);
     closeHistoryBtn.parentNode.replaceChild(newCloseHistory, closeHistoryBtn);
     newCloseHistory.addEventListener('click', closeMobileHistory);
   }
-  
+
   if (overlay) {
     const newOverlay = overlay.cloneNode(true);
     overlay.parentNode.replaceChild(newOverlay, overlay);
-    newOverlay.addEventListener('click', function() {
+    newOverlay.addEventListener('click', function () {
       closeMobileSidebar();
       closeMobileHistory();
     });
   }
-  
+
   // BIND MENU ITEMS - ini yang paling penting!
   const menuItems = document.querySelectorAll('.menu-item');
   console.log('Menu items ditemukan:', menuItems.length);
-  
+
   menuItems.forEach(item => {
     // Hapus event listener lama dengan clone
     const newItem = item.cloneNode(true);
     item.parentNode.replaceChild(newItem, item);
-    
+
     const methodId = newItem.getAttribute('data-method');
     console.log('Menu item:', methodId);
-    
+
     if (methodId) {
-      newItem.addEventListener('click', function(e) {
+      newItem.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
         console.log('Menu diklik:', methodId);
         showPanel(methodId);
       });
-      
+
       // Untuk touch device
-      newItem.addEventListener('touchstart', function(e) {
+      newItem.addEventListener('touchstart', function (e) {
         e.preventDefault();
         e.stopPropagation();
         console.log('Menu touchstart:', methodId);
@@ -810,29 +909,29 @@ function initMobile() {
 }
 
 // INITIALIZE semua saat halaman加载
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   console.log('DOM Content Loaded');
-  
+
   // Build semua matrix awal
   buildMatrix('gj');
   buildMatrix('inv');
   buildLagrangePoints();
-  
+
   // Render history
   renderHistory();
-  
+
   // Inisialisasi mobile
   initMobile();
 
   // Auto-select isi input angka saat difokus, agar user bisa langsung
   // mengetik tanpa perlu menghapus nilai default (mis. "0") terlebih dahulu.
-  document.addEventListener('focusin', function(e) {
+  document.addEventListener('focusin', function (e) {
     if (e.target && e.target.tagName === 'INPUT' &&
-       (e.target.type === 'number' || e.target.type === 'text')) {
+      (e.target.type === 'number' || e.target.type === 'text')) {
       e.target.select();
     }
   });
-  
+
   // Tampilkan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
