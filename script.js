@@ -79,19 +79,25 @@ function parseMathExpr(expr) {
   let s = expr.trim();
   if (!s) throw new Error('Ekspresi kosong');
 
+  // Ganti notasi pangkat ^ menjadi ** (operator pangkat JS)
   s = s.replace(/\^/g, '**');
 
   const FN = 'sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|log10|log2|log|ln|pow|min|max|floor|ceil|round|sign|cbrt';
 
+  // 1) angka diikuti langsung variabel/fungsi/kurung buka => sisipkan *
   s = s.replace(new RegExp(`(\\d)\\s*(?=(${FN})\\b)`, 'g'), '$1*');
   s = s.replace(/(\d)\s*(?=[a-zA-Z(])/g, '$1*');
 
+  // 2) kurung tutup diikuti angka/variabel/kurung buka => sisipkan *
   s = s.replace(/\)\s*(?=[\w(])/g, ')*');
 
+  // 3) variabel x atau y diikuti langsung kurung buka => sisipkan *
   s = s.replace(/(?<![a-zA-Z])([xy])\(/g, '$1*(');
 
+  // 4) "ln(" -> "log(" karena Math.log = ln secara matematis
   s = s.replace(/\bln\s*\(/g, 'log(');
 
+  // 5) konstanta umum
   s = s.replace(/\bpi\b/gi, 'PI');
   s = s.replace(/\be\b(?!\d)/g, 'E');
 
@@ -127,23 +133,28 @@ function fmt(n, d = 6) {
   return out;
 }
 function fmtDec(n, d = 6) {
+  // Versi yang selalu mengembalikan string desimal tetap (untuk tabel iterasi)
   if (typeof n !== 'number' || isNaN(n)) return '—';
   if (Math.abs(n) < 1e-9) n = 0;
   return n.toFixed(d);
 }
 
+// PANEL NAVIGATION
 let currentPanel = null;
 
 function showPanel(id) {
   console.log('showPanel dipanggil dengan id:', id);
 
+  // Sembunyikan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'none';
 
+  // Sembunyikan semua panel
   document.querySelectorAll('.panel').forEach(p => {
     p.style.display = 'none';
   });
 
+  // Tampilkan panel yang dipilih
   const panel = document.getElementById('panel-' + id);
   if (panel) {
     panel.style.display = 'contents';
@@ -873,31 +884,45 @@ function initMobile() {
     });
   }
 
-  // BIND MENU ITEMS - stabil di HP (tanpa clone)
-  const menuItems = document.querySelectorAll('.menu-item');
-  menuItems.forEach(item => {
-    const methodId = item.getAttribute('data-method');
-    if (!methodId) return;
-
-    item.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+  // BIND MENU ITEMS (event delegation) - paling stabil di HP
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    const activateMethod = (methodId) => {
       showPanel(methodId);
-    });
+    };
 
-    item.addEventListener('touchstart', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      showPanel(methodId);
-    });
+    const onActivate = (() => {
+      let lastMethodId = null;
+      let lastAt = 0;
+      const GUARD_MS = 450;
 
-    // pointerup buat perangkat yang tidak konsisten dengan click/touch
-    item.addEventListener('pointerup', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      showPanel(methodId);
-    });
-  });
+      return (e) => {
+        const item = e.target.closest('.menu-item');
+        if (!item) return;
+        const methodId = item.getAttribute('data-method');
+        if (!methodId) return;
+
+        const now = Date.now();
+        if (methodId === lastMethodId && (now - lastAt) < GUARD_MS) return;
+        lastMethodId = methodId;
+        lastAt = now;
+
+        e.preventDefault();
+        e.stopPropagation();
+        activateMethod(methodId);
+      };
+    })();
+
+
+    // Gunakan pointerdown supaya event tidak “hilang” di beberapa device.
+    sidebar.addEventListener('pointerdown', onActivate);
+
+    // fallback untuk browser tanpa pointer events
+    sidebar.addEventListener('touchstart', onActivate, { passive: false });
+    sidebar.addEventListener('click', onActivate);
+  }
+
+
 
 }
 
@@ -905,14 +930,19 @@ function initMobile() {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('DOM Content Loaded');
 
+  // Build semua matrix awal
   buildMatrix('gj');
   buildMatrix('inv');
   buildLagrangePoints();
 
+  // Render history
   renderHistory();
 
+  // Inisialisasi mobile
   initMobile();
 
+  // Auto-select isi input angka saat difokus, agar user bisa langsung
+  // mengetik tanpa perlu menghapus nilai default (mis. "0") terlebih dahulu.
   document.addEventListener('focusin', function (e) {
     if (e.target && e.target.tagName === 'INPUT' &&
       (e.target.type === 'number' || e.target.type === 'text')) {
@@ -920,10 +950,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // Tampilkan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
 });
 
+// Pastikan semua fungsi global tersedia
 window.showPanel = showPanel;
 window.solveGaussJordan = solveGaussJordan;
 window.solveInvers = solveInvers;
