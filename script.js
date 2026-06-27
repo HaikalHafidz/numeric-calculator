@@ -79,25 +79,19 @@ function parseMathExpr(expr) {
   let s = expr.trim();
   if (!s) throw new Error('Ekspresi kosong');
 
-  // Ganti notasi pangkat ^ menjadi ** (operator pangkat JS)
   s = s.replace(/\^/g, '**');
 
   const FN = 'sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|log10|log2|log|ln|pow|min|max|floor|ceil|round|sign|cbrt';
 
-  // 1) angka diikuti langsung variabel/fungsi/kurung buka => sisipkan *
   s = s.replace(new RegExp(`(\\d)\\s*(?=(${FN})\\b)`, 'g'), '$1*');
   s = s.replace(/(\d)\s*(?=[a-zA-Z(])/g, '$1*');
 
-  // 2) kurung tutup diikuti angka/variabel/kurung buka => sisipkan *
   s = s.replace(/\)\s*(?=[\w(])/g, ')*');
 
-  // 3) variabel x atau y diikuti langsung kurung buka => sisipkan *
   s = s.replace(/(?<![a-zA-Z])([xy])\(/g, '$1*(');
 
-  // 4) "ln(" -> "log(" karena Math.log = ln secara matematis
   s = s.replace(/\bln\s*\(/g, 'log(');
 
-  // 5) konstanta umum
   s = s.replace(/\bpi\b/gi, 'PI');
   s = s.replace(/\be\b(?!\d)/g, 'E');
 
@@ -133,28 +127,23 @@ function fmt(n, d = 6) {
   return out;
 }
 function fmtDec(n, d = 6) {
-  // Versi yang selalu mengembalikan string desimal tetap (untuk tabel iterasi)
   if (typeof n !== 'number' || isNaN(n)) return '—';
   if (Math.abs(n) < 1e-9) n = 0;
   return n.toFixed(d);
 }
 
-// PANEL NAVIGATION
 let currentPanel = null;
 
 function showPanel(id) {
   console.log('showPanel dipanggil dengan id:', id);
 
-  // Sembunyikan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'none';
 
-  // Sembunyikan semua panel
   document.querySelectorAll('.panel').forEach(p => {
     p.style.display = 'none';
   });
 
-  // Tampilkan panel yang dipilih
   const panel = document.getElementById('panel-' + id);
   if (panel) {
     panel.style.display = 'contents';
@@ -834,97 +823,96 @@ function initMobile() {
   const overlay = document.getElementById('mobileOverlay');
 
   if (menuBtn) {
-    // Hapus event listener lama dengan clone
-    const newMenuBtn = menuBtn.cloneNode(true);
-    menuBtn.parentNode.replaceChild(newMenuBtn, menuBtn);
-    newMenuBtn.addEventListener('click', function (e) {
+    // Hindari clone pada tombol (lebih stabil di HP)
+    menuBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('Menu button diklik');
+      openMobileSidebar();
+    });
+    menuBtn.addEventListener('pointerup', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       openMobileSidebar();
     });
   }
 
   if (historyBtn) {
-    const newHistoryBtn = historyBtn.cloneNode(true);
-    historyBtn.parentNode.replaceChild(newHistoryBtn, historyBtn);
-    newHistoryBtn.addEventListener('click', function (e) {
+    historyBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('History button diklik');
+      openMobileHistory();
+    });
+    historyBtn.addEventListener('pointerup', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       openMobileHistory();
     });
   }
 
+
   if (closeSidebarBtn) {
-    const newCloseSidebar = closeSidebarBtn.cloneNode(true);
-    closeSidebarBtn.parentNode.replaceChild(newCloseSidebar, closeSidebarBtn);
-    newCloseSidebar.addEventListener('click', closeMobileSidebar);
+    // Hindari clone pada tombol (lebih stabil di HP)
+    closeSidebarBtn.addEventListener('click', closeMobileSidebar);
+    closeSidebarBtn.addEventListener('pointerup', closeMobileSidebar);
   }
 
   if (closeHistoryBtn) {
-    const newCloseHistory = closeHistoryBtn.cloneNode(true);
-    closeHistoryBtn.parentNode.replaceChild(newCloseHistory, closeHistoryBtn);
-    newCloseHistory.addEventListener('click', closeMobileHistory);
+    closeHistoryBtn.addEventListener('click', closeMobileHistory);
+    closeHistoryBtn.addEventListener('pointerup', closeMobileHistory);
   }
 
+
   if (overlay) {
-    const newOverlay = overlay.cloneNode(true);
-    overlay.parentNode.replaceChild(newOverlay, overlay);
-    newOverlay.addEventListener('click', function () {
+    overlay.addEventListener('click', function () {
+      closeMobileSidebar();
+      closeMobileHistory();
+    });
+    overlay.addEventListener('pointerup', function () {
       closeMobileSidebar();
       closeMobileHistory();
     });
   }
 
-  // BIND MENU ITEMS - ini yang paling penting!
+  // BIND MENU ITEMS - stabil di HP (tanpa clone)
   const menuItems = document.querySelectorAll('.menu-item');
-  console.log('Menu items ditemukan:', menuItems.length);
-
   menuItems.forEach(item => {
-    // Hapus event listener lama dengan clone
-    const newItem = item.cloneNode(true);
-    item.parentNode.replaceChild(newItem, item);
+    const methodId = item.getAttribute('data-method');
+    if (!methodId) return;
 
-    const methodId = newItem.getAttribute('data-method');
-    console.log('Menu item:', methodId);
+    item.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showPanel(methodId);
+    });
 
-    if (methodId) {
-      newItem.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Menu diklik:', methodId);
-        showPanel(methodId);
-      });
+    item.addEventListener('touchstart', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showPanel(methodId);
+    });
 
-      // Untuk touch device
-      newItem.addEventListener('touchstart', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Menu touchstart:', methodId);
-        showPanel(methodId);
-      });
-    }
+    // pointerup buat perangkat yang tidak konsisten dengan click/touch
+    item.addEventListener('pointerup', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      showPanel(methodId);
+    });
   });
+
 }
 
 // INITIALIZE semua saat halaman加载
 document.addEventListener('DOMContentLoaded', function () {
   console.log('DOM Content Loaded');
 
-  // Build semua matrix awal
   buildMatrix('gj');
   buildMatrix('inv');
   buildLagrangePoints();
 
-  // Render history
   renderHistory();
 
-  // Inisialisasi mobile
   initMobile();
 
-  // Auto-select isi input angka saat difokus, agar user bisa langsung
-  // mengetik tanpa perlu menghapus nilai default (mis. "0") terlebih dahulu.
   document.addEventListener('focusin', function (e) {
     if (e.target && e.target.tagName === 'INPUT' &&
       (e.target.type === 'number' || e.target.type === 'text')) {
@@ -932,12 +920,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Tampilkan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
 });
 
-// Pastikan semua fungsi global tersedia
 window.showPanel = showPanel;
 window.solveGaussJordan = solveGaussJordan;
 window.solveInvers = solveInvers;
