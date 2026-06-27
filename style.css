@@ -9,7 +9,7 @@
   --accent3: #6affb8;
   --text: #e8e8f0;
   --text-dim: #888899;
-  --text-faint:#d7d2d2;
+  --text-faint: #d7d2d2;
   --success: #4ade80;
   --error: #f87171;
   --warn: #fbbf24;
@@ -393,7 +393,7 @@ textarea:focus {
 }
 
 /* RESULT */
- .result-box {
+.result-box {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -674,6 +674,13 @@ textarea:focus {
   .sidebar-header {
     display: flex;
   }
+
+  /* Pastikan tombol close sidebar bisa diklik di layar sentuh */
+  .close-sidebar {
+    pointer-events: auto;
+    z-index: 1001;
+  }
+
 
   .history-panel {
     position: fixed;
