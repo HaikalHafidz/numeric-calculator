@@ -35,11 +35,46 @@
         Pilih Metode
         <span class="accordion-chevron" aria-hidden="true">▾</span>
       </button>
+
+      <div class="accordion-menu" id="accordionMenu">
+        <ul>
+          <li><div class="sidebar-section">Sistem Persamaan</div>
+            <div class="menu-item t-inv" data-method="invers" role="button" tabindex="0">
+              <div class="menu-icon">A⁻¹</div>Invers Matriks
+            </div><a href="#panel-invers"></a>
+          </li>
+          <li><div class="sidebar-section" style="margin-top:8px">Akar Persamaan</div>
+            <div class="menu-item t-rf" data-method="regula-falsi" role="button" tabindex="0">
+              <div class="menu-icon">⟨x⟩</div>Regula Falsi
+            </div><a href="#panel-regula-falsi"></a>
+          </li>
+
+          <li><div class="menu-item t-nr" data-method="newton-raphson" role="button" tabindex="0">
+            <div class="menu-icon">∂f</div>Newton-Raphson
+            </div><a href="#panel-newton-raphson"></a>
+          </li>
+
+          <li><div class="sidebar-section" style="margin-top:8px">Interpolasi & Integrasi</div>
+            <div class="menu-item t-lag" data-method="lagrange" role="button" tabindex="0">
+              <div class="menu-icon">Pₙ</div>Interpolasi Lagrange
+            </div><a href="#panel-lagrange"></a>
+          </li>
+
+          <li><div class="menu-item t-simp" data-method="simpson" role="button" tabindex="0">
+            <div class="menu-icon">∫</div>Simpson 1/3
+            </div><a href="#panel-simpson"></a>
+          </li>
+
+          <li><div class="sidebar-section" style="margin-top:8px">Persamaan Diferensial</div>
+            <div class="menu-item t-euler" data-method="euler" role="button" tabindex="0">
+              <div class="menu-icon">dy</div>Metode Euler
+            </div><a href="#panel-euler"></a>
+          </li>
+        </ul>
+      </div>
+
       <div class="accordion-menu" id="accordionMenu">
         <div class="sidebar-section">Sistem Persamaan</div>
-        <div class="menu-item t-gj" data-method="gauss-jordan" role="button" tabindex="0">
-          <div class="menu-icon">⊞</div>Gauss-Jordan
-        </div>
         <div class="menu-item t-inv" data-method="invers" role="button" tabindex="0">
           <div class="menu-icon">A⁻¹</div>Invers Matriks
         </div>
@@ -74,33 +109,6 @@
       </div>
 
       <!-- Panel methods (sama seperti sebelumnya) -->
-      <div id="panel-gauss-jordan" class="panel" style="display:none">
-        <div class="panel-title">Gauss-Jordan <span class="tag t-gj">RREF</span></div>
-        <div class="panel-desc">Selesaikan sistem persamaan linear menggunakan metode Gauss-Jordan (Reduced Row Echelon
-          Form). Variabel ditampilkan sebagai x, y, z untuk sistem 3 variabel atau kurang.</div>
-        <div class="card">
-          <div class="card-title">// INPUT</div>
-          <div class="input-grid cols-1">
-            <div class="field">
-              <label>Ukuran matriks n×n</label>
-              <input type="number" id="gj-n" value="3" min="1" max="6" onchange="buildMatrix('gj')">
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label style="font-size:10px;color:var(--text-dim)">Matriks [A|b] (augmented)</label>
-            <div class="matrix-container">
-              <div id="gj-matrix" class="matrix-grid"></div>
-            </div>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="solveGaussJordan()">▶ HITUNG</button>
-          <button class="btn btn-secondary" onclick="buildMatrix('gj')">↺ Reset</button>
-        </div>
-        <div class="err-msg" id="gj-err"></div>
-        <div class="result-box" id="gj-result"></div>
-      </div>
-
       <div id="panel-invers" class="panel" style="display:none">
         <div class="panel-title">Invers Matriks <span class="tag t-inv">A⁻¹</span></div>
         <div class="panel-desc">Hitung invers matriks menggunakan metode Gauss-Jordan dengan matriks identitas.</div>
