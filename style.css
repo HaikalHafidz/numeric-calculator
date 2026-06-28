@@ -1,327 +1,925 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0f">
-  <title>NumCalc - Kalkulator Metode Numerik</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --surface3: #22222f;
+  --border: #2a2a3a;
+  --accent: #7c6aff;
+  --accent2: #ff6a9b;
+  --accent3: #6affb8;
+  --text: #e8e8f0;
+  --text-dim: #888899;
+  --text-faint: #d7d2d2;
+  --success: #4ade80;
+  --error: #f87171;
+  --warn: #fbbf24;
+}
 
-<div class="layout">
-  <header>
-    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
-    <div class="logo">Num<span>Calc</span></div>
-    <div class="header-badge">METODE NUMERIK</div>
-    <a href="index.html" class="header-back-link" title="Kembali ke Materi">📘 <span>Materi</span></a>
-    <div class="header-status">
-      <div class="status-dot"></div>
-      <span class="status-text">READY</span>
-    </div>
-    <button class="mobile-history-btn" id="mobileHistoryBtn" aria-label="Histori">📋</button>
-    <button class="mobile-method-btn" id="mobileMethodBtn">☰ Pilih Metode</button>
-  </header>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <span>MENU</span>
-      <button class="close-sidebar" id="closeSidebar" type="button">×</button>
-    </div>
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    <!-- Pakai div+button bukan a href agar tidak ada scroll-to-top di HP -->
-    <div class="sidebar-section">Sistem Persamaan</div>
-    <button class="menu-item" type="button" data-method="gauss-jordan">
-      <div class="menu-icon">⊞</div>Gauss-Jordan
-    </button>
-    <button class="menu-item" type="button" data-method="invers">
-      <div class="menu-icon">A⁻¹</div>Invers Matriks
-    </button>
-    <button class="menu-item" type="button" data-method="gauss-seidel">
-      <div class="menu-icon">⟳</div>Gauss-Seidel
-    </button>
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124, 106, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 106, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
 
-    <div class="sidebar-section" style="margin-top:8px">Akar Persamaan</div>
-    <button class="menu-item" type="button" data-method="regula-falsi">
-      <div class="menu-icon">⟨x⟩</div>Regula Falsi
-    </button>
-    <button class="menu-item" type="button" data-method="newton-raphson">
-      <div class="menu-icon">∂f</div>Newton-Raphson
-    </button>
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  z-index: 1;
+}
 
-    <div class="sidebar-section" style="margin-top:8px">Interpolasi &amp; Integrasi</div>
-    <button class="menu-item" type="button" data-method="lagrange">
-      <div class="menu-icon">Pₙ</div>Interpolasi Lagrange
-    </button>
-    <button class="menu-item" type="button" data-method="simpson">
-      <div class="menu-icon">∫</div>Simpson 1/3
-    </button>
+/* HEADER */
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(10px);
+  gap: 14px;
+}
 
-    <div class="sidebar-section" style="margin-top:8px">Persamaan Diferensial</div>
-    <button class="menu-item" type="button" data-method="euler">
-      <div class="menu-icon">dy</div>Metode Euler
-    </button>
-  </aside>
+.mobile-menu-btn,
+.mobile-history-btn {
+  display: none;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 20px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  <!-- MAIN CONTENT -->
-  <main class="main" id="main-content">
-    <div class="welcome" id="welcome-screen">
-      <div class="welcome-icon">⚙️</div>
-      <h2>Pilih Metode</h2>
-      <p>Pilih salah satu metode numerik di menu untuk memulai perhitungan.</p>
-    </div>
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
 
-    <!-- ── GAUSS-JORDAN ── -->
-    <div id="panel-gauss-jordan" class="panel" style="display:none">
-      <div class="panel-title">Gauss-Jordan <span class="tag">RREF</span></div>
-      <div class="panel-desc">Selesaikan sistem persamaan linear menggunakan metode Gauss-Jordan (Reduced Row Echelon Form).</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid cols-1">
-          <div class="field">
-            <label>Ukuran matriks n×n</label>
-            <input type="number" id="gj-n" value="3" min="1" max="6" onchange="buildMatrix('gj')">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <label style="font-size:10px;color:var(--text-dim)">Matriks [A|b] (augmented)</label>
-          <div class="matrix-container"><div id="gj-matrix" class="matrix-grid"></div></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveGaussJordan()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildMatrix('gj')">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="gj-err"></div>
-      <div class="result-box" id="gj-result"></div>
-    </div>
+.logo span {
+  color: var(--accent);
+}
 
-    <!-- ── INVERS MATRIKS ── -->
-    <div id="panel-invers" class="panel" style="display:none">
-      <div class="panel-title">Invers Matriks <span class="tag">A⁻¹</span></div>
-      <div class="panel-desc">Hitung invers matriks menggunakan metode Gauss-Jordan dengan matriks identitas.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid cols-1">
-          <div class="field">
-            <label>Ukuran matriks n×n</label>
-            <input type="number" id="inv-n" value="3" min="1" max="5" onchange="buildMatrix('inv')">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <label style="font-size:10px;color:var(--text-dim)">Matriks A</label>
-          <div class="matrix-container"><div id="inv-matrix" class="matrix-grid"></div></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveInvers()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildMatrix('inv')">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="inv-err"></div>
-      <div class="result-box" id="inv-result"></div>
-    </div>
+.header-badge {
+  font-size: 10.5px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 4px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
 
-    <!-- ── GAUSS-SEIDEL ── -->
-    <div id="panel-gauss-seidel" class="panel" style="display:none">
-      <div class="panel-title">Gauss-Seidel <span class="tag">ITERATIF</span></div>
-      <div class="panel-desc">Selesaikan SPL secara iteratif. Konvergen jika matriks diagonally dominant.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid cols-1">
-          <div class="field">
-            <label>Ukuran matriks n×n</label>
-            <input type="number" id="gs-n" value="3" min="2" max="6" onchange="buildMatrix('gs')">
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <label style="font-size:10px;color:var(--text-dim)">Matriks [A|b] (augmented)</label>
-          <div class="matrix-container"><div id="gs-matrix" class="matrix-grid"></div></div>
-        </div>
-        <div class="input-grid" style="margin-top:12px">
-          <div class="field"><label>Toleransi</label><input type="number" id="gs-tol" value="0.0001" step="any"></div>
-          <div class="field"><label>Maks. Iterasi</label><input type="number" id="gs-iter" value="100"></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveGaussSeidel()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildMatrix('gs')">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="gs-err"></div>
-      <div class="result-box" id="gs-result"></div>
-    </div>
+.header-back-link {
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(124, 106, 255, 0.08);
+  border: 1px solid rgba(124, 106, 255, 0.3);
+  padding: 7px 14px;
+  border-radius: 5px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
 
-    <!-- ── REGULA FALSI ── -->
-    <div id="panel-regula-falsi" class="panel" style="display:none">
-      <div class="panel-title">Regula Falsi <span class="tag">ROOT FINDING</span></div>
-      <div class="panel-desc">Cari akar persamaan f(x)=0 pada interval [a,b] menggunakan metode kurung akar.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x) — pangkat pakai ^, mis: x^3 - x - 2</label>
-            <input type="text" id="rf-fx" value="x^3 - x - 2">
-          </div>
-          <div class="field"><label>a (batas kiri)</label><input type="number" id="rf-a" value="1" step="any"></div>
-          <div class="field"><label>b (batas kanan)</label><input type="number" id="rf-b" value="2" step="any"></div>
-          <div class="field"><label>Toleransi</label><input type="number" id="rf-tol" value="0.0001" step="any"></div>
-          <div class="field"><label>Maks. Iterasi</label><input type="number" id="rf-iter" value="100"></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveRegulaFalsi()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('rf')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="rf-err"></div>
-      <div class="result-box" id="rf-result"></div>
-    </div>
+.header-back-link:hover {
+  background: rgba(124, 106, 255, 0.16);
+}
 
-    <!-- ── NEWTON-RAPHSON ── -->
-    <div id="panel-newton-raphson" class="panel" style="display:none">
-      <div class="panel-title">Newton-Raphson <span class="tag">DERIVATIVE</span></div>
-      <div class="panel-desc">Cari akar persamaan menggunakan metode iterasi turunan dengan konvergensi kuadratik.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x)</label>
-            <input type="text" id="nr-fx" value="x^3 - x - 2">
-          </div>
-          <div class="field span-2">
-            <label>f'(x) — turunan dari f(x)</label>
-            <input type="text" id="nr-dfx" value="3x^2 - 1">
-          </div>
-          <div class="field"><label>x₀ (tebakan awal)</label><input type="number" id="nr-x0" value="1.5" step="any"></div>
-          <div class="field"><label>Toleransi</label><input type="number" id="nr-tol" value="0.0001" step="any"></div>
-          <div class="field"><label>Maks. Iterasi</label><input type="number" id="nr-iter" value="50"></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveNewtonRaphson()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('nr')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="nr-err"></div>
-      <div class="result-box" id="nr-result"></div>
-    </div>
+@media (max-width: 560px) {
+  .header-back-link span {
+    display: none;
+  }
+}
 
-    <!-- ── LAGRANGE ── -->
-    <div id="panel-lagrange" class="panel" style="display:none">
-      <div class="panel-title">Interpolasi Lagrange <span class="tag">POLYNOMIAL</span></div>
-      <div class="panel-desc">Hitung nilai interpolasi menggunakan polinom Lagrange dari sekumpulan titik data.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field">
-            <label>Jumlah titik (n)</label>
-            <input type="number" id="lag-n" value="4" min="2" max="10" onchange="buildLagrangePoints()">
-          </div>
-          <div class="field">
-            <label>x taksir</label>
-            <input type="number" id="lag-xt" value="2.5" step="any">
-          </div>
-        </div>
-        <div style="margin-top:12px" id="lag-points-container"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveLagrange()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildLagrangePoints()">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="lag-err"></div>
-      <div class="result-box" id="lag-result"></div>
-    </div>
+.header-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
 
-    <!-- ── SIMPSON ── -->
-    <div id="panel-simpson" class="panel" style="display:none">
-      <div class="panel-title">Simpson 1/3 <span class="tag">INTEGRATION</span></div>
-      <div class="panel-desc">Hitung nilai integral ∫f(x)dx dari a ke b menggunakan aturan Simpson 1/3 komposit.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x)</label>
-            <input type="text" id="simp-fx" value="x^2 + 2x + 1">
-          </div>
-          <div class="field"><label>a (batas bawah)</label><input type="number" id="simp-a" value="0" step="any"></div>
-          <div class="field"><label>b (batas atas)</label><input type="number" id="simp-b" value="4" step="any"></div>
-          <div class="field span-2">
-            <label>n (jumlah subinterval, harus genap)</label>
-            <input type="number" id="simp-n" value="8" min="2" step="2">
-            <div class="hint">* n harus bilangan genap</div>
-          </div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveSimpson()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('simp')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="simp-err"></div>
-      <div class="result-box" id="simp-result"></div>
-    </div>
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent3);
+  box-shadow: 0 0 8px var(--accent3);
+  animation: pulse 2s infinite;
+}
 
-    <!-- ── EULER ── -->
-    <div id="panel-euler" class="panel" style="display:none">
-      <div class="panel-title">Metode Euler <span class="tag">ODE SOLVER</span></div>
-      <div class="panel-desc">Selesaikan persamaan diferensial biasa y'=f(x,y) secara numerik menggunakan metode Euler.</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>y' = f(x,y)</label>
-            <input type="text" id="eu-fxy" value="x + y">
-          </div>
-          <div class="field"><label>x₀</label><input type="number" id="eu-x0" value="0" step="any"></div>
-          <div class="field"><label>y₀</label><input type="number" id="eu-y0" value="1" step="any"></div>
-          <div class="field"><label>h / step size</label><input type="number" id="eu-h" value="0.1" step="any"></div>
-          <div class="field"><label>Jumlah langkah</label><input type="number" id="eu-steps" value="10" min="1" max="100"></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveEuler()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('eu')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="eu-err"></div>
-      <div class="result-box" id="eu-result"></div>
-    </div>
-  </main>
+@keyframes pulse {
 
-  <!-- HISTORY PANEL -->
-  <aside class="history-panel" id="historyPanel">
-    <div class="history-header">
-      <div class="history-title">// HISTORI</div>
-      <span class="history-count" id="hist-count">0</span>
-      <button class="close-history" id="closeHistory" type="button">×</button>
-    </div>
-    <div class="history-list" id="history-list">
-      <div class="history-empty"><span>🕒</span>Belum ada perhitungan</div>
-    </div>
-    <div style="padding:12px;border-top:1px solid var(--border)">
-      <button class="btn btn-danger" style="width:100%;font-size:10px" onclick="clearHistory()">🗑 HAPUS SEMUA HISTORI</button>
-    </div>
-  </aside>
-</div>
+  0%,
+  100% {
+    opacity: 1
+  }
 
-<!-- Overlay gelap -->
-<div class="mobile-overlay" id="mobileOverlay"></div>
+  50% {
+    opacity: 0.4
+  }
+}
 
-<!-- BOTTOM SHEET: Pilih Metode -->
-<div class="mobile-method-sheet" id="mobileMethodSheet" role="dialog" aria-modal="true">
-  <div class="mobile-method-sheet-header">
-    <div class="mobile-method-sheet-title">☰ Pilih Metode</div>
-    <button class="mobile-method-sheet-close" id="closeMethodSheet" type="button" aria-label="Tutup">×</button>
-  </div>
-  <div class="mobile-method-sheet-list">
-    <button class="method-choice" type="button" data-method="gauss-jordan">⊞ &nbsp;Gauss-Jordan</button>
-    <button class="method-choice" type="button" data-method="invers">A⁻¹ &nbsp;Invers Matriks</button>
-    <button class="method-choice" type="button" data-method="gauss-seidel">⟳ &nbsp;Gauss-Seidel</button>
-    <button class="method-choice" type="button" data-method="regula-falsi">⟨x⟩ &nbsp;Regula Falsi</button>
-    <button class="method-choice" type="button" data-method="newton-raphson">∂f &nbsp;Newton-Raphson</button>
-    <button class="method-choice" type="button" data-method="lagrange">Pₙ &nbsp;Interpolasi Lagrange</button>
-    <button class="method-choice" type="button" data-method="simpson">∫ &nbsp;Simpson 1/3</button>
-    <button class="method-choice" type="button" data-method="euler">dy &nbsp;Metode Euler</button>
-  </div>
-</div>
+/* MOBILE METHOD BUTTON + SHEET */
+.mobile-method-btn {
+  display: none;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+.mobile-method-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 15, 0.98);
+  border-top: 1px solid var(--border);
+  z-index: 1500;
+  transform: translateY(110%);
+  transition: transform 0.22s ease;
+  max-height: 75vh;
+  overflow: auto;
+}
+
+.mobile-method-sheet.open {
+  transform: translateY(0);
+}
+
+.mobile-method-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-method-sheet-title {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.mobile-method-sheet-close {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 26px;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.mobile-method-sheet-list {
+  padding: 10px 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.method-choice {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 16px 14px;
+  min-height: 56px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.method-choice:active {
+  transform: translateY(1px);
+}
+
+.method-choice:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* SIDEBAR */
+.sidebar {
+
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+  padding: 0;
+}
+
+.sidebar-header {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.sidebar-section {
+  padding: 12px 16px 4px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  min-height: 48px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 100%;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menu-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-left-color: var(--accent);
+}
+
+.menu-item.active {
+  background: rgba(124, 106, 255, 0.08);
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.menu-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--surface3);
+  flex-shrink: 0;
+}
+
+/* MAIN */
+.main {
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel {
+  /* display managed by JS */
+}
+
+.panel-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-title .tag {
+  font-size: 9px;
+  background: rgba(124, 106, 255, 0.1);
+  border: 1px solid rgba(124, 106, 255, 0.3);
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.panel-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.card-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-grid.cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.span-2 {
+  grid-column: span 2;
+}
+
+label {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+input,
+textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(124, 106, 255, 0.1);
+}
+
+.hint {
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+/* MATRIX */
+.matrix-container {
+  overflow-x: auto;
+}
+
+.matrix-grid {
+  display: inline-grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.matrix-cell {
+  width: 52px;
+  text-align: center;
+  padding: 6px 4px;
+}
+
+@media (max-width: 480px) {
+  .matrix-cell {
+    width: 44px;
+    font-size: 10px;
+  }
+}
+
+/* BUTTONS */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 10px 18px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #9080ff;
+}
+
+.btn-secondary {
+  background: var(--surface3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-danger {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+/* RESULT */
+.result-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 16px;
+  line-height: 1.8;
+  display: none;
+  overflow-x: auto;
+}
+
+/* make colored step/highlight text readable */
+.result-box td,
+.result-box th,
+.result-box .step-item {
+  color: var(--text);
+}
+
+.result-box.show {
+  display: block;
+}
+
+.result-header {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent3);
+  margin-bottom: 12px;
+}
+
+.result-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 8px 0;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.result-table th {
+  background: var(--surface3);
+  padding: 6px 8px;
+  text-align: left;
+  color: var(--text);
+}
+
+.result-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.step-item {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.step-num {
+  color: var(--accent);
+  min-width: 20px;
+}
+
+/* HISTORY PANEL */
+.history-panel {
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.history-header {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-title {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.history-count {
+  font-size: 10px;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.close-history {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.history-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.history-method {
+  font-size: 10px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.history-result {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.history-time {
+  font-size: 9px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.history-del {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.history-del:hover {
+  color: var(--error);
+}
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: var(--text-faint);
+  font-size: 11px;
+  gap: 8px;
+}
+
+.history-empty span {
+  font-size: 28px;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.welcome-icon {
+  font-size: 48px;
+}
+
+.welcome h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  color: var(--text-dim);
+}
+
+/* ERROR */
+.err-msg {
+  color: var(--error);
+  font-size: 11px;
+  padding: 8px 12px;
+  background: rgba(248, 113, 113, 0.08);
+  border-radius: 4px;
+  display: none;
+  margin-top: 8px;
+}
+
+.err-msg.show {
+  display: block;
+}
+
+/* MOBILE OVERLAY */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 998;
+  display: none;
+}
+
+.mobile-overlay.active {
+  display: block;
+}
+
+/* LAPTOP KECIL / LAYAR SEDANG */
+@media (max-width: 1280px) and (min-width: 901px) {
+  .layout {
+    grid-template-columns: 220px 1fr 260px;
+  }
+
+  .menu-item {
+    font-size: 10.5px;
+    padding: 9px 12px;
+  }
+
+  .menu-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+}
+
+/* TABLET (LANDSCAPE & PORTRAIT BESAR) */
+@media (max-width: 1024px) and (min-width: 901px) {
+  .layout {
+    grid-template-columns: 200px 1fr 240px;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .input-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-method-btn {
+    display: block;
+  }
+
+
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    width: min(280px, 82vw);
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+  }
+
+  /* Pastikan tombol close sidebar bisa diklik di layar sentuh */
+  .close-sidebar {
+    pointer-events: auto;
+    z-index: 1001;
+  }
+
+
+  .history-panel {
+    position: fixed;
+    right: -320px;
+    top: 0;
+    width: min(300px, 86vw);
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1000;
+    transition: right 0.3s ease;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .history-panel.open {
+    right: 0;
+  }
+
+  .close-history {
+    display: block;
+  }
+
+  .mobile-menu-btn,
+  .mobile-history-btn {
+    display: block;
+  }
+
+  .header-badge {
+    display: none;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .panel-title {
+    font-size: 16px;
+  }
+
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.span-2 {
+    grid-column: span 1;
+  }
+}
+
+/* TABLET PORTRAIT (mis. iPad portrait) — masih mode mobile-nav tapi grid 2 kolom */
+@media (max-width: 900px) and (min-width: 600px) {
+  .input-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .field.span-2 {
+    grid-column: span 2;
+  }
+
+  .main {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .mobile-method-btn {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 10px;
+  }
+
+  .result-table {
+    font-size: 9px;
+  }
+
+  .result-table th,
+  .result-table td {
+    padding: 4px 6px;
+  }
+
+  .btn-row {
+    gap: 8px;
+  }
+
+  .btn-row .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo {
+    font-size: 14px;
+  }
+
+  .header-status {
+    display: none;
+  }
+
+  .matrix-cell {
+    width: 38px;
+    font-size: 9px;
+    padding: 4px 2px;
+  }
+
+  .panel-title {
+    font-size: 15px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
