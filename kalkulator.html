@@ -26,6 +26,10 @@
         <span class="status-text">READY</span>
       </div>
       <button class="mobile-history-btn" id="mobileHistoryBtn" aria-label="Histori">📋</button>
+
+      <!-- MOBILE: PILIH METODE (alternatif lebih mudah di klik) -->
+      <button class="mobile-method-btn" id="mobileMethodBtn" aria-label="Pilih metode">☰ Pilih Metode</button>
+
     </header>
 
     <!-- SIDEBAR -->
@@ -34,32 +38,54 @@
         <span>MENU</span>
         <button class="close-sidebar" id="closeSidebar">×</button>
       </div>
-      <div class="sidebar-section">Sistem Persamaan</div>
-      <div class="menu-item t-gj" data-method="gauss-jordan">
-        <div class="menu-icon">⊞</div>Gauss-Jordan
-      </div>
-      <div class="menu-item t-inv" data-method="invers">
-        <div class="menu-icon">A⁻¹</div>Invers Matriks
-      </div>
-      <div class="sidebar-section" style="margin-top:8px">Akar Persamaan</div>
-      <div class="menu-item t-rf" data-method="regula-falsi">
-        <div class="menu-icon">⟨x⟩</div>Regula Falsi
-      </div>
-      <div class="menu-item t-nr" data-method="newton-raphson">
-        <div class="menu-icon">∂f</div>Newton-Raphson
-      </div>
-      <div class="sidebar-section" style="margin-top:8px">Interpolasi & Integrasi</div>
-      <div class="menu-item t-lag" data-method="lagrange">
-        <div class="menu-icon">Pₙ</div>Interpolasi Lagrange
-      </div>
-      <div class="menu-item t-simp" data-method="simpson">
-        <div class="menu-icon">∫</div>Simpson 1/3
-      </div>
-      <div class="sidebar-section" style="margin-top:8px">Persamaan Diferensial</div>
-      <div class="menu-item t-euler" data-method="euler">
-        <div class="menu-icon">dy</div>Metode Euler
-      </div>
+
+      <!-- SWITCH KE UL/LI + LINK (href="#") supaya bisa di-click lebih stabil di HP dan tetap bisa menuju menu (tanpa reload) -->
+      <ul class="sidebar-menu">
+        <li class="sidebar-section">Sistem Persamaan</li>
+        <li>
+          <a class="menu-item t-gj" href="#panel-gauss-jordan" data-method="gauss-jordan">
+            <div class="menu-icon">⊞</div>Gauss-Jordan
+          </a>
+        </li>
+        <li>
+          <a class="menu-item t-inv" href="#panel-invers" data-method="invers">
+            <div class="menu-icon">A⁻¹</div>Invers Matriks
+          </a>
+        </li>
+
+        <li class="sidebar-section" style="margin-top:8px">Akar Persamaan</li>
+        <li>
+          <a class="menu-item t-rf" href="#panel-regula-falsi" data-method="regula-falsi">
+            <div class="menu-icon">⟨x⟩</div>Regula Falsi
+          </a>
+        </li>
+        <li>
+          <a class="menu-item t-nr" href="#panel-newton-raphson" data-method="newton-raphson">
+            <div class="menu-icon">∂f</div>Newton-Raphson
+          </a>
+        </li>
+
+        <li class="sidebar-section" style="margin-top:8px">Interpolasi &amp; Integrasi</li>
+        <li>
+          <a class="menu-item t-lag" href="#panel-lagrange" data-method="lagrange">
+            <div class="menu-icon">Pₙ</div>Interpolasi Lagrange
+          </a>
+        </li>
+        <li>
+          <a class="menu-item t-simp" href="#panel-simpson" data-method="simpson">
+            <div class="menu-icon">∫</div>Simpson 1/3
+          </a>
+        </li>
+
+        <li class="sidebar-section" style="margin-top:8px">Persamaan Diferensial</li>
+        <li>
+          <a class="menu-item t-euler" href="#panel-euler" data-method="euler">
+            <div class="menu-icon">dy</div>Metode Euler
+          </a>
+        </li>
+      </ul>
     </aside>
+
 
     <!-- MAIN CONTENT -->
     <main class="main" id="main-content">
@@ -280,6 +306,25 @@
 
   <!-- Overlay untuk mobile -->
   <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- MOBILE: METODE SHEET -->
+  <div class="mobile-method-sheet" id="mobileMethodSheet" role="dialog" aria-modal="true">
+    <div class="mobile-method-sheet-header">
+      <div class="mobile-method-sheet-title">Pilih Metode</div>
+      <button class="mobile-method-sheet-close" id="closeMethodSheet" aria-label="Tutup">×</button>
+    </div>
+
+    <div class="mobile-method-sheet-list">
+      <button class="method-choice" type="button" data-method="gauss-jordan">Gauss-Jordan</button>
+      <button class="method-choice" type="button" data-method="invers">Invers Matriks</button>
+      <button class="method-choice" type="button" data-method="regula-falsi">Regula Falsi</button>
+      <button class="method-choice" type="button" data-method="newton-raphson">Newton-Raphson</button>
+      <button class="method-choice" type="button" data-method="lagrange">Interpolasi Lagrange</button>
+      <button class="method-choice" type="button" data-method="simpson">Simpson 1/3</button>
+      <button class="method-choice" type="button" data-method="euler">Metode Euler</button>
+    </div>
+  </div>
+
 
   <script src="script.js"></script>
 </body>
