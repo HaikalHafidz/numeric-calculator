@@ -142,7 +142,21 @@ function fmtDec(n, d = 6) {
 // PANEL NAVIGATION
 let currentPanel = null;
 
+function selectMethod(methodId) {
+  // panggil panel
+  showPanel(methodId);
+
+  // tutup sheet jika terbuka
+  const sheet = document.getElementById('mobileMethodSheet');
+  if (sheet) sheet.classList.remove('open');
+
+  // matikan overlay (agar tidak mengganggu klik berikutnya)
+  closeMobileSidebar();
+  closeMobileHistory();
+}
+
 function showPanel(id) {
+
   console.log('showPanel dipanggil dengan id:', id);
 
   // Sembunyikan welcome screen
@@ -828,6 +842,10 @@ function initMobile() {
 
   // Tombol menu mobile
   const menuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMethodBtn = document.getElementById('mobileMethodBtn');
+  const closeMethodSheetBtn = document.getElementById('closeMethodSheet');
+  const methodSheet = document.getElementById('mobileMethodSheet');
+
   const historyBtn = document.getElementById('mobileHistoryBtn');
   const closeSidebarBtn = document.getElementById('closeSidebar');
   const closeHistoryBtn = document.getElementById('closeHistory');
@@ -846,6 +864,45 @@ function initMobile() {
       openMobileSidebar();
     });
   }
+
+  // MOBILE: open/close sheet metode (hit-area besar dan stabil)
+  if (mobileMethodBtn && methodSheet) {
+    const openSheet = (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      methodSheet.classList.add('open');
+    };
+    mobileMethodBtn.addEventListener('click', openSheet);
+    mobileMethodBtn.addEventListener('pointerdown', openSheet);
+    mobileMethodBtn.addEventListener('touchstart', openSheet, { passive: false });
+  }
+
+  if (closeMethodSheetBtn) {
+    const closeSheet = (e) => {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const sheet = document.getElementById('mobileMethodSheet');
+      if (sheet) sheet.classList.remove('open');
+    };
+    closeMethodSheetBtn.addEventListener('click', closeSheet);
+    closeMethodSheetBtn.addEventListener('pointerdown', closeSheet);
+    closeMethodSheetBtn.addEventListener('touchstart', closeSheet, { passive: false });
+  }
+
+  if (methodSheet) {
+    // klik item metode via delegasi
+    const onChoice = (e) => {
+      const btn = e.target.closest('.method-choice');
+      if (!btn) return;
+      const methodId = btn.getAttribute('data-method');
+      if (!methodId) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectMethod(methodId);
+    };
+    methodSheet.addEventListener('pointerdown', onChoice);
+    methodSheet.addEventListener('touchstart', onChoice, { passive: false });
+    methodSheet.addEventListener('click', onChoice);
+  }
+
 
   if (historyBtn) {
     historyBtn.addEventListener('click', function (e) {
@@ -969,3 +1026,4 @@ window.buildLagrangePoints = buildLagrangePoints;
 window.clearResult = clearResult;
 window.deleteHistory = deleteHistory;
 window.clearHistory = clearHistory;
+window.selectMethod = selectMethod;
