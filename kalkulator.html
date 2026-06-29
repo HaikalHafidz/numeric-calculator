@@ -1,328 +1,351 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0f">
   <title>NumCalc - Kalkulator Metode Numerik</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="layout">
-  <header>
-    <div class="logo">Num<span>Calc</span></div>
-    <div class="header-badge">METODE NUMERIK</div>
-    <a href="index.html" class="header-back-link" title="Kembali ke Materi">📘 Materi</a>
-    <div class="header-status">
-      <div class="status-dot"></div>
-      <span class="status-text">READY</span>
-    </div>
-    <button class="mobile-history-btn" id="mobileHistoryBtn" aria-label="Histori">📋</button>
-  </header>
+  <div class="layout">
+    <header>
+      <div class="logo">Num<span>Calc</span></div>
+      <div class="header-badge">METODE NUMERIK</div>
+      <a href="index.html" class="header-back-link" title="Kembali ke Materi">📘 Materi</a>
+      <div class="header-status">
+        <div class="status-dot"></div>
+        <span class="status-text">READY</span>
+      </div>
+      <button class="mobile-history-btn" id="mobileHistoryBtn" aria-label="Histori">📋</button>
+    </header>
 
-  <!-- ====== NAVIGATION MENU ====== -->
-  <nav class="sidebar" id="sidebar" aria-label="Menu metode">
-    <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu">
-      <span class="nav-toggle-icon">☰</span>
-      <span class="nav-toggle-label">Pilih Metode</span>
-      <span class="nav-toggle-chevron" aria-hidden="true">▾</span>
-    </button>
+    <!-- ====== NAVIGATION MENU ====== -->
+    <nav class="sidebar" id="sidebar" aria-label="Menu metode">
+      <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu">
+        <span class="nav-toggle-icon">☰</span>
+        <span class="nav-toggle-label">Pilih Metode</span>
+        <span class="nav-toggle-chevron" aria-hidden="true">▾</span>
+      </button>
 
-    <div class="nav-menu" id="navMenu" role="list">
-      <li class="nav-group-label">Sistem Persamaan</li>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#panel-gauss-jordan" class="nav-link t-gj" data-method="gauss-jordan" role="button" tabindex="0">
-            <span class="nav-icon">⊞</span>
-            <span class="nav-text">Gauss-Jordan</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#panel-invers" class="nav-link t-inv" data-method="invers" role="button" tabindex="0">
-            <span class="nav-icon">A⁻¹</span>
-            <span class="nav-text">Invers Matriks</span>
-          </a>
-        </li>
-      </ul>
+      <div class="nav-menu" id="navMenu" role="list">
+        <li class="nav-group-label">Sistem Persamaan</li>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#panel-gauss-jordan" class="nav-link t-gj" data-method="gauss-jordan" role="button" tabindex="0">
+              <span class="nav-icon">⊞</span>
+              <span class="nav-text">Gauss-Jordan</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#panel-invers" class="nav-link t-inv" data-method="invers" role="button" tabindex="0">
+              <span class="nav-icon">A⁻¹</span>
+              <span class="nav-text">Invers Matriks</span>
+            </a>
+          </li>
+        </ul>
 
-      <li class="nav-group-label" style="margin-top:6px">Akar Persamaan</li>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#panel-regula-falsi" class="nav-link t-rf" data-method="regula-falsi" role="button" tabindex="0">
-            <span class="nav-icon">⟨x⟩</span>
-            <span class="nav-text">Regula Falsi</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#panel-newton-raphson" class="nav-link t-nr" data-method="newton-raphson" role="button" tabindex="0">
-            <span class="nav-icon">∂f</span>
-            <span class="nav-text">Newton-Raphson</span>
-          </a>
-        </li>
-      </ul>
-      <li class="nav-group-label" style="margin-top:6px">Interpolasi &amp; Integrasi</li>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#panel-lagrange" class="nav-link t-lag" data-method="lagrange" role="button" tabindex="0">
-            <span class="nav-icon">Pₙ</span>
-            <span class="nav-text">Interpolasi Lagrange</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#panel-simpson" class="nav-link t-simp" data-method="simpson" role="button" tabindex="0">
-            <span class="nav-icon">∫</span>
-            <span class="nav-text">Simpson 1/3</span>
-          </a>
-        </li>
-      </ul>
+        <li class="nav-group-label" style="margin-top:6px">Akar Persamaan</li>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#panel-regula-falsi" class="nav-link t-rf" data-method="regula-falsi" role="button" tabindex="0">
+              <span class="nav-icon">⟨x⟩</span>
+              <span class="nav-text">Regula Falsi</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#panel-newton-raphson" class="nav-link t-nr" data-method="newton-raphson" role="button"
+              tabindex="0">
+              <span class="nav-icon">∂f</span>
+              <span class="nav-text">Newton-Raphson</span>
+            </a>
+          </li>
+        </ul>
+        <li class="nav-group-label" style="margin-top:6px">Interpolasi &amp; Integrasi</li>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#panel-lagrange" class="nav-link t-lag" data-method="lagrange" role="button" tabindex="0">
+              <span class="nav-icon">Pₙ</span>
+              <span class="nav-text">Interpolasi Lagrange</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#panel-simpson" class="nav-link t-simp" data-method="simpson" role="button" tabindex="0">
+              <span class="nav-icon">∫</span>
+              <span class="nav-text">Simpson 1/3</span>
+            </a>
+          </li>
+        </ul>
 
-      <li class="nav-group-label" style="margin-top:6px">Persamaan Diferensial</li>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#panel-euler" class="nav-link t-euler" data-method="euler" role="button" tabindex="0">
-            <span class="nav-icon">dy</span>
-            <span class="nav-text">Metode Euler</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+        <li class="nav-group-label" style="margin-top:6px">Persamaan Diferensial</li>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#panel-euler" class="nav-link t-euler" data-method="euler" role="button" tabindex="0">
+              <span class="nav-icon">dy</span>
+              <span class="nav-text">Metode Euler</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
-  <!-- ====== MAIN CONTENT ====== -->
-  <main class="main" id="main-content">
-    <div class="welcome" id="welcome-screen">
-      <div class="welcome-icon">⚙️</div>
-      <h2>Pilih Metode</h2>
-      <p>Pilih salah satu metode numerik di menu untuk memulai perhitungan.</p>
-    </div>
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="main" id="main-content">
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-icon">⚙️</div>
+        <h2>Pilih Metode</h2>
+        <p>Pilih salah satu metode numerik di menu untuk memulai perhitungan.</p>
+      </div>
 
-    <!-- ===== GAUSS-JORDAN ===== -->
-    <div id="panel-gauss-jordan" class="panel" style="display:none">
-      <div class="panel-title">Gauss-Jordan <span class="tag t-gj">RREF</span></div>
-      <div class="panel-desc">Selesaikan sistem persamaan linear Ax = b menggunakan eliminasi Gauss-Jordan (Reduced Row Echelon Form).</div>
-      <div class="card">
-        <div class="card-title">INPUT</div>
-        <div class="input-grid cols-1">
-          <div class="field">
-            <label>Ukuran matriks n×n (jumlah persamaan & variabel)</label>
-            <input type="number" id="gj-n" value="3" min="2" max="6" onchange="buildGJMatrix()">
-          </div>
-        </div>
-        <div style="margin-top:16px">
-          <div class="gj-matrix-layout">
-            <!-- Kolom kiri: matriks koefisien A -->
-            <div class="gj-matrix-section">
-              <div class="gj-matrix-label">Matriks Koefisien [A]</div>
-              <div class="matrix-container">
-                <div id="gj-matrix-A" class="matrix-grid"></div>
-              </div>
-            </div>
-            <!-- Tanda sama dengan -->
-            <div class="gj-eq-sign">=</div>
-            <!-- Kolom kanan: vektor konstanta b -->
-            <div class="gj-matrix-section">
-              <div class="gj-matrix-label">Konstanta [b]</div>
-              <div class="matrix-container">
-                <div id="gj-matrix-b" class="matrix-grid"></div>
-              </div>
+      <!-- ===== GAUSS-JORDAN ===== -->
+      <div id="panel-gauss-jordan" class="panel" style="display:none">
+        <div class="panel-title">Gauss-Jordan <span class="tag t-gj">RREF</span></div>
+        <div class="panel-desc">Selesaikan sistem persamaan linear Ax = b menggunakan eliminasi Gauss-Jordan (Reduced
+          Row Echelon Form).</div>
+        <div class="card">
+          <div class="card-title">INPUT</div>
+          <div class="input-grid cols-1">
+            <div class="field">
+              <label>Ukuran matriks n×n (jumlah persamaan & variabel)</label>
+              <input type="number" id="gj-n" value="3" min="2" max="6" onchange="buildGJMatrix()">
             </div>
           </div>
-          <div class="hint" style="margin-top:8px">* Masukkan koefisien matriks A (kiri) dan konstanta b (kanan) secara terpisah</div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveGaussJordan()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildGJMatrix()">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="gj-err"></div>
-      <div class="result-box" id="gj-result"></div>
-    </div>
-
-    <!-- ===== INVERS MATRIKS ===== -->
-    <div id="panel-invers" class="panel" style="display:none">
-      <div class="panel-title">Invers Matriks <span class="tag t-inv">A⁻¹</span></div>
-      <div class="panel-desc">Hitung invers matriks A menggunakan metode Gauss-Jordan dengan matriks identitas [A | I] → [I | A⁻¹].</div>
-      <div class="card">
-        <div class="card-title">INPUT</div>
-        <div class="input-grid cols-1">
-          <div class="field">
-            <label>Ukuran matriks n×n</label>
-            <input type="number" id="inv-n" value="3" min="1" max="5" onchange="buildMatrix('inv')">
+          <div style="margin-top:16px">
+            <div class="gj-matrix-layout">
+              <!-- Kolom kiri: matriks koefisien A -->
+              <div class="gj-matrix-section">
+                <div class="gj-matrix-label">Matriks Koefisien [A]</div>
+                <div class="matrix-container">
+                  <div id="gj-matrix-A" class="matrix-grid"></div>
+                </div>
+              </div>
+              <!-- Tanda sama dengan -->
+              <div class="gj-eq-sign">=</div>
+              <!-- Kolom kanan: vektor konstanta b -->
+              <div class="gj-matrix-section">
+                <div class="gj-matrix-label">Konstanta [b]</div>
+                <div class="matrix-container">
+                  <div id="gj-matrix-b" class="matrix-grid"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hint" style="margin-top:8px">* Masukkan koefisien matriks A (kiri) dan konstanta b (kanan)
+              secara terpisah</div>
           </div>
         </div>
-        <div style="margin-top:12px">
-          <label style="font-size:10px;color:var(--text-dim)">Matriks A</label>
-          <div class="matrix-container">
-            <div id="inv-matrix" class="matrix-grid"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveGaussJordan()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="buildGJMatrix()">↺ Reset</button>
+        </div>
+        <div class="err-msg" id="gj-err"></div>
+        <div class="result-box" id="gj-result"></div>
+      </div>
+
+      <!-- ===== INVERS MATRIKS ===== -->
+      <div id="panel-invers" class="panel" style="display:none">
+        <div class="panel-title">Invers Matriks <span class="tag t-inv">A⁻¹</span></div>
+        <div class="panel-desc">Hitung invers matriks A menggunakan metode Gauss-Jordan dengan matriks identitas [A | I]
+          → [I | A⁻¹].</div>
+        <div class="card">
+          <div class="card-title">INPUT</div>
+          <div class="input-grid cols-1">
+            <div class="field">
+              <label>Ukuran matriks n×n</label>
+              <input type="number" id="inv-n" value="3" min="1" max="5" onchange="buildMatrix('inv')">
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <label style="font-size:10px;color:var(--text-dim)">Matriks A</label>
+            <div class="matrix-container">
+              <div id="inv-matrix" class="matrix-grid"></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveInvers()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildMatrix('inv')">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="inv-err"></div>
-      <div class="result-box" id="inv-result"></div>
-    </div>
-
-    <!-- ===== REGULA FALSI ===== -->
-    <div id="panel-regula-falsi" class="panel" style="display:none">
-      <div class="panel-title">Regula Falsi <span class="tag t-rf">ROOT FINDING</span></div>
-      <div class="panel-desc">Cari akar persamaan f(x)=0 pada interval [a,b]. Metode posisi palsu — gabungan biseksi dan interpolasi linear.</div>
-      <div class="card">
-        <div class="card-title">INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x) — gunakan: ^ untuk pangkat, sin/cos/tan/sqrt/log/exp, konstanta pi/e</label>
-            <input type="text" id="rf-fx" placeholder="x^3 - x - 2" value="x^3 - x - 2">
-          </div>
-          <div class="field"><label>a (batas kiri)</label><input type="number" id="rf-a" value="1" step="any"></div>
-          <div class="field"><label>b (batas kanan)</label><input type="number" id="rf-b" value="2" step="any"></div>
-          <div class="field"><label>Toleransi (ε)</label><input type="number" id="rf-tol" value="0.0001" step="any" placeholder="0.0001"></div>
-          <div class="field"><label>Maks. Iterasi</label><input type="number" id="rf-iter" value="100" min="1"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveInvers()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="buildMatrix('inv')">↺ Reset</button>
         </div>
+        <div class="err-msg" id="inv-err"></div>
+        <div class="result-box" id="inv-result"></div>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveRegulaFalsi()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('rf')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="rf-err"></div>
-      <div class="result-box" id="rf-result"></div>
-    </div>
 
-    <!-- ===== NEWTON-RAPHSON ===== -->
-    <div id="panel-newton-raphson" class="panel" style="display:none">
-      <div class="panel-title">Newton-Raphson <span class="tag t-nr">DERIVATIVE</span></div>
-      <div class="panel-desc">Cari akar persamaan menggunakan metode iterasi turunan dengan konvergensi kuadratik. Rumus: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x)</label>
-            <input type="text" id="nr-fx" placeholder="x^3 - x - 2" value="x^3 - x - 2">
-          </div>
-          <div class="field span-2">
-            <label>f′(x) — turunan pertama f(x)</label>
-            <input type="text" id="nr-dfx" placeholder="3x^2 - 1" value="3x^2 - 1">
-          </div>
-          <div class="field"><label>x₀ (tebakan awal)</label><input type="number" id="nr-x0" value="1.5" step="any"></div>
-          <div class="field"><label>Toleransi (ε)</label><input type="number" id="nr-tol" value="0.0001" step="any"></div>
-          <div class="field"><label>Maks. Iterasi</label><input type="number" id="nr-iter" value="50" min="1"></div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveNewtonRaphson()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('nr')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="nr-err"></div>
-      <div class="result-box" id="nr-result"></div>
-    </div>
+      <!-- ===== REGULA FALSI ===== -->
+      <div id="panel-regula-falsi" class="panel" style="display:none">
+        <div class="panel-title">Regula Falsi <span class="tag t-rf">ROOT FINDING</span></div>
+        <div class="panel-desc">Cari akar persamaan f(x)=0 pada interval [a,b]. Metode posisi palsu — gabungan biseksi
+          dan interpolasi linear.</div>
+        <div class="card">
+          <div class="card-title">INPUT</div>
+          <div class="input-grid">
+            <div class="field span-2">
+              <label>f(x) — gunakan: ^ untuk pangkat, sin/cos/tan/sqrt/log/exp, konstanta pi/e</label>
+              <input type="text" id="rf-fx" placeholder="x^3 - x - 2" value="x^3 - x - 2">
+            </div>
+            <div class="field"><label>a (batas kiri)</label><input type="number" id="rf-a" value="1" step="any"></div>
+            <div class="field"><label>b (batas kanan)</label><input type="number" id="rf-b" value="2" step="any"></div>
+            <div class="field"><label>Maks. Iterasi</label><input type="number" id="rf-iter" value="100" min="1"></div>
 
-    <!-- ===== LAGRANGE ===== -->
-    <div id="panel-lagrange" class="panel" style="display:none">
-      <div class="panel-title">Interpolasi Lagrange <span class="tag t-lag">POLYNOMIAL</span></div>
-      <div class="panel-desc">Hitung nilai interpolasi P(x) menggunakan polinom Lagrange dari sekumpulan titik data (xᵢ, yᵢ).</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field">
-            <label>Jumlah titik data (n)</label>
-            <input type="number" id="lag-n" value="4" min="2" max="10" onchange="buildLagrangePoints()">
-          </div>
-          <div class="field">
-            <label>x yang dicari (x taksir)</label>
-            <input type="number" id="lag-xt" value="2.5" step="any">
           </div>
         </div>
-        <div style="margin-top:12px" id="lag-points-container"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveRegulaFalsi()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="clearResult('rf')">↺ Clear</button>
+        </div>
+        <div class="err-msg" id="rf-err"></div>
+        <div class="result-box" id="rf-result"></div>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveLagrange()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="buildLagrangePoints()">↺ Reset</button>
-      </div>
-      <div class="err-msg" id="lag-err"></div>
-      <div class="result-box" id="lag-result"></div>
-    </div>
 
-    <!-- ===== SIMPSON 1/3 ===== -->
-    <div id="panel-simpson" class="panel" style="display:none">
-      <div class="panel-title">Simpson 1/3 <span class="tag t-simp">INTEGRATION</span></div>
-      <div class="panel-desc">Hitung nilai integral ∫f(x)dx dari a ke b menggunakan aturan Simpson 1/3 komposit. Rumus: I = (h/3)[f(x₀) + 4f(x₁) + 2f(x₂) + … + f(xₙ)]</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>f(x)</label>
-            <input type="text" id="simp-fx" placeholder="x^2 + 2x + 1" value="x^2 + 2x + 1">
-          </div>
-          <div class="field"><label>a (batas bawah)</label><input type="number" id="simp-a" value="0" step="any"></div>
-          <div class="field"><label>b (batas atas)</label><input type="number" id="simp-b" value="4" step="any"></div>
-          <div class="field span-2">
-            <label>n (jumlah subinterval — harus bilangan genap)</label>
-            <input type="number" id="simp-n" value="8" min="2" step="2">
-            <div class="hint">* Jika n ganjil akan otomatis dinaikkan 1</div>
+      <!-- ===== NEWTON-RAPHSON ===== -->
+      <div id="panel-newton-raphson" class="panel" style="display:none">
+        <div class="panel-title">Newton-Raphson <span class="tag t-nr">DERIVATIVE</span></div>
+        <div class="panel-desc">Cari akar persamaan menggunakan metode iterasi turunan dengan konvergensi kuadratik.
+          Rumus: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</div>
+        <div class="card">
+          <div class="card-title">// INPUT</div>
+          <div class="input-grid">
+            <div class="field span-2">
+              <label>f(x)</label>
+              <input type="text" id="nr-fx" placeholder="x^3 - x - 2" value="x^3 - x - 2">
+            </div>
+            <div class="field span-2">
+              <label>f′(x) — turunan pertama f(x)</label>
+              <input type="text" id="nr-dfx" placeholder="3x^2 - 1" value="3x^2 - 1">
+            </div>
+            <div class="field"><label>x₀ (tebakan awal)</label><input type="number" id="nr-x0" value="1.5" step="any">
+            </div>
+            <div class="field"><label>Toleransi (ε)</label><input type="number" id="nr-tol" value="0.0001" step="any">
+            </div>
+            <div class="field"><label>Maks. Iterasi</label><input type="number" id="nr-iter" value="50" min="1"></div>
           </div>
         </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveSimpson()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('simp')">↺ Clear</button>
-      </div>
-      <div class="err-msg" id="simp-err"></div>
-      <div class="result-box" id="simp-result"></div>
-    </div>
-
-    <!-- ===== METODE EULER ===== -->
-    <div id="panel-euler" class="panel" style="display:none">
-      <div class="panel-title">Metode Euler <span class="tag t-euler">ODE SOLVER</span></div>
-      <div class="panel-desc">Selesaikan persamaan diferensial biasa y′ = f(x,y) secara numerik. Rumus: yₙ₊₁ = yₙ + h · f(xₙ, yₙ).</div>
-      <div class="card">
-        <div class="card-title">// INPUT</div>
-        <div class="input-grid">
-          <div class="field span-2">
-            <label>y′ = f(x, y) — fungsi turunan</label>
-            <input type="text" id="eu-fxy" placeholder="x + y" value="x + y">
-          </div>
-          <div class="field"><label>x₀ (nilai awal x)</label><input type="number" id="eu-x0" value="0" step="any"></div>
-          <div class="field"><label>y₀ (nilai awal y)</label><input type="number" id="eu-y0" value="1" step="any"></div>
-          <div class="field"><label>h (ukuran langkah / step size)</label><input type="number" id="eu-h" value="0.1" step="any"></div>
-          <div class="field"><label>x akhir (xₙ yang dituju)</label><input type="number" id="eu-xn" value="1" step="any"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveNewtonRaphson()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="clearResult('nr')">↺ Clear</button>
         </div>
-        <div class="hint" style="margin-top:8px">* Jumlah langkah dihitung otomatis: n = (xₙ − x₀) / h</div>
+        <div class="err-msg" id="nr-err"></div>
+        <div class="result-box" id="nr-result"></div>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="solveEuler()">▶ HITUNG</button>
-        <button class="btn btn-secondary" onclick="clearResult('eu')">↺ Clear</button>
+
+      <!-- ===== LAGRANGE ===== -->
+      <div id="panel-lagrange" class="panel" style="display:none">
+        <div class="panel-title">Interpolasi Lagrange <span class="tag t-lag">POLYNOMIAL</span></div>
+        <div class="panel-desc">Hitung nilai interpolasi P(x) menggunakan polinom Lagrange dari sekumpulan titik data
+          (xᵢ, yᵢ).</div>
+        <div class="card">
+          <div class="card-title">// INPUT</div>
+          <div class="input-grid">
+            <div class="field">
+              <label>Jumlah titik data (n)</label>
+              <input type="number" id="lag-n" value="4" min="2" max="10" onchange="buildLagrangePoints()">
+            </div>
+            <div class="field">
+              <label>x yang dicari (x taksir)</label>
+              <input type="number" id="lag-xt" value="2.5" step="any">
+            </div>
+          </div>
+          <div style="margin-top:12px" id="lag-points-container"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveLagrange()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="buildLagrangePoints()">↺ Reset</button>
+        </div>
+        <div class="err-msg" id="lag-err"></div>
+        <div class="result-box" id="lag-result"></div>
       </div>
-      <div class="err-msg" id="eu-err"></div>
-      <div class="result-box" id="eu-result"></div>
-    </div>
 
-  </main>
-
-  <!-- HISTORY PANEL -->
-  <aside class="history-panel" id="historyPanel">
-    <div class="history-header">
-      <div class="history-title">HISTORI</div>
-      <span class="history-count" id="hist-count">0</span>
-      <button class="close-history" id="closeHistory">×</button>
-    </div>
-    <div class="history-list" id="history-list">
-      <div class="history-empty">
-        <span>🕒</span>
-        Belum ada perhitungan
+      <!-- ===== SIMPSON 1/3 ===== -->
+      <div id="panel-simpson" class="panel" style="display:none">
+        <div class="panel-title">Simpson 1/3 <span class="tag t-simp">INTEGRATION</span></div>
+        <div class="panel-desc">Hitung nilai integral ∫f(x)dx dari a ke b menggunakan aturan Simpson 1/3 komposit.
+          Rumus: I = (h/3)[f(x₀) + 4f(x₁) + 2f(x₂) + … + f(xₙ)]</div>
+        <div class="card">
+          <div class="card-title">// INPUT</div>
+          <div class="input-grid">
+            <div class="field span-2">
+              <label>f(x)</label>
+              <input type="text" id="simp-fx" placeholder="x^2 + 2x + 1" value="x^2 + 2x + 1">
+            </div>
+            <div class="field"><label>a (batas bawah)</label><input type="number" id="simp-a" value="0" step="any">
+            </div>
+            <div class="field"><label>b (batas atas)</label><input type="number" id="simp-b" value="4" step="any"></div>
+            <div class="field span-2">
+              <label>n (jumlah subinterval — harus bilangan genap)</label>
+              <input type="number" id="simp-n" value="8" min="2" step="2">
+              <div class="hint">* Jika n ganjil akan otomatis dinaikkan 1</div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveSimpson()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="clearResult('simp')">↺ Clear</button>
+        </div>
+        <div class="err-msg" id="simp-err"></div>
+        <div class="result-box" id="simp-result"></div>
       </div>
-    </div>
-    <div style="padding:12px;border-top:1px solid var(--border)">
-      <button class="btn btn-danger" style="width:100%;font-size:10px" onclick="clearHistory()">🗑 HAPUS SEMUA HISTORI</button>
-    </div>
-  </aside>
-</div>
 
-<div class="mobile-overlay" id="mobileOverlay"></div>
+      <!-- ===== METODE EULER ===== -->
+      <div id="panel-euler" class="panel" style="display:none">
+        <div class="panel-title">Metode Euler <span class="tag t-euler">ODE SOLVER</span></div>
+        <div class="panel-desc">Selesaikan persamaan diferensial biasa y′ = f(x,y) secara numerik. Rumus: yₙ₊₁ = yₙ + h
+          · f(xₙ, yₙ).</div>
+        <div class="card">
+          <div class="card-title">// INPUT</div>
+          <div class="input-grid">
+            <div class="field span-2">
+              <label>y′ = f(x, y) — fungsi turunan</label>
+              <input type="text" id="eu-fxy" placeholder="x + y" value="x + y">
+            </div>
+            <div class="field"><label>x₀ (nilai awal x)</label><input type="number" id="eu-x0" value="0" step="any">
+            </div>
+            <div class="field"><label>y₀ (nilai awal y)</label><input type="number" id="eu-y0" value="1" step="any">
+            </div>
+            <div class="field"><label>h (ukuran langkah / step size)</label><input type="number" id="eu-h" value="0.1"
+                step="any"></div>
+            <div class="field"><label>x akhir (xₙ yang dituju)</label><input type="number" id="eu-xn" value="1"
+                step="any"></div>
+          </div>
+          <div class="hint" style="margin-top:8px">* Jumlah langkah dihitung otomatis: n = (xₙ − x₀) / h</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="solveEuler()">▶ HITUNG</button>
+          <button class="btn btn-secondary" onclick="clearResult('eu')">↺ Clear</button>
+        </div>
+        <div class="err-msg" id="eu-err"></div>
+        <div class="result-box" id="eu-result"></div>
+      </div>
 
-<script src="script.js"></script>
+    </main>
+
+    <!-- HISTORY PANEL -->
+    <aside class="history-panel" id="historyPanel">
+      <div class="history-header">
+        <div class="history-title">HISTORI</div>
+        <span class="history-count" id="hist-count">0</span>
+        <button class="close-history" id="closeHistory">×</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-empty">
+          <span>🕒</span>
+          Belum ada perhitungan
+        </div>
+      </div>
+      <div style="padding:12px;border-top:1px solid var(--border)">
+        <button class="btn btn-danger" style="width:100%;font-size:10px" onclick="clearHistory()">🗑 HAPUS SEMUA
+          HISTORI</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <script src="script.js"></script>
 </body>
+
 </html>
