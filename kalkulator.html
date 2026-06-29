@@ -190,8 +190,7 @@
             </div>
             <div class="field"><label>a (batas kiri)</label><input type="number" id="rf-a" value="1" step="any"></div>
             <div class="field"><label>b (batas kanan)</label><input type="number" id="rf-b" value="2" step="any"></div>
-            <div class="field"><label>Maks. Iterasi</label><input type="number" id="rf-iter" value="100" min="1"></div>
-
+            <div class="field"><label>Iterasi maksimum (otomatis)</label><div class="hint">Iterasi dihentikan berdasarkan jumlah iterasi sistem (tanpa input)</div></div>
           </div>
         </div>
         <div class="btn-row">
@@ -208,7 +207,7 @@
         <div class="panel-desc">Cari akar persamaan menggunakan metode iterasi turunan dengan konvergensi kuadratik.
           Rumus: xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ)</div>
         <div class="card">
-          <div class="card-title">// INPUT</div>
+          <div class="card-title">INPUT</div>
           <div class="input-grid">
             <div class="field span-2">
               <label>f(x)</label>
@@ -239,7 +238,7 @@
         <div class="panel-desc">Hitung nilai interpolasi P(x) menggunakan polinom Lagrange dari sekumpulan titik data
           (xᵢ, yᵢ).</div>
         <div class="card">
-          <div class="card-title">// INPUT</div>
+          <div class="card-title">INPUT</div>
           <div class="input-grid">
             <div class="field">
               <label>Jumlah titik data (n)</label>
@@ -266,7 +265,7 @@
         <div class="panel-desc">Hitung nilai integral ∫f(x)dx dari a ke b menggunakan aturan Simpson 1/3 komposit.
           Rumus: I = (h/3)[f(x₀) + 4f(x₁) + 2f(x₂) + … + f(xₙ)]</div>
         <div class="card">
-          <div class="card-title">// INPUT</div>
+          <div class="card-title">INPUT</div>
           <div class="input-grid">
             <div class="field span-2">
               <label>f(x)</label>
@@ -296,7 +295,7 @@
         <div class="panel-desc">Selesaikan persamaan diferensial biasa y′ = f(x,y) secara numerik. Rumus: yₙ₊₁ = yₙ + h
           · f(xₙ, yₙ).</div>
         <div class="card">
-          <div class="card-title">// INPUT</div>
+          <div class="card-title">INPUT</div>
           <div class="input-grid">
             <div class="field span-2">
               <label>y′ = f(x, y) — fungsi turunan</label>
