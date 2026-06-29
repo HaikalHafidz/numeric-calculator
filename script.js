@@ -274,12 +274,13 @@ function varName(i, n) {
 
 /** Helper: render matriks augmented sebagai tabel HTML */
 function matrixToTable(M, n, isAugmented) {
+  // isAugmented: menandakan M berisi [A | b] (kolom terakhir adalah konstanta)
   let html = '<table class="result-table" style="margin:4px 0"><tbody>';
   for (let i = 0; i < M.length; i++) {
     html += '<tr>';
     for (let j = 0; j < M[i].length; j++) {
-      const isB = isAugmented && j === n;
-      html += `<td style="${isB ? 'border-left:2px solid var(--border);color:var(--accent3);' : ''}text-align:right;min-width:52px">${fmtDec(M[i][j], 4)}</td>`;
+      const isConst = isAugmented && j === n; // kolom konstanta (b)
+      html += `<td style="${isConst ? 'border-left:2px solid var(--border);color:var(--accent3);' : ''}text-align:right;min-width:52px">${fmtDec(M[i][j], 4)}</td>`;
     }
     html += '</tr>';
   }
@@ -337,31 +338,46 @@ function solveGaussJordan() {
       return;
     }
 
-    // Normalisasi baris pivot: bagi dengan elemen pivot → pivot = 1
+    // Integer-only steps (tanpa normalisasi pivot / tanpa pecahan desimal pada label)
+    // Kita gunakan eliminasi eliminasi bilangan bulat berbentuk:
+    //   R_i ← R_i - m * R_k, dengan m = round(M[i][k] / M[k][k])
+    // Catatan: ini mengasumsikan input integer dan pivot tidak terlalu kecil.
+
     const piv = M[k][k];
-    if (Math.abs(piv - 1) > 1e-12) {
-      for (let j = 0; j <= n; j++) M[k][j] /= piv;
-      stepLog.push({
-        label: `Normalisasi pivot: R${k + 1} ÷ (${fmtDec(piv, 4)}) → pivot = 1`,
-        matrix: M.map(r => [...r])
-      });
+    if (Math.abs(piv) < 1e-12) {
+      showErr('gj', 'Pivot terlalu kecil (≈0). Untuk integer murni, pilih matriks/pivot yang valid.');
+      return;
     }
 
-    // Eliminasi semua baris lain di kolom k → nolkan
     for (let i = 0; i < n; i++) {
-      if (i !== k && Math.abs(M[i][k]) > 1e-15) {
-        const f = M[i][k];
-        for (let j = 0; j <= n; j++) M[i][j] -= f * M[k][j];
-        stepLog.push({
-          label: `Eliminasi: R${i + 1} ← R${i + 1} − (${fmtDec(f, 4)}) × R${k + 1}`,
-          matrix: M.map(r => [...r])
-        });
+      if (i === k) continue;
+      const mik = M[i][k];
+      if (Math.abs(mik) < 1e-15) continue;
+
+      // Hitung m sebagai bilangan bulat terdekat
+      const m = Math.round(mik / piv);
+      if (m === 0) continue;
+
+      // Update baris dengan integer math (murni)
+      for (let j = 0; j <= n; j++) {
+        M[i][j] = M[i][j] - m * M[k][j];
       }
+
+      stepLog.push({
+        label: `Eliminasi: R${i + 1} = R${i + 1} − ${m}·R${k + 1}`,
+        matrix: M.map(r => [...r])
+      });
     }
   }
 
   // Solusi: kolom terakhir setelah RREF
   const sol = M.map(row => row[n]);
+
+  // Konstanta (b) = kolom terakhir dari matriks augmented awal
+  const bInitial = b_vec.slice();
+
+  // (bInitial tidak dipakai di render verifikasi di bawah, tapi disiapkan untuk kebutuhan tampilan konstan)
+  // Verifikasi akan tetap menggunakan b_vec yang asli.
 
   // ---- Render hasil ----
   let html = `<div class="result-header">// HASIL — GAUSS-JORDAN (RREF)</div>`;
@@ -509,7 +525,10 @@ function solveRegulaFalsi() {
   const fxStr = document.getElementById('rf-fx').value.trim();
   let a = parseFloat(document.getElementById('rf-a').value);
   let b = parseFloat(document.getElementById('rf-b').value);
-  const maxIter = parseInt(document.getElementById('rf-iter').value);
+  // Iterasi maksimum dihitung sistem (tanpa input rf-iter)
+  // Sesuaikan dengan materi: berhenti saat proses sudah mencapai batas iterasi sistem.
+  const maxIter = 50;
+
 
   if (!fxStr) { showErr('rf', 'Masukkan ekspresi f(x)'); return; }
   if (isNaN(a) || isNaN(b)) { showErr('rf', 'Nilai a atau b tidak valid'); return; }
@@ -542,8 +561,11 @@ function solveRegulaFalsi() {
     rows.push({ i, a, b, fa, fb, c, fc, err: errStep });
     iterUsed = i;
 
-  // Tanpa toleransi: berhenti hanya di iterasi maksimum.
-    if (i === maxIter) converged = true;
+    // Berhenti jika f(c) = 0
+    if (Math.abs(fc) < 1e-14) {
+      converged = true;
+      break;
+    }
 
     // Tentukan sub-interval berikutnya
     if (fa * fc < 0) {
@@ -551,6 +573,8 @@ function solveRegulaFalsi() {
     } else {
       a = c; fa = fc;
     }
+
+    if (i === maxIter) converged = true;
   }
 
   let html = `<div class="result-header">// HASIL — REGULA FALSI</div>
@@ -602,8 +626,11 @@ function solveNewtonRaphson() {
   const fxStr = document.getElementById('nr-fx').value.trim();
   const dfxStr = document.getElementById('nr-dfx').value.trim();
   let x = parseFloat(document.getElementById('nr-x0').value);
-  const tol = parseFloat(document.getElementById('nr-tol').value);
-  const maxIter = parseInt(document.getElementById('nr-iter').value);
+  // Toleransi & batas iterasi dihitung otomatis
+  // (tidak pakai input nr-tol / nr-iter)
+  const tol = 1e-6;
+  const maxIter = 50;
+
 
   if (!fxStr || !dfxStr) { showErr('nr', 'Masukkan f(x) dan f′(x)'); return; }
   if (isNaN(x)) { showErr('nr', 'x₀ tidak valid'); return; }
@@ -613,7 +640,8 @@ function solveNewtonRaphson() {
   const rows = [];
   let fx, dfx, xNew = x, converged = false, iterUsed = 0;
 
-  for (let i = 1; i <= maxIter; i++) {
+  // iterasi dimulai dari index 0 (n=0 sebagai tebakan awal x₀)
+  for (let i = 0; i < maxIter; i++) {
     try {
       fx = evalFn(fxStr, x);
       dfx = evalFn(dfxStr, x);
@@ -627,10 +655,13 @@ function solveNewtonRaphson() {
     // Rumus: xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)
     xNew = x - fx / dfx;
     const err = Math.abs(xNew - x);
+    // Di tabel: n = i + 1 (contoh: jika langkah yang ditampilkan 10, maka n: 0..9)
+    // Karena loop dimulai dari i=0 (tebakan awal x0), maka yang benar-benar menjadi iterasi index adalah i.
     rows.push({ i, x, fx, dfx, xNew, err });
     iterUsed = i;
     x = xNew;
-    if (err < tol) { converged = true; break; }
+    // Berhenti jika f(x) ≈ 0 atau perubahan antar iterasi < toleransi
+    if (Math.abs(fx) < 1e-14 || err < tol) { converged = true; break; }
   }
 
   let html = `<div class="result-header">// HASIL — NEWTON-RAPHSON</div>
@@ -680,15 +711,15 @@ function buildLagrangePoints() {
   const container = document.getElementById('lag-points-container');
   if (!container) return;
 
-  const defaults = [[1,1],[2,4],[3,9],[4,16],[5,25],[6,36],[7,49],[8,64],[9,81],[10,100]];
+  const defaults = [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25], [6, 36], [7, 49], [8, 64], [9, 81], [10, 100]];
   let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
   for (let i = 0; i < n; i++) {
     const d = defaults[i] || [i + 1, (i + 1) * (i + 1)];
     html += `
-      <div class="field"><label>x<sub>${i+1}</sub></label>
+      <div class="field"><label>x<sub>${i + 1}</sub></label>
         <input type="number" id="lag-x${i}" value="${d[0]}" step="any">
       </div>
-      <div class="field"><label>y<sub>${i+1}</sub></label>
+      <div class="field"><label>y<sub>${i + 1}</sub></label>
         <input type="number" id="lag-y${i}" value="${d[1]}" step="any">
       </div>`;
   }
@@ -716,7 +747,7 @@ function solveLagrange() {
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       if (Math.abs(xs[i] - xs[j]) < 1e-14) {
-        showErr('lag', `x${i+1} = x${j+1} = ${xs[i]} — nilai x tidak boleh duplikat`);
+        showErr('lag', `x${i + 1} = x${j + 1} = ${xs[i]} — nilai x tidak boleh duplikat`);
         return;
       }
     }
@@ -778,12 +809,12 @@ function solveLagrange() {
     ).join(' × ');
     html += `<div style="background:var(--surface3);border-radius:6px;padding:10px 14px">
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600">
-        L<sub>${s.i+1}</sub>(x) — untuk titik (x<sub>${s.i+1}</sub>=${fmtDec(s.xi,4)}, y<sub>${s.i+1}</sub>=${fmtDec(s.yi,4)})
+        L<sub>${s.i + 1}</sub>(x) — untuk titik (x<sub>${s.i + 1}</sub>=${fmtDec(s.xi, 4)}, y<sub>${s.i + 1}</sub>=${fmtDec(s.yi, 4)})
       </div>
       <div style="font-size:11px;color:var(--text-faint);line-height:1.9">
-        L<sub>${s.i+1}</sub>(${xt}) = ${prodStr}<br>
+        L<sub>${s.i + 1}</sub>(${xt}) = ${prodStr}<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <b style="color:var(--accent3)">${fmtDec(s.Li, 8)}</b><br>
-        Kontribusi: ${fmtDec(s.yi,6)} × ${fmtDec(s.Li,8)} = <b style="color:var(--accent)">${fmtDec(s.Li * s.yi, 8)}</b>
+        Kontribusi: ${fmtDec(s.yi, 6)} × ${fmtDec(s.Li, 8)} = <b style="color:var(--accent)">${fmtDec(s.Li * s.yi, 8)}</b>
       </div>
     </div>`;
   });
@@ -865,8 +896,8 @@ function solveSimpson() {
   </tr></tbody></table></div>`;
 
   html += `<div style="margin-top:12px;font-size:11px;color:var(--text-dim);line-height:2;background:var(--surface3);border-radius:6px;padding:10px 14px">
-    I = (h/3) × Σ = (${fmtDec(h,6)}/3) × ${fmtDec(sum,6)}<br>
-    I = ${fmtDec(h/3,6)} × ${fmtDec(sum,6)} = <b style="color:var(--accent3);font-size:14px">${fmtDec(I,8)}</b>
+    I = (h/3) × Σ = (${fmtDec(h, 6)}/3) × ${fmtDec(sum, 6)}<br>
+    I = ${fmtDec(h / 3, 6)} × ${fmtDec(sum, 6)} = <b style="color:var(--accent3);font-size:14px">${fmtDec(I, 8)}</b>
   </div>`;
 
   // Estimasi galat
@@ -874,8 +905,8 @@ function solveSimpson() {
     const mid = (a + b) / 2;
     const hd = Math.max(h, 1e-3);
     const f2 = xx => evalFn(fxStr, xx);
-    const f4 = (f2(mid-2*hd) - 4*f2(mid-hd) + 6*f2(mid) - 4*f2(mid+hd) + f2(mid+2*hd)) / Math.pow(hd, 4);
-    const errEst = -((b-a) * Math.pow(h, 4) / 180) * f4;
+    const f4 = (f2(mid - 2 * hd) - 4 * f2(mid - hd) + 6 * f2(mid) - 4 * f2(mid + hd) + f2(mid + 2 * hd)) / Math.pow(hd, 4);
+    const errEst = -((b - a) * Math.pow(h, 4) / 180) * f4;
     if (isFinite(errEst)) {
       html += `<div style="margin-top:12px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// ESTIMASI GALAT</div>
         <div style="margin-top:6px;font-size:11px;color:var(--text-dim)">
@@ -897,7 +928,7 @@ function solveEuler() {
   const fxyStr = document.getElementById('eu-fxy').value.trim();
   const x0 = parseFloat(document.getElementById('eu-x0').value);
   const y0 = parseFloat(document.getElementById('eu-y0').value);
-  const h  = parseFloat(document.getElementById('eu-h').value);
+  const h = parseFloat(document.getElementById('eu-h').value);
   const xn = parseFloat(document.getElementById('eu-xn').value);
 
   if (!fxyStr) { showErr('eu', 'Masukkan ekspresi f(x,y)'); return; }
@@ -969,7 +1000,7 @@ function solveEuler() {
   html += `</tbody></table></div>`;
 
   showResult('eu', html);
-  addHistory('Metode Euler', `y′=${fxyStr.substring(0,30)}, h=${h}`, `y(${fmtDec(x,4)}) ≈ ${fmtDec(y,6)}`);
+  addHistory('Metode Euler', `y′=${fxyStr.substring(0, 30)}, h=${h}`, `y(${fmtDec(x, 4)}) ≈ ${fmtDec(y, 6)}`);
 }
 
 /* =====================================================================
@@ -1026,7 +1057,7 @@ function initEvents() {
   // Auto-select input saat fokus
   document.addEventListener('focusin', e => {
     if (e.target && e.target.tagName === 'INPUT' &&
-        (e.target.type === 'number' || e.target.type === 'text')) {
+      (e.target.type === 'number' || e.target.type === 'text')) {
       e.target.select();
     }
   });
@@ -1050,17 +1081,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ===== Expose ke global (untuk onclick di HTML) ===== */
-window.showPanel           = showPanel;
-window.buildGJMatrix       = buildGJMatrix;
-window.buildMatrix         = buildMatrix;
+window.showPanel = showPanel;
+window.buildGJMatrix = buildGJMatrix;
+window.buildMatrix = buildMatrix;
 window.buildLagrangePoints = buildLagrangePoints;
-window.solveGaussJordan    = solveGaussJordan;
-window.solveInvers         = solveInvers;
-window.solveRegulaFalsi    = solveRegulaFalsi;
-window.solveNewtonRaphson  = solveNewtonRaphson;
-window.solveLagrange       = solveLagrange;
-window.solveSimpson        = solveSimpson;
-window.solveEuler          = solveEuler;
-window.clearResult         = clearResult;
-window.deleteHistory       = deleteHistory;
-window.clearHistory        = clearHistory;
+window.solveGaussJordan = solveGaussJordan;
+window.solveInvers = solveInvers;
+window.solveRegulaFalsi = solveRegulaFalsi;
+window.solveNewtonRaphson = solveNewtonRaphson;
+window.solveLagrange = solveLagrange;
+window.solveSimpson = solveSimpson;
+window.solveEuler = solveEuler;
+window.clearResult = clearResult;
+window.deleteHistory = deleteHistory;
+window.clearHistory = clearHistory;
