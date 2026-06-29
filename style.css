@@ -931,13 +931,14 @@ textarea:focus {
   }
 
   .result-table {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .result-table th,
   .result-table td {
-    padding: 4px 7px;
+    padding: 5px 8px;
   }
+
 
   .btn-row {
     gap: 8px;
