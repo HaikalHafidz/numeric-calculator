@@ -509,13 +509,12 @@ function solveRegulaFalsi() {
   const fxStr = document.getElementById('rf-fx').value.trim();
   let a = parseFloat(document.getElementById('rf-a').value);
   let b = parseFloat(document.getElementById('rf-b').value);
-  const tol = parseFloat(document.getElementById('rf-tol').value);
   const maxIter = parseInt(document.getElementById('rf-iter').value);
 
   if (!fxStr) { showErr('rf', 'Masukkan ekspresi f(x)'); return; }
   if (isNaN(a) || isNaN(b)) { showErr('rf', 'Nilai a atau b tidak valid'); return; }
-  if (isNaN(tol) || tol <= 0) { showErr('rf', 'Toleransi harus bilangan positif (contoh: 0.0001)'); return; }
   if (isNaN(maxIter) || maxIter < 1) { showErr('rf', 'Maks. iterasi tidak valid'); return; }
+
   if (a >= b) { showErr('rf', 'a harus lebih kecil dari b'); return; }
 
   let fa, fb;
@@ -543,10 +542,8 @@ function solveRegulaFalsi() {
     rows.push({ i, a, b, fa, fb, c, fc, err: errStep });
     iterUsed = i;
 
-    // Cek konvergensi: |f(c)| < ε
-    if (Math.abs(fc) < tol) { converged = true; break; }
-    // Juga cek |Δc| < ε mulai iterasi ke-2
-    if (i > 1 && errStep !== null && errStep < tol) { converged = true; break; }
+  // Tanpa toleransi: berhenti hanya di iterasi maksimum.
+    if (i === maxIter) converged = true;
 
     // Tentukan sub-interval berikutnya
     if (fa * fc < 0) {
@@ -568,8 +565,9 @@ function solveRegulaFalsi() {
   html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
     <b style="color:var(--accent3)">Rumus Regula Falsi:</b><br>
     c = [a·f(b) − b·f(a)] / [f(b) − f(a)]<br>
-    <span style="font-size:10px;color:var(--text-faint)">Toleransi ε = ${tol} &nbsp;|&nbsp; Interval awal: [${fmtDec(parseFloat(document.getElementById('rf-a').value), 4)}, ${fmtDec(parseFloat(document.getElementById('rf-b').value), 4)}]</span>
+    <span style="font-size:10px;color:var(--text-faint)">Interval awal: [${fmtDec(parseFloat(document.getElementById('rf-a').value), 4)}, ${fmtDec(parseFloat(document.getElementById('rf-b').value), 4)}]</span>
   </div>`;
+
 
   // Tabel iterasi
   html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL ITERASI</div>`;
@@ -592,7 +590,8 @@ function solveRegulaFalsi() {
   html += `</tbody></table></div>`;
 
   showResult('rf', html);
-  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}, ε=${tol}`, `x ≈ ${fmtDec(c, 6)}`);
+  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 6)}`);
+
 }
 
 /* =====================================================================
