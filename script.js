@@ -288,21 +288,26 @@ function matrixToTable(M, n, isAugmented) {
   return html;
 }
 
-/* 1. GAUSS-JORDAN */
+/* 1. GAUSS-JORDAN — PERBAIKAN LENGKAP */
 function solveGaussJordan() {
-  clearErr('gj'); clearResult('gj');
+  clearErr('gj');
+  clearResult('gj');
+
   const nInput = document.getElementById('gj-n');
   if (!nInput) { showErr('gj', 'Input tidak ditemukan'); return; }
   const n = parseInt(nInput.value);
   if (isNaN(n) || n < 2 || n > 6) { showErr('gj', 'Ukuran n harus antara 2–6'); return; }
 
-  // Ambil matriks A dari input terpisah
+  // --- Ambil matriks A (koefisien) ---
   let A_coef, b_vec;
   try {
     A_coef = getMatrixFull('gj-a', n, n);
-  } catch (e) { showErr('gj', 'Matriks A: ' + e.message); return; }
+  } catch (e) {
+    showErr('gj', 'Matriks A: ' + e.message);
+    return;
+  }
 
-  // Ambil vektor b
+  // --- Ambil vektor b (konstanta) ---
   b_vec = [];
   for (let i = 0; i < n; i++) {
     const el = document.getElementById(`gj-b-${i}`);
@@ -312,302 +317,460 @@ function solveGaussJordan() {
     b_vec.push(v);
   }
 
-  // Bangun matriks augmented [A | b]
+  // --- Buat matriks augmented [A | b] ---
   const M = A_coef.map((row, i) => [...row, b_vec[i]]);
 
-  const names = Array.from({ length: n }, (_, i) => 'x' + (i + 1));
-  const stepLog = [];
-  stepLog.push({ label: 'Matriks augmented awal [A | b]', matrix: M.map(r => [...r]) });
+  // Nama variabel
+  const names = Array.from({ length: n }, (_, i) => (n <= 3 ? ['x', 'y', 'z'][i] : 'x' + (i + 1)));
 
-  // Eliminasi Gauss-Jordan dengan partial pivoting
+  // --- Log langkah-langkah ---
+  const stepLog = [];
+
+  // Fungsi untuk menyalin matriks (deep copy)
+  function copyMatrix(mat) {
+    return mat.map(row => [...row]);
+  }
+
+  // Fungsi untuk menyimpan langkah
+  function logStep(label, matrix) {
+    stepLog.push({
+      label: label,
+      matrix: copyMatrix(matrix)
+    });
+  }
+
+  // Simpan langkah awal
+  logStep('Matriks augmented awal [A | b]', M);
+
+  // --- Proses Eliminasi Gauss-Jordan ---
   for (let k = 0; k < n; k++) {
-    // Cari pivot terbesar di kolom k
+    // STEP 1: Partial Pivoting — cari elemen terbesar di kolom k
     let maxIdx = k;
     for (let i = k + 1; i < n; i++) {
-      if (Math.abs(M[i][k]) > Math.abs(M[maxIdx][k])) maxIdx = i;
+      if (Math.abs(M[i][k]) > Math.abs(M[maxIdx][k])) {
+        maxIdx = i;
+      }
     }
+
+    // Jika perlu, tukar baris
     if (maxIdx !== k) {
       [M[k], M[maxIdx]] = [M[maxIdx], M[k]];
-      stepLog.push({
-        label: `Tukar baris R${k + 1} ↔ R${maxIdx + 1} (partial pivoting)`,
-        matrix: M.map(r => [...r])
-      });
+      logStep(`Tukar baris R${k+1} ↔ R${maxIdx+1} (pilih pivot terbesar)`, M);
     }
+
+    // Cek apakah pivot = 0 (matriks singular)
     if (Math.abs(M[k][k]) < 1e-12) {
-      showErr('gj', 'Matriks singular atau tidak memiliki solusi unik. Periksa kembali nilai koefisien.');
+      showErr('gj', '❌ Matriks singular atau tidak memiliki solusi unik.');
       return;
     }
 
-    // Integer-only steps (tanpa normalisasi pivot / tanpa pecahan desimal pada label)
-    // Kita gunakan eliminasi eliminasi bilangan bulat berbentuk:
-    //   R_i ← R_i - m * R_k, dengan m = round(M[i][k] / M[k][k])
-    // Catatan: ini mengasumsikan input integer dan pivot tidak terlalu kecil.
-
-    const piv = M[k][k];
-    if (Math.abs(piv) < 1e-12) {
-      showErr('gj', 'Pivot terlalu kecil (≈0). Untuk integer murni, pilih matriks/pivot yang valid.');
-      return;
+    // STEP 2: Normalisasi baris pivot (buat pivot = 1)
+    const pivot = M[k][k];
+    if (Math.abs(pivot - 1) > 1e-12) {
+      for (let j = 0; j <= n; j++) {
+        M[k][j] = M[k][j] / pivot;
+      }
+      logStep(`Normalisasi R${k+1} = R${k+1} ÷ ${fmtDec(pivot, 4)}`, M);
     }
 
+    // STEP 3: Eliminasi semua baris lain (atas DAN bawah)
     for (let i = 0; i < n; i++) {
       if (i === k) continue;
-      const mik = M[i][k];
-      if (Math.abs(mik) < 1e-15) continue;
+      const faktor = M[i][k];
+      if (Math.abs(faktor) < 1e-15) continue;
 
-      // Hitung m sebagai bilangan bulat terdekat
-      const m = Math.round(mik / piv);
-      if (m === 0) continue;
-
-      // Update baris dengan integer math (murni)
       for (let j = 0; j <= n; j++) {
-        M[i][j] = M[i][j] - m * M[k][j];
+        M[i][j] = M[i][j] - faktor * M[k][j];
       }
-
-      stepLog.push({
-        label: `Eliminasi: R${i + 1} = R${i + 1} − ${m}·R${k + 1}`,
-        matrix: M.map(r => [...r])
-      });
+      logStep(`Eliminasi R${i+1} = R${i+1} − (${fmtDec(faktor, 4)}) × R${k+1}`, M);
     }
   }
 
-  // Solusi: kolom terakhir setelah RREF
-  const sol = M.map(row => row[n]);
+  // --- Ambil solusi (kolom terakhir) ---
+  const solusi = M.map(row => row[n]);
 
-  // Konstanta (b) = kolom terakhir dari matriks augmented awal
-  const bInitial = b_vec.slice();
+  // --- BUILD HTML HASIL ---
+  let html = '';
 
-  // (bInitial tidak dipakai di render verifikasi di bawah, tapi disiapkan untuk kebutuhan tampilan konstan)
-  // Verifikasi akan tetap menggunakan b_vec yang asli.
+  // 1. HEADER HASIL
+  html += `<div class="result-header">✅ HASIL — GAUSS-JORDAN (RREF)</div>`;
 
-  // ---- Render hasil ----
-  let html = `<div class="result-header">// HASIL — GAUSS-JORDAN (RREF)</div>`;
-  html += `<div style="margin-bottom:12px">`;
-  sol.forEach((v, i) => {
-    html += `<div class="step-item">
-      <span class="step-num">${names[i]}</span>
-      <span style="color:var(--accent3);font-weight:700">${fmtDec(v, 6)}</span>
+  // 2. SOLUSI
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">`;
+  solusi.forEach((v, i) => {
+    html += `<div style="display:flex;gap:12px;padding:4px 0;font-size:14px;">
+      <span style="color:var(--text-dim);min-width:40px;">${names[i]} =</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(v, 8)}</span>
     </div>`;
   });
   html += `</div>`;
 
-  // Verifikasi Ax = b
-  html += `<div style="margin-top:10px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// VERIFIKASI Ax = b</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
-    <th>Persamaan</th><th>Sisi Kiri (Ax)</th><th>Sisi Kanan (b)</th><th>Selisih</th>
+  // 3. VERIFIKASI Ax = b
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// VERIFIKASI Ax = b</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
+    <th>Persamaan</th><th>Ax (kiri)</th><th>b (kanan)</th><th>Selisih</th><th>Status</th>
   </tr></thead><tbody>`;
+
+  let allValid = true;
   for (let i = 0; i < n; i++) {
     let lhs = 0;
-    for (let j = 0; j < n; j++) lhs += A_coef[i][j] * sol[j];
+    for (let j = 0; j < n; j++) {
+      lhs += A_coef[i][j] * solusi[j];
+    }
     const diff = Math.abs(lhs - b_vec[i]);
+    const ok = diff < 1e-9;
+    if (!ok) allValid = false;
+
     html += `<tr>
-      <td>Persamaan ${i + 1}</td>
+      <td>${i + 1}</td>
       <td>${fmtDec(lhs, 6)}</td>
       <td>${fmtDec(b_vec[i], 6)}</td>
-      <td style="color:${diff < 1e-6 ? 'var(--accent3)' : 'var(--error)'}">${fmtDec(diff, 8)}</td>
+      <td>${fmtDec(diff, 10)}</td>
+      <td style="color:${ok ? 'var(--accent3)' : 'var(--error)'};">${ok ? '✅' : '❌'}</td>
     </tr>`;
   }
   html += `</tbody></table></div>`;
 
-  // Langkah-langkah operasi baris
-  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// LANGKAH OPERASI BARIS ELEMENTER</div>`;
-  html += `<div style="margin-top:8px;display:flex;flex-direction:column;gap:12px">`;
-  stepLog.forEach((s, idx) => {
-    html += `<div>
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">
-        ${idx === 0 ? '' : `<span style="color:var(--accent);margin-right:6px">Langkah ${idx}:</span>`}${s.label}
+  if (allValid) {
+    html += `<div style="margin-top:6px;font-size:11px;color:var(--accent3);">✅ Semua persamaan terverifikasi!</div>`;
+  } else {
+    html += `<div style="margin-top:6px;font-size:11px;color:var(--error);">⚠️ Ada selisih — periksa kembali input.</div>`;
+  }
+
+  // 4. PENJELASAN SINGKAT METODE
+  html += `<div style="margin-top:16px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Apa yang terjadi di sini?</b><br>
+    1. Matriks augmented <b>[A | b]</b> dibentuk dari koefisien dan konstanta.<br>
+    2. Untuk tiap kolom <b>k</b>, kita pilih pivot terbesar (partial pivoting) agar stabil.<br>
+    3. Baris pivot dinormalisasi → elemen pivot menjadi <b>1</b>.<br>
+    4. Semua baris lain dieliminasi pada kolom itu → elemennya menjadi <b>0</b>.<br>
+    5. Ulangi untuk semua kolom → terbentuk <b>RREF</b> (matriks identitas di kiri).<br>
+    6. Kolom terakhir = solusi <b>${names.join(', ')}</b>.
+  </div>`;
+
+  // 5. TABEL LANGKAH-LANGKAH DETAIL
+  html += `<div style="margin-top:20px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// LANGKAH-LANGKAH PENGERJAAN</div>`;
+
+  stepLog.forEach((step, idx) => {
+    const isFirst = idx === 0;
+    const stepNum = isFirst ? 'AWAL' : String(idx);
+
+    html += `<div style="margin-top:12px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">
+        <span style="color:var(--accent);font-weight:700;">Langkah ${stepNum}:</span> ${step.label}
       </div>
-      ${matrixToTable(s.matrix, n, true)}
+      ${matrixToTable(step.matrix, n, true)}
     </div>`;
   });
-  html += `</div>`;
 
+  // 6. MATRIKS HASIL AKHIR (RREF)
+  html += `<div style="margin-top:16px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent3);">
+    <div style="font-size:11px;color:var(--accent3);margin-bottom:6px;font-weight:700;">✅ HASIL AKHIR — RREF</div>
+    ${matrixToTable(M, n, true)}
+  </div>`;
+
+  // Tampilkan hasil
   showResult('gj', html);
-  addHistory('Gauss-Jordan', `n=${n}`, sol.map((v, i) => `${names[i]}=${fmtDec(v, 4)}`).join(', '));
-}
 
-/* 2. INVERS MATRIKS */
+  // Simpan ke histori
+  addHistory(
+    'Gauss-Jordan',
+    `n=${n}`,
+    solusi.map((v, i) => `${names[i]}=${fmtDec(v, 6)}`).join(', ')
+  );
+}
+/* 2. INVERS MATRIKS — PERBAIKAN LENGKAP */
 function solveInvers() {
-  clearErr('inv'); clearResult('inv');
+  clearErr('inv');
+  clearResult('inv');
+
   const nInput = document.getElementById('inv-n');
   if (!nInput) return;
   const n = parseInt(nInput.value);
-  if (isNaN(n) || n < 1 || n > 5) { showErr('inv', 'n harus antara 1–5'); return; }
+  if (isNaN(n) || n < 1 || n > 5) {
+    showErr('inv', 'n harus antara 1–5');
+    return;
+  }
 
   let A;
-  try { A = getMatrixFull('inv', n, n); }
-  catch (e) { showErr('inv', e.message); return; }
+  try {
+    A = getMatrixFull('inv', n, n);
+  } catch (e) {
+    showErr('inv', e.message);
+    return;
+  }
 
-  // Bangun [A | I]
+  // --- Cek determinan (pendahuluan) ---
+  // Untuk n=1, det = A[0][0]
+  // Untuk n>1, kita cek singularitas saat proses
+
+  // --- Bangun [A | I] ---
   const M = A.map((row, i) => {
     const id = new Array(n).fill(0);
     id[i] = 1;
     return [...row, ...id];
   });
 
-  const stepLog = [{ label: 'Matriks augmented awal [A | I]', matrix: M.map(r => [...r]) }];
+  const stepLog = [];
+  function copyMatrix(mat) { return mat.map(r => [...r]); }
+  function logStep(label, matrix) {
+    stepLog.push({ label, matrix: copyMatrix(matrix) });
+  }
+
+  logStep('Matriks augmented awal [A | I]', M);
+
+  let singular = false;
 
   for (let k = 0; k < n; k++) {
+    // --- Partial Pivoting ---
     let maxIdx = k;
     for (let i = k + 1; i < n; i++) {
       if (Math.abs(M[i][k]) > Math.abs(M[maxIdx][k])) maxIdx = i;
     }
     if (maxIdx !== k) {
       [M[k], M[maxIdx]] = [M[maxIdx], M[k]];
-      stepLog.push({ label: `Tukar R${k + 1} ↔ R${maxIdx + 1}`, matrix: M.map(r => [...r]) });
+      logStep(`Tukar R${k+1} ↔ R${maxIdx+1} (pilih pivot terbesar)`, M);
     }
+
+    // Cek singular
     if (Math.abs(M[k][k]) < 1e-12) {
-      showErr('inv', 'Matriks singular — tidak dapat diinvers (determinan = 0)');
+      singular = true;
+      showErr('inv', '❌ Matriks SINGULAR — tidak memiliki invers (determinan = 0)');
       return;
     }
 
-    const piv = M[k][k];
-    if (Math.abs(piv - 1) > 1e-12) {
-      for (let j = 0; j < 2 * n; j++) M[k][j] /= piv;
-      stepLog.push({ label: `Normalisasi: R${k + 1} ÷ (${fmtDec(piv, 4)})`, matrix: M.map(r => [...r]) });
-    }
-    for (let i = 0; i < n; i++) {
-      if (i !== k && Math.abs(M[i][k]) > 1e-15) {
-        const f = M[i][k];
-        for (let j = 0; j < 2 * n; j++) M[i][j] -= f * M[k][j];
-        stepLog.push({ label: `R${i + 1} ← R${i + 1} − (${fmtDec(f, 4)}) × R${k + 1}`, matrix: M.map(r => [...r]) });
+    // --- Normalisasi baris pivot ---
+    const pivot = M[k][k];
+    if (Math.abs(pivot - 1) > 1e-12) {
+      for (let j = 0; j < 2 * n; j++) {
+        M[k][j] = M[k][j] / pivot;
       }
+      logStep(`Normalisasi R${k+1} = R${k+1} ÷ ${fmtDec(pivot, 4)}`, M);
+    }
+
+    // --- Eliminasi semua baris lain ---
+    for (let i = 0; i < n; i++) {
+      if (i === k) continue;
+      const faktor = M[i][k];
+      if (Math.abs(faktor) < 1e-15) continue;
+
+      for (let j = 0; j < 2 * n; j++) {
+        M[i][j] = M[i][j] - faktor * M[k][j];
+      }
+      logStep(`Eliminasi R${i+1} = R${i+1} − (${fmtDec(faktor, 4)}) × R${k+1}`, M);
     }
   }
 
+  // --- Ambil A⁻¹ (separuh kanan) ---
   const Ainv = M.map(row => row.slice(n));
 
-  let html = `<div class="result-header">// INVERS MATRIKS A⁻¹</div>`;
-  html += `<div style="overflow-x:auto"><table class="result-table"><thead><tr>`;
-  for (let j = 0; j < n; j++) html += `<th>Kol ${j + 1}</th>`;
-  html += `</tr></thead><tbody>`;
-  for (let i = 0; i < n; i++) {
-    html += '<tr>' + Ainv[i].map(v => `<td style="text-align:right;color:var(--accent3)">${fmtDec(v, 6)}</td>`).join('') + '</tr>';
-  }
-  html += `</tbody></table></div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  // Verifikasi A × A⁻¹ = I
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// VERIFIKASI A × A⁻¹ ≈ I</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><tbody>`;
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — INVERS MATRIKS A⁻¹</div>`;
+
+  // 2. TAMPILAN A⁻¹
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;overflow-x:auto;">
+    <div style="font-size:10px;color:var(--text-faint);margin-bottom:6px;">A⁻¹ =</div>
+    <table class="result-table"><tbody>`;
   for (let i = 0; i < n; i++) {
     html += '<tr>';
     for (let j = 0; j < n; j++) {
-      let val = 0;
-      for (let k = 0; k < n; k++) val += A[i][k] * Ainv[k][j];
-      const isOk = Math.abs(val - (i === j ? 1 : 0)) < 1e-6;
-      html += `<td style="text-align:right;color:${isOk ? 'var(--accent3)' : 'var(--error)'}">${fmtDec(val, 4)}</td>`;
+      html += `<td style="text-align:right;color:var(--accent3);font-weight:600;min-width:60px;">${fmtDec(Ainv[i][j], 8)}</td>`;
     }
     html += '</tr>';
   }
   html += `</tbody></table></div>`;
 
-  // Langkah OBE
-  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// LANGKAH OPERASI BARIS ELEMENTER [A | I] → [I | A⁻¹]</div>`;
-  html += `<div style="margin-top:8px;display:flex;flex-direction:column;gap:12px">`;
-  stepLog.forEach((s, idx) => {
-    html += `<div>
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">
-        ${idx === 0 ? '' : `<span style="color:var(--accent);margin-right:6px">Langkah ${idx}:</span>`}${s.label}
+  // 3. VERIFIKASI A × A⁻¹ = I
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// VERIFIKASI A × A⁻¹ = I</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>`;
+  for (let j = 0; j < n; j++) html += `<th>Kol ${j+1}</th>`;
+  html += `</tr></thead><tbody>`;
+
+  let allIdentity = true;
+  for (let i = 0; i < n; i++) {
+    html += '<tr>';
+    for (let j = 0; j < n; j++) {
+      let val = 0;
+      for (let k = 0; k < n; k++) val += A[i][k] * Ainv[k][j];
+      const expected = (i === j) ? 1 : 0;
+      const ok = Math.abs(val - expected) < 1e-9;
+      if (!ok) allIdentity = false;
+      html += `<td style="text-align:right;color:${ok ? 'var(--accent3)' : 'var(--error)'};">${fmtDec(val, 6)}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += `</tbody></table></div>`;
+
+  if (allIdentity) {
+    html += `<div style="margin-top:6px;font-size:11px;color:var(--accent3);">✅ A × A⁻¹ = I — invers benar!</div>`;
+  } else {
+    html += `<div style="margin-top:6px;font-size:11px;color:var(--error);">⚠️ Ada ketidaksesuaian — periksa input.</div>`;
+  }
+
+  // 4. PENJELASAN
+  html += `<div style="margin-top:16px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Cara Mencari Invers Matriks:</b><br>
+    1. Bentuk matriks augmented <b>[A | I]</b> (tempel identitas di kanan).<br>
+    2. Lakukan OBE (sama seperti Gauss-Jordan) sampai sisi kiri menjadi <b>I</b>.<br>
+    3. Sisi kanan yang tersisa adalah <b>A⁻¹</b>.<br>
+    4. Syarat: matriks harus <b>persegi</b> dan <b>non-singular</b> (det ≠ 0).
+  </div>`;
+
+  // 5. LANGKAH-LANGKAH
+  html += `<div style="margin-top:20px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// LANGKAH-LANGKAH OBE [A | I] → [I | A⁻¹]</div>`;
+
+  stepLog.forEach((step, idx) => {
+    const isFirst = idx === 0;
+    const stepNum = isFirst ? 'AWAL' : String(idx);
+
+    html += `<div style="margin-top:12px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">
+        <span style="color:var(--accent);font-weight:700;">Langkah ${stepNum}:</span> ${step.label}
       </div>
-      ${matrixToTable(s.matrix, n, false)}
+      ${matrixToTable(step.matrix, n, false)}
     </div>`;
   });
-  html += `</div>`;
+
+  // 6. HASIL AKHIR
+  html += `<div style="margin-top:16px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent3);">
+    <div style="font-size:11px;color:var(--accent3);margin-bottom:6px;font-weight:700;">✅ HASIL AKHIR [I | A⁻¹]</div>
+    ${matrixToTable(M, n, false)}
+  </div>`;
 
   showResult('inv', html);
   addHistory('Invers Matriks', `n=${n}`, 'A⁻¹ berhasil dihitung');
 }
 
-/* =====================================================================
-   3. REGULA FALSI
-   ===================================================================== */
+/* 3. REGULA FALSI — PERBAIKAN LENGKAP */
 function solveRegulaFalsi() {
-  clearErr('rf'); clearResult('rf');
+  clearErr('rf');
+  clearResult('rf');
+
   const fxStr = document.getElementById('rf-fx').value.trim();
   let a = parseFloat(document.getElementById('rf-a').value);
   let b = parseFloat(document.getElementById('rf-b').value);
-  // Iterasi maksimum dihitung sistem (tanpa input rf-iter)
-  // Sesuaikan dengan materi: berhenti saat proses sudah mencapai batas iterasi sistem.
-  const maxIter = 50;
-
+  const tol = 1e-7;  // Toleransi bawaan
+  const maxIter = 100;
 
   if (!fxStr) { showErr('rf', 'Masukkan ekspresi f(x)'); return; }
   if (isNaN(a) || isNaN(b)) { showErr('rf', 'Nilai a atau b tidak valid'); return; }
-  if (isNaN(maxIter) || maxIter < 1) { showErr('rf', 'Maks. iterasi tidak valid'); return; }
-
   if (a >= b) { showErr('rf', 'a harus lebih kecil dari b'); return; }
 
   let fa, fb;
-  try { fa = evalFn(fxStr, a); fb = evalFn(fxStr, b); }
-  catch (e) { showErr('rf', e.message); return; }
+  try {
+    fa = evalFn(fxStr, a);
+    fb = evalFn(fxStr, b);
+  } catch (e) {
+    showErr('rf', e.message);
+    return;
+  }
 
-  if (Math.abs(fa) < 1e-14) { showErr('rf', `f(a) = 0 — a = ${fmtDec(a, 6)} sudah merupakan akar`); return; }
-  if (Math.abs(fb) < 1e-14) { showErr('rf', `f(b) = 0 — b = ${fmtDec(b, 6)} sudah merupakan akar`); return; }
+  // Cek apakah ujung interval sudah akar
+  if (Math.abs(fa) < 1e-14) {
+    showResult('rf', `<div class="result-header">✅ HASIL — REGULA FALSI</div>
+      <div class="result-value">x = ${fmtDec(a, 8)}</div>
+      <div style="font-size:11px;color:var(--accent3);">✅ f(a) = 0 — a adalah akar!</div>`);
+    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(a, 6)}`);
+    return;
+  }
+  if (Math.abs(fb) < 1e-14) {
+    showResult('rf', `<div class="result-header">✅ HASIL — REGULA FALSI</div>
+      <div class="result-value">x = ${fmtDec(b, 8)}</div>
+      <div style="font-size:11px;color:var(--accent3);">✅ f(b) = 0 — b adalah akar!</div>`);
+    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(b, 6)}`);
+    return;
+  }
+
   if (fa * fb > 0) {
-    showErr('rf', `f(a)·f(b) = ${fmtDec(fa * fb, 4)} > 0 — tidak ada akar di interval ini, atau jumlahnya genap. Ubah nilai a dan b.`);
+    showErr('rf', `❌ f(a)·f(b) = ${fmtDec(fa * fb, 4)} > 0 — tidak ada akar di interval ini.`);
     return;
   }
 
   const rows = [];
-  let c = a, fc = fa, cPrev = a, converged = false, iterUsed = 0;
+  let c = a, fc = fa, cPrev = a;
+  let converged = false;
+  let iterUsed = 0;
 
   for (let i = 1; i <= maxIter; i++) {
     cPrev = c;
-    // Rumus Regula Falsi: c = (a·f(b) − b·f(a)) / (f(b) − f(a))
+
+    // --- Rumus Regula Falsi ---
     c = (a * fb - b * fa) / (fb - fa);
-    try { fc = evalFn(fxStr, c); }
-    catch (e) { showErr('rf', e.message); return; }
+
+    try {
+      fc = evalFn(fxStr, c);
+    } catch (e) {
+      showErr('rf', e.message);
+      return;
+    }
 
     const errStep = i === 1 ? null : Math.abs(c - cPrev);
     rows.push({ i, a, b, fa, fb, c, fc, err: errStep });
     iterUsed = i;
 
-    // Berhenti jika f(c) = 0
-    if (Math.abs(fc) < 1e-14) {
+    // Cek konvergensi
+    if (Math.abs(fc) < tol || (errStep !== null && errStep < tol)) {
       converged = true;
       break;
     }
 
-    // Tentukan sub-interval berikutnya
+    // Update interval
     if (fa * fc < 0) {
-      b = c; fb = fc;
+      b = c;
+      fb = fc;
     } else {
-      a = c; fa = fc;
+      a = c;
+      fa = fc;
     }
-
-    if (i === maxIter) converged = true;
   }
 
-  let html = `<div class="result-header">// HASIL — REGULA FALSI</div>
-    <div class="result-value">x ≈ ${fmtDec(c, 8)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">
-      f(x) = ${fmtDec(fc, 8)} &nbsp;·&nbsp;
-      ${iterUsed} iterasi &nbsp;·&nbsp;
-      ${converged ? '✓ Konvergen (|f(c)| &lt; ε)' : '⚠ Berhenti di batas iterasi'}
-    </div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  // Rumus yang dipakai
-  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    <b style="color:var(--accent3)">Rumus Regula Falsi:</b><br>
-    c = [a·f(b) − b·f(a)] / [f(b) − f(a)]<br>
-    <span style="font-size:10px;color:var(--text-faint)">Interval awal: [${fmtDec(parseFloat(document.getElementById('rf-a').value), 4)}, ${fmtDec(parseFloat(document.getElementById('rf-b').value), 4)}]</span>
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — REGULA FALSI</div>`;
+
+  // 2. HASIL
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
+    <div style="display:flex;gap:12px;font-size:16px;">
+      <span style="color:var(--text-dim);">x ≈</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(c, 10)}</span>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
+      <span>f(x) = ${fmtDec(fc, 10)}</span>
+      <span>Iterasi: ${iterUsed}</span>
+      <span style="color:${converged ? 'var(--accent3)' : 'var(--warn)'};">${converged ? '✅ Konvergen' : '⚠️ Batas iterasi'}</span>
+    </div>
   </div>`;
 
+  // 3. RUMUS
+  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Rumus Regula Falsi:</b><br>
+    c = <span style="color:var(--text);">(a·f(b) − b·f(a)) / (f(b) − f(a))</span><br>
+    Interval awal: [${fmtDec(parseFloat(document.getElementById('rf-a').value), 4)}, ${fmtDec(parseFloat(document.getElementById('rf-b').value), 4)}]<br>
+    <span style="font-size:10px;color:var(--text-faint);">Metode tertutup — selalu konvergen karena akar terkurung.</span>
+  </div>`;
 
-  // Tabel iterasi
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL ITERASI</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
+  // 4. TABEL ITERASI
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL ITERASI</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
     <th>n</th><th>a</th><th>b</th><th>f(a)</th><th>f(b)</th>
-    <th>c = xᵣ</th><th>f(c)</th><th>|Δc|</th>
+    <th style="color:var(--accent3);">c = xᵣ</th><th>f(c)</th><th>|Δc|</th>
   </tr></thead><tbody>`;
+
   rows.forEach(r => {
+    const isConverged = Math.abs(r.fc) < tol;
     html += `<tr>
       <td>${r.i}</td>
       <td>${fmtDec(r.a, 6)}</td>
       <td>${fmtDec(r.b, 6)}</td>
       <td>${fmtDec(r.fa, 6)}</td>
       <td>${fmtDec(r.fb, 6)}</td>
-      <td style="color:var(--accent3);font-weight:600">${fmtDec(r.c, 8)}</td>
-      <td>${fmtDec(r.fc, 8)}</td>
+      <td style="color:${isConverged ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtDec(r.c, 8)}</td>
+      <td style="color:${Math.abs(r.fc) < tol ? 'var(--accent3)' : 'var(--text-dim)'};">${fmtDec(r.fc, 8)}</td>
       <td>${r.err === null ? '—' : fmtDec(r.err, 8)}</td>
     </tr>`;
   });
@@ -615,79 +778,98 @@ function solveRegulaFalsi() {
 
   showResult('rf', html);
   addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 6)}`);
-
 }
 
-/* =====================================================================
-   4. NEWTON-RAPHSON
-   ===================================================================== */
+/* 4. NEWTON-RAPHSON — PERBAIKAN LENGKAP */
 function solveNewtonRaphson() {
-  clearErr('nr'); clearResult('nr');
+  clearErr('nr');
+  clearResult('nr');
+
   const fxStr = document.getElementById('nr-fx').value.trim();
   const dfxStr = document.getElementById('nr-dfx').value.trim();
   let x = parseFloat(document.getElementById('nr-x0').value);
-  // Toleransi & batas iterasi dihitung otomatis
-  // (tidak pakai input nr-tol / nr-iter)
-  const tol = 1e-6;
-  const maxIter = 50;
-
+  const tol = 1e-8;
+  const maxIter = 100;
 
   if (!fxStr || !dfxStr) { showErr('nr', 'Masukkan f(x) dan f′(x)'); return; }
   if (isNaN(x)) { showErr('nr', 'x₀ tidak valid'); return; }
-  if (isNaN(tol) || tol <= 0) { showErr('nr', 'Toleransi harus positif'); return; }
-  if (isNaN(maxIter) || maxIter < 1) { showErr('nr', 'Maks. iterasi tidak valid'); return; }
 
   const rows = [];
-  let fx, dfx, xNew = x, converged = false, iterUsed = 0;
+  let fx, dfx, xNew = x;
+  let converged = false;
+  let iterUsed = 0;
 
-  // iterasi dimulai dari index 0 (n=0 sebagai tebakan awal x₀)
   for (let i = 0; i < maxIter; i++) {
     try {
       fx = evalFn(fxStr, x);
       dfx = evalFn(dfxStr, x);
-    } catch (e) { showErr('nr', e.message); return; }
-
-    if (Math.abs(dfx) < 1e-12) {
-      showErr('nr', `f′(x) ≈ 0 pada iterasi ${i} di x = ${fmtDec(x, 6)}. Coba tebakan awal yang berbeda.`);
+    } catch (e) {
+      showErr('nr', e.message);
       return;
     }
 
-    // Rumus: xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)
+    if (Math.abs(dfx) < 1e-12) {
+      showErr('nr', `❌ f′(x) ≈ 0 pada iterasi ${i} di x = ${fmtDec(x, 6)}`);
+      return;
+    }
+
+    // --- Rumus Newton-Raphson ---
     xNew = x - fx / dfx;
     const err = Math.abs(xNew - x);
-    // Di tabel: n = i + 1 (contoh: jika langkah yang ditampilkan 10, maka n: 0..9)
-    // Karena loop dimulai dari i=0 (tebakan awal x0), maka yang benar-benar menjadi iterasi index adalah i.
+
     rows.push({ i, x, fx, dfx, xNew, err });
-    iterUsed = i;
+    iterUsed = i + 1;
+
+    if (Math.abs(fx) < tol || err < tol) {
+      converged = true;
+      x = xNew;
+      break;
+    }
+
     x = xNew;
-    // Berhenti jika f(x) ≈ 0 atau perubahan antar iterasi < toleransi
-    if (Math.abs(fx) < 1e-14 || err < tol) { converged = true; break; }
   }
 
-  let html = `<div class="result-header">// HASIL — NEWTON-RAPHSON</div>
-    <div class="result-value">x ≈ ${fmtDec(x, 8)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">
-      f(x) ≈ ${fmtDec(evalFnSafe(fxStr, x), 8)} &nbsp;·&nbsp;
-      ${iterUsed} iterasi &nbsp;·&nbsp;
-      ${converged ? '✓ Konvergen' : '⚠ Batas iterasi'}
-    </div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    <b style="color:var(--accent3)">Rumus Newton-Raphson:</b><br>
-    xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — NEWTON-RAPHSON</div>`;
+
+  // 2. HASIL
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
+    <div style="display:flex;gap:12px;font-size:16px;">
+      <span style="color:var(--text-dim);">x ≈</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(x, 10)}</span>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
+      <span>f(x) = ${fmtDec(evalFnSafe(fxStr, x), 10)}</span>
+      <span>Iterasi: ${iterUsed}</span>
+      <span style="color:${converged ? 'var(--accent3)' : 'var(--warn)'};">${converged ? '✅ Konvergen' : '⚠️ Batas iterasi'}</span>
+    </div>
   </div>`;
 
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL ITERASI</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
-    <th>n</th><th>xₙ</th><th>f(xₙ)</th><th>f′(xₙ)</th><th>xₙ₊₁ = xₙ − f/f′</th><th>|Δx|</th>
+  // 3. RUMUS
+  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Rumus Newton-Raphson:</b><br>
+    xₙ₊₁ = xₙ − <span style="color:var(--text);">f(xₙ) / f′(xₙ)</span><br>
+    <span style="font-size:10px;color:var(--text-faint);">Metode terbuka — konvergensi kuadratik jika tebakan awal baik.</span>
+  </div>`;
+
+  // 4. TABEL ITERASI
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL ITERASI</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
+    <th>n</th><th>xₙ</th><th>f(xₙ)</th><th>f′(xₙ)</th>
+    <th style="color:var(--accent3);">xₙ₊₁</th><th>|Δx|</th>
   </tr></thead><tbody>`;
+
   rows.forEach(r => {
+    const isConverged = r.err < tol;
     html += `<tr>
       <td>${r.i}</td>
       <td>${fmtDec(r.x, 8)}</td>
       <td>${fmtDec(r.fx, 8)}</td>
       <td>${fmtDec(r.dfx, 8)}</td>
-      <td style="color:var(--accent3);font-weight:600">${fmtDec(r.xNew, 8)}</td>
+      <td style="color:${isConverged ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtDec(r.xNew, 8)}</td>
       <td>${fmtDec(r.err, 8)}</td>
     </tr>`;
   });
@@ -697,65 +879,45 @@ function solveNewtonRaphson() {
   addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(x, 6)}`);
 }
 
-function evalFnSafe(expr, x, y = 0) {
-  try { return evalFn(expr, x, y); } catch { return NaN; }
-}
-
-/* =====================================================================
-   5. INTERPOLASI LAGRANGE
-   ===================================================================== */
-function buildLagrangePoints() {
-  const nInput = document.getElementById('lag-n');
-  if (!nInput) return;
-  const n = parseInt(nInput.value) || 4;
-  const container = document.getElementById('lag-points-container');
-  if (!container) return;
-
-  const defaults = [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25], [6, 36], [7, 49], [8, 64], [9, 81], [10, 100]];
-  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-  for (let i = 0; i < n; i++) {
-    const d = defaults[i] || [i + 1, (i + 1) * (i + 1)];
-    html += `
-      <div class="field"><label>x<sub>${i + 1}</sub></label>
-        <input type="number" id="lag-x${i}" value="${d[0]}" step="any">
-      </div>
-      <div class="field"><label>y<sub>${i + 1}</sub></label>
-        <input type="number" id="lag-y${i}" value="${d[1]}" step="any">
-      </div>`;
-  }
-  html += '</div>';
-  container.innerHTML = html;
-}
-
+/* 5. INTERPOLASI LAGRANGE — PERBAIKAN LENGKAP */
 function solveLagrange() {
-  clearErr('lag'); clearResult('lag');
+  clearErr('lag');
+  clearResult('lag');
+
   const nInput = document.getElementById('lag-n');
   if (!nInput) return;
   const n = parseInt(nInput.value);
   const xt = parseFloat(document.getElementById('lag-xt').value);
+
   if (isNaN(xt)) { showErr('lag', 'Nilai x taksir tidak valid'); return; }
 
-  const xs = [], ys = [];
+  const xs = [],
+    ys = [];
   for (let i = 0; i < n; i++) {
     const xi = parseFloat(document.getElementById(`lag-x${i}`).value);
     const yi = parseFloat(document.getElementById(`lag-y${i}`).value);
-    if (isNaN(xi) || isNaN(yi)) { showErr('lag', `Nilai titik ${i + 1} tidak valid`); return; }
-    xs.push(xi); ys.push(yi);
+    if (isNaN(xi) || isNaN(yi)) {
+      showErr('lag', `Nilai titik ${i + 1} tidak valid`);
+      return;
+    }
+    xs.push(xi);
+    ys.push(yi);
   }
 
-  // Cek titik x tidak ada yang sama
+  // Cek duplikat x
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       if (Math.abs(xs[i] - xs[j]) < 1e-14) {
-        showErr('lag', `x${i + 1} = x${j + 1} = ${xs[i]} — nilai x tidak boleh duplikat`);
+        showErr('lag', `❌ x${i+1} = x${j+1} = ${xs[i]} — nilai x tidak boleh duplikat`);
         return;
       }
     }
   }
 
-  // Hitung P(x) = Σ yᵢ × Lᵢ(x)
+  // --- Hitung P(x) = Σ yᵢ × Lᵢ(x) ---
   let Px = 0;
   const stepRows = [];
+
   for (let i = 0; i < n; i++) {
     let Li = 1;
     const factors = [];
@@ -772,63 +934,83 @@ function solveLagrange() {
     stepRows.push({ i, xi: xs[i], yi: ys[i], Li, factors });
   }
 
-  let html = `<div class="result-header">// HASIL — INTERPOLASI LAGRANGE</div>
-    <div class="result-value">P(${xt}) ≈ ${fmtDec(Px, 8)}</div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    <b style="color:var(--accent3)">Rumus Lagrange:</b><br>
-    P(x) = Σᵢ yᵢ · Lᵢ(x) &nbsp;&nbsp; dengan &nbsp;&nbsp; Lᵢ(x) = Π_{j≠i} [(x − xⱼ) / (xᵢ − xⱼ)]
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — INTERPOLASI LAGRANGE</div>`;
+
+  // 2. HASIL
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
+    <div style="display:flex;gap:12px;font-size:16px;">
+      <span style="color:var(--text-dim);">P(${fmtDec(xt, 4)}) ≈</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(Px, 10)}</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">
+      Polinom derajat ${n-1} melalui ${n} titik data
+    </div>
   </div>`;
 
-  // Tabel ringkasan Lᵢ dan kontribusi
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL PERHITUNGAN Lᵢ(x)</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
-    <th>i</th><th>xᵢ</th><th>yᵢ</th><th>Lᵢ(${xt})</th><th>yᵢ · Lᵢ</th>
+  // 3. RUMUS
+  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Rumus Interpolasi Lagrange:</b><br>
+    P(x) = Σᵢ yᵢ · Lᵢ(x) &nbsp; dengan &nbsp; Lᵢ(x) = Πⱼ≠ᵢ [(x − xⱼ) / (xᵢ − xⱼ)]<br>
+    <span style="font-size:10px;color:var(--text-faint);">Polinom derajat n−1 yang melalui semua titik data.</span>
+  </div>`;
+
+  // 4. TABEL Lᵢ
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL PERHITUNGAN Lᵢ(x) DAN KONTRIBUSI</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
+    <th>i</th><th>xᵢ</th><th>yᵢ</th>
+    <th style="color:var(--accent3);">Lᵢ(${fmtDec(xt, 4)})</th>
+    <th>yᵢ · Lᵢ</th>
   </tr></thead><tbody>`;
+
   stepRows.forEach(s => {
     const contrib = s.Li * s.yi;
     html += `<tr>
       <td>${s.i + 1}</td>
       <td>${fmtDec(s.xi, 6)}</td>
       <td>${fmtDec(s.yi, 6)}</td>
-      <td style="color:var(--accent3)">${fmtDec(s.Li, 8)}</td>
+      <td style="color:var(--accent3);font-weight:600;">${fmtDec(s.Li, 8)}</td>
       <td>${fmtDec(contrib, 8)}</td>
     </tr>`;
   });
-  html += `<tr style="border-top:2px solid var(--border)">
-    <td colspan="4" style="font-weight:700;color:var(--text)">P(${xt}) = Σ yᵢ · Lᵢ</td>
-    <td style="color:var(--accent);font-weight:700">${fmtDec(Px, 8)}</td>
+
+  html += `<tr style="border-top:2px solid var(--border);">
+    <td colspan="4" style="font-weight:700;color:var(--text);">P(${fmtDec(xt, 4)}) = Σ yᵢ · Lᵢ</td>
+    <td style="color:var(--accent);font-weight:700;font-size:14px;">${fmtDec(Px, 8)}</td>
   </tr></tbody></table></div>`;
 
-  // Detail faktor tiap Lᵢ
-  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// RINCIAN PERHITUNGAN Lᵢ(x) — FAKTOR-FAKTOR</div>`;
-  html += `<div style="margin-top:8px;display:flex;flex-direction:column;gap:14px">`;
+  // 5. DETAIL FAKTOR
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// RINCIAN PERHITUNGAN Lᵢ(x)</div>`;
+
   stepRows.forEach(s => {
     const prodStr = s.factors.map(f =>
-      `(${fmtDec(f.num, 4)} / ${fmtDec(f.den, 4)}) = ${fmtDec(f.frac, 6)}`
+      `(${fmtDec(f.num, 4)}/${fmtDec(f.den, 4)})=${fmtDec(f.frac, 6)}`
     ).join(' × ');
-    html += `<div style="background:var(--surface3);border-radius:6px;padding:10px 14px">
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600">
-        L<sub>${s.i + 1}</sub>(x) — untuk titik (x<sub>${s.i + 1}</sub>=${fmtDec(s.xi, 4)}, y<sub>${s.i + 1}</sub>=${fmtDec(s.yi, 4)})
+
+    html += `<div style="margin-top:8px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);">
+      <div style="font-size:11px;color:var(--text-dim);">
+        <b>L<sub>${s.i+1}</sub>(${fmtDec(xt, 4)})</b> — titik (${fmtDec(s.xi, 4)}, ${fmtDec(s.yi, 4)})
       </div>
-      <div style="font-size:11px;color:var(--text-faint);line-height:1.9">
-        L<sub>${s.i + 1}</sub>(${xt}) = ${prodStr}<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <b style="color:var(--accent3)">${fmtDec(s.Li, 8)}</b><br>
-        Kontribusi: ${fmtDec(s.yi, 6)} × ${fmtDec(s.Li, 8)} = <b style="color:var(--accent)">${fmtDec(s.Li * s.yi, 8)}</b>
+      <div style="font-size:10px;color:var(--text-faint);line-height:1.9;">
+        = ${prodStr}<br>
+        = <b style="color:var(--accent3);">${fmtDec(s.Li, 8)}</b><br>
+        Kontribusi: ${fmtDec(s.yi, 6)} × ${fmtDec(s.Li, 8)} = <b style="color:var(--accent);">${fmtDec(s.Li * s.yi, 8)}</b>
       </div>
     </div>`;
   });
-  html += `</div>`;
 
   showResult('lag', html);
-  addHistory('Interpolasi Lagrange', `x=${xt}, n=${n}`, `P(${xt}) ≈ ${fmtDec(Px, 6)}`);
+  addHistory('Interpolasi Lagrange', `x=${fmtDec(xt, 4)}, n=${n}`, `P(${fmtDec(xt, 4)})≈${fmtDec(Px, 6)}`);
 }
 
-/* =====================================================================
-   6. SIMPSON 1/3
-   ===================================================================== */
+/* 6. SIMPSON 1/3 — PERBAIKAN LENGKAP */
 function solveSimpson() {
-  clearErr('simp'); clearResult('simp');
+  clearErr('simp');
+  clearResult('simp');
+
   const fxStr = document.getElementById('simp-fx').value.trim();
   const a = parseFloat(document.getElementById('simp-a').value);
   const b = parseFloat(document.getElementById('simp-b').value);
@@ -838,6 +1020,9 @@ function solveSimpson() {
   if (isNaN(a) || isNaN(b)) { showErr('simp', 'Nilai a atau b tidak valid'); return; }
   if (isNaN(n) || n < 2) { showErr('simp', 'n minimal 2'); return; }
   if (a >= b) { showErr('simp', 'a harus lebih kecil dari b'); return; }
+
+  // Pastikan n genap
+  let nOriginal = n;
   if (n % 2 !== 0) {
     n++;
     document.getElementById('simp-n').value = n;
@@ -850,81 +1035,114 @@ function solveSimpson() {
   for (let i = 0; i <= n; i++) {
     const x = a + i * h;
     let fx;
-    try { fx = evalFn(fxStr, x); }
-    catch (e) { showErr('simp', e.message); return; }
+    try {
+      fx = evalFn(fxStr, x);
+    } catch (e) {
+      showErr('simp', e.message);
+      return;
+    }
 
     let coef;
-    if (i === 0 || i === n) coef = 1;
-    else if (i % 2 !== 0) coef = 4;  // ganjil
-    else coef = 2;                     // genap
+    let typeLabel;
+    if (i === 0 || i === n) {
+      coef = 1;
+      typeLabel = 'ujung (×1)';
+    } else if (i % 2 !== 0) {
+      coef = 4;
+      typeLabel = 'ganjil (×4)';
+    } else {
+      coef = 2;
+      typeLabel = 'genap (×2)';
+    }
 
     sum += coef * fx;
-    points.push({ i, x, fx, coef });
+    points.push({ i, x, fx, coef, typeLabel });
   }
 
-  // I = (h/3) × Σ(koef × f(xᵢ))
   const I = (h / 3) * sum;
 
-  let html = `<div class="result-header">// HASIL — SIMPSON 1/3</div>
-    <div class="result-value">∫f(x)dx ≈ ${fmtDec(I, 8)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">h = ${fmtDec(h, 6)} &nbsp;·&nbsp; n = ${n} subinterval &nbsp;·&nbsp; interval [${a}, ${b}]</div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    <b style="color:var(--accent3)">Rumus Simpson 1/3 Komposit:</b><br>
-    I ≈ (h/3) × [f(x₀) + 4f(x₁) + 2f(x₂) + 4f(x₃) + … + 4f(xₙ₋₁) + f(xₙ)]<br>
-    h = (b − a) / n = (${b} − ${a}) / ${n} = ${fmtDec(h, 6)}
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — SIMPSON 1/3</div>`;
+
+  // 2. HASIL
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
+    <div style="display:flex;gap:12px;font-size:16px;">
+      <span style="color:var(--text-dim);">∫ₐᵇ f(x)dx ≈</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(I, 10)}</span>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
+      <span>h = ${fmtDec(h, 6)}</span>
+      <span>n = ${n} subinterval</span>
+      <span>interval [${fmtDec(a, 4)}, ${fmtDec(b, 4)}]</span>
+      ${n !== nOriginal ? `<span style="color:var(--warn);">⚠️ n dinaikkan dari ${nOriginal} ke ${n} (harus genap)</span>` : ''}
+    </div>
   </div>`;
 
-  // Tabel titik
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL TITIK INTEGRASI</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
-    <th>i</th><th>xᵢ = a + i·h</th><th>f(xᵢ)</th><th>Koefisien</th><th>Koef × f(xᵢ)</th>
+  // 3. RUMUS
+  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Rumus Simpson 1/3 Komposit:</b><br>
+    I ≈ (h/3) × <span style="color:var(--text);">[f(x₀) + 4f(x₁) + 2f(x₂) + 4f(x₃) + … + 4f(xₙ₋₁) + f(xₙ)]</span><br>
+    h = (b−a)/n = ${fmtDec((b-a)/n, 6)} &nbsp; (n harus genap)<br>
+    <span style="font-size:10px;color:var(--text-faint);">Eksak untuk polinom berderajat ≤ 3.</span>
+  </div>`;
+
+  // 4. TABEL TITIK
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL TITIK INTEGRASI</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
+    <th>i</th><th>xᵢ = a + i·h</th><th>f(xᵢ)</th><th>Koefisien</th>
+    <th style="color:var(--accent3);">Koef × f(xᵢ)</th>
   </tr></thead><tbody>`;
+
   points.forEach(p => {
-    const typeLabel = p.i === 0 || p.i === n ? 'ujung (×1)' : (p.i % 2 !== 0 ? 'ganjil (×4)' : 'genap (×2)');
     html += `<tr>
       <td>${p.i}</td>
       <td>${fmtDec(p.x, 6)}</td>
       <td>${fmtDec(p.fx, 6)}</td>
-      <td>${p.coef} <span style="color:var(--text-faint);font-size:9px">${typeLabel}</span></td>
-      <td style="color:var(--accent3)">${fmtDec(p.coef * p.fx, 6)}</td>
+      <td>${p.coef} <span style="color:var(--text-faint);font-size:9px;">${p.typeLabel}</span></td>
+      <td style="color:var(--accent3);font-weight:600;">${fmtDec(p.coef * p.fx, 6)}</td>
     </tr>`;
   });
-  html += `<tr style="border-top:2px solid var(--border)">
-    <td colspan="4" style="font-weight:700;color:var(--text)">Σ (koef × f(xᵢ))</td>
-    <td style="color:var(--accent);font-weight:700">${fmtDec(sum, 6)}</td>
+
+  html += `<tr style="border-top:2px solid var(--border);">
+    <td colspan="4" style="font-weight:700;color:var(--text);">Σ (koef × f(xᵢ))</td>
+    <td style="color:var(--accent);font-weight:700;font-size:14px;">${fmtDec(sum, 6)}</td>
   </tr></tbody></table></div>`;
 
-  html += `<div style="margin-top:12px;font-size:11px;color:var(--text-dim);line-height:2;background:var(--surface3);border-radius:6px;padding:10px 14px">
+  // 5. PERHITUNGAN AKHIR
+  html += `<div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:6px;font-size:12px;color:var(--text-dim);line-height:2;">
     I = (h/3) × Σ = (${fmtDec(h, 6)}/3) × ${fmtDec(sum, 6)}<br>
-    I = ${fmtDec(h / 3, 6)} × ${fmtDec(sum, 6)} = <b style="color:var(--accent3);font-size:14px">${fmtDec(I, 8)}</b>
+    I = ${fmtDec(h/3, 6)} × ${fmtDec(sum, 6)} = <b style="color:var(--accent3);font-size:16px;">${fmtDec(I, 10)}</b>
   </div>`;
 
-  // Estimasi galat
+  // 6. ESTIMASI GALAT
   try {
     const mid = (a + b) / 2;
     const hd = Math.max(h, 1e-3);
     const f2 = xx => evalFn(fxStr, xx);
     const f4 = (f2(mid - 2 * hd) - 4 * f2(mid - hd) + 6 * f2(mid) - 4 * f2(mid + hd) + f2(mid + 2 * hd)) / Math.pow(hd, 4);
-    const errEst = -((b - a) * Math.pow(h, 4) / 180) * f4;
-    if (isFinite(errEst)) {
-      html += `<div style="margin-top:12px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// ESTIMASI GALAT</div>
-        <div style="margin-top:6px;font-size:11px;color:var(--text-dim)">
-          E ≈ −(b−a)·h⁴·f⁽⁴⁾(ξ)/180 ≈ <b style="color:var(--warn)">${fmtDec(errEst, 8)}</b>
-          <span style="color:var(--text-faint);font-size:10px"> (f⁽⁴⁾ diaproksimasi numerik di titik tengah)</span>
-        </div>`;
+
+    if (isFinite(f4)) {
+      const errEst = -((b - a) * Math.pow(h, 4) / 180) * f4;
+      html += `<div style="margin-top:12px;padding:8px 12px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);">
+        <b style="color:var(--warn);">📊 Estimasi Galat:</b><br>
+        E ≈ −(b−a)·h⁴·f⁽⁴⁾(ξ)/180 ≈ <b style="color:var(--warn);">${fmtDec(errEst, 10)}</b>
+        <span style="font-size:9px;color:var(--text-faint);"> (f⁽⁴⁾ diaproksimasi numerik di titik tengah)</span>
+      </div>`;
     }
   } catch (e) { /* estimasi gagal, lewati */ }
 
   showResult('simp', html);
-  addHistory('Simpson 1/3', `[${a},${b}], n=${n}`, `∫ ≈ ${fmtDec(I, 6)}`);
+  addHistory('Simpson 1/3', `[${fmtDec(a, 4)},${fmtDec(b, 4)}], n=${n}`, `∫≈${fmtDec(I, 6)}`);
 }
 
-/* =====================================================================
-   7. METODE EULER
-   ===================================================================== */
+/* 7. METODE EULER — PERBAIKAN LENGKAP */
 function solveEuler() {
-  clearErr('eu'); clearResult('eu');
+  clearErr('eu');
+  clearResult('eu');
+
   const fxyStr = document.getElementById('eu-fxy').value.trim();
   const x0 = parseFloat(document.getElementById('eu-x0').value);
   const y0 = parseFloat(document.getElementById('eu-y0').value);
@@ -937,70 +1155,104 @@ function solveEuler() {
   if (isNaN(xn)) { showErr('eu', 'Nilai x akhir tidak valid'); return; }
   if (xn <= x0) { showErr('eu', 'x akhir harus lebih besar dari x₀'); return; }
 
-  // Hitung jumlah langkah dari h dan rentang x
   const range = xn - x0;
   const steps = Math.round(range / h);
-  if (steps < 1) { showErr('eu', 'Jumlah langkah terlalu kecil — perbesar rentang atau kecilkan h'); return; }
-  if (steps > 500) { showErr('eu', `Jumlah langkah terlalu banyak (${steps}). Perbesar h atau perkecil rentang.`); return; }
+  if (steps < 1) { showErr('eu', 'Jumlah langkah terlalu kecil'); return; }
+  if (steps > 500) { showErr('eu', `Jumlah langkah terlalu banyak (${steps}). Perbesar h.`); return; }
 
   const rows = [];
-  let x = x0, y = y0;
-  rows.push({ i: 0, x, y, fxy: null });
+  let x = x0,
+    y = y0;
+
+  // Langkah 0: kondisi awal
+  rows.push({ i: 0, x, y, fxy: null, yPrev: null, hf: null });
 
   for (let i = 1; i <= steps; i++) {
     let fxy;
-    try { fxy = evalFn(fxyStr, x, y); }
-    catch (e) { showErr('eu', 'Iterasi ' + i + ': ' + e.message); return; }
+    try {
+      fxy = evalFn(fxyStr, x, y);
+    } catch (e) {
+      showErr('eu', 'Iterasi ' + i + ': ' + e.message);
+      return;
+    }
 
-    const xPrev = x, yPrev = y;
-    // Rumus Euler: yₙ₊₁ = yₙ + h × f(xₙ, yₙ)
-    y = y + h * fxy;
-    x = x0 + i * h; // lebih presisi daripada x += h (menghindari akumulasi float error)
-    rows.push({ i, x, y, fxy, xPrev, yPrev });
+    const xPrev = x,
+      yPrev = y;
+    const hf = h * fxy;
+
+    // --- Rumus Euler ---
+    y = y + hf;
+    x = x0 + i * h;
+
+    rows.push({ i, x, y, fxy, yPrev, hf });
   }
 
-  let html = `<div class="result-header">// HASIL — METODE EULER</div>
-    <div class="result-value">y(${fmtDec(x, 4)}) ≈ ${fmtDec(y, 8)}</div>
-    <div style="font-size:11px;color:var(--text-dim)">
-      h = ${h} &nbsp;·&nbsp; ${steps} langkah &nbsp;·&nbsp; x: ${x0} → ${fmtDec(x, 6)}
-    </div>`;
+  // --- BUILD HTML ---
+  let html = '';
 
-  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.8">
-    <b style="color:var(--accent3)">Rumus Metode Euler:</b><br>
-    yₙ₊₁ = yₙ + h · f(xₙ, yₙ) &nbsp;&nbsp; ; &nbsp;&nbsp; xₙ₊₁ = xₙ + h<br>
-    Jumlah langkah n = (x akhir − x₀) / h = (${xn} − ${x0}) / ${h} = ${steps}
+  // 1. HEADER
+  html += `<div class="result-header">✅ HASIL — METODE EULER</div>`;
+
+  // 2. HASIL
+  html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
+    <div style="display:flex;gap:12px;font-size:16px;">
+      <span style="color:var(--text-dim);">y(${fmtDec(x, 4)}) ≈</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(y, 10)}</span>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
+      <span>h = ${fmtDec(h, 4)}</span>
+      <span>${steps} langkah</span>
+      <span>interval [${fmtDec(x0, 4)}, ${fmtDec(xn, 4)}]</span>
+    </div>
   </div>`;
 
-  // Tabel langkah
-  html += `<div style="margin-top:14px;font-size:10px;color:var(--text-faint);letter-spacing:1px">// TABEL LANGKAH EULER</div>`;
-  html += `<div style="overflow-x:auto;margin-top:6px"><table class="result-table"><thead><tr>
-    <th>n</th><th>xₙ</th><th>yₙ</th><th>f(xₙ,yₙ)</th><th>h·f</th><th>yₙ₊₁ = yₙ + h·f</th>
+  // 3. RUMUS
+  html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
+    <b style="color:var(--accent3);">📘 Rumus Metode Euler:</b><br>
+    yₙ₊₁ = yₙ + h · <span style="color:var(--text);">f(xₙ, yₙ)</span><br>
+    xₙ₊₁ = xₙ + h &nbsp; (n = ${steps} langkah)<br>
+    <span style="font-size:10px;color:var(--text-faint);">Metode orde-1 — galat global O(h).</span>
+  </div>`;
+
+  // 4. TABEL LANGKAH
+  html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL LANGKAH EULER</div>`;
+  html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
+    <th>n</th><th>xₙ</th><th>yₙ</th><th>f(xₙ,yₙ)</th><th>h·f</th>
+    <th style="color:var(--accent3);">yₙ₊₁</th>
   </tr></thead><tbody>`;
+
   rows.forEach(r => {
     if (r.i === 0) {
       html += `<tr>
         <td>0</td>
         <td>${fmtDec(r.x, 6)}</td>
-        <td>${fmtDec(r.y, 6)}</td>
+        <td style="color:var(--accent3);font-weight:600;">${fmtDec(r.y, 8)}</td>
         <td>—</td><td>—</td>
-        <td style="color:var(--text-faint)">(nilai awal)</td>
+        <td style="color:var(--text-faint);">(nilai awal)</td>
       </tr>`;
     } else {
-      const hf = h * r.fxy;
       html += `<tr>
         <td>${r.i}</td>
-        <td>${fmtDec(r.xPrev, 6)}</td>
-        <td>${fmtDec(r.yPrev, 6)}</td>
+        <td>${fmtDec(r.x - h, 6)}</td>
+        <td>${fmtDec(r.yPrev, 8)}</td>
         <td>${fmtDec(r.fxy, 6)}</td>
-        <td>${fmtDec(hf, 6)}</td>
-        <td style="color:var(--accent3);font-weight:600">${fmtDec(r.y, 8)}</td>
+        <td>${fmtDec(r.hf, 6)}</td>
+        <td style="color:var(--accent3);font-weight:600;">${fmtDec(r.y, 8)}</td>
       </tr>`;
     }
   });
   html += `</tbody></table></div>`;
 
+  // 5. RINGKASAN
+  html += `<div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:2;">
+    <b style="color:var(--accent3);">📊 Ringkasan:</b><br>
+    Nilai awal: (x₀, y₀) = (${fmtDec(x0, 4)}, ${fmtDec(y0, 4)})<br>
+    Nilai akhir: y(${fmtDec(x, 4)}) ≈ <b style="color:var(--accent);">${fmtDec(y, 10)}</b><br>
+    <span style="font-size:10px;color:var(--text-faint);">Gunakan h yang lebih kecil untuk akurasi lebih tinggi.</span>
+  </div>`;
+
   showResult('eu', html);
-  addHistory('Metode Euler', `y′=${fxyStr.substring(0, 30)}, h=${h}`, `y(${fmtDec(x, 4)}) ≈ ${fmtDec(y, 6)}`);
+  addHistory('Metode Euler', `y′=${fxyStr.substring(0, 30)}, h=${fmtDec(h, 4)}`, `y(${fmtDec(x, 4)})≈${fmtDec(y, 6)}`);
 }
 
 /* =====================================================================
