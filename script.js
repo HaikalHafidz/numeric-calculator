@@ -51,9 +51,7 @@ function clearHistory() {
   }
 }
 
-/* =====================================================================
-   UTILITAS
-   ===================================================================== */
+// == UTILITAS == //
 function showErr(id, msg) {
   const el = document.getElementById(id + '-err');
   if (el) { el.textContent = msg; el.classList.add('show'); }
@@ -72,14 +70,10 @@ function clearResult(id) {
   clearErr(id);
 }
 
-/**
- * Mengubah ekspresi matematika alami menjadi ekspresi JS yang valid.
- */
 function parseMathExpr(expr) {
   let s = expr.trim();
   if (!s) throw new Error('Ekspresi kosong');
 
-  // ^ → **
   s = s.replace(/\^/g, '**');
 
   const FN = 'sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|log10|log2|log|ln|pow|min|max|floor|ceil|round|sign|cbrt';
@@ -120,7 +114,7 @@ function evalFn(expr, x, y = 0) {
   }
 }
 
-/** Format angka desimal, hilangkan trailing zeros berlebih */
+/* Format angka desimal, hilangkan trailing zeros berlebih */
 function fmt(n, d = 6) {
   if (typeof n !== 'number' || isNaN(n)) return String(n);
   if (Math.abs(n) < 1e-10) n = 0;
@@ -136,7 +130,7 @@ function fmtDec(n, d = 6) {
   return n.toFixed(d);
 }
 
-/* NAVIGASI PANEL */
+// == NAVIGASI PANEL == //
 let currentPanel = null;
 
 function showPanel(id) {
@@ -188,7 +182,7 @@ function openMobileHistory() {
   document.getElementById('mobileOverlay')?.classList.add('active');
 }
 
-/* MATRIX INVERS  */
+// == MATRIX INVERS  ==
 function buildMatrix(prefix) {
   const nInput = document.getElementById(prefix + '-n');
   if (!nInput) return;
@@ -213,7 +207,7 @@ function buildMatrix(prefix) {
   container.innerHTML = html;
 }
 
-/* MATRIX GAUSS-JORDAN */
+// == MATRIX GAUSS-JORDAN ==
 function buildGJMatrix() {
   const nInput = document.getElementById('gj-n');
   if (!nInput) return;
@@ -250,7 +244,7 @@ function buildGJMatrix() {
   }
 }
 
-/** Ambil nilai matriks dari DOM */
+// == AMBIL NILAI MATRIKS DARI DOM ==
 function getMatrixFull(prefix, rows, cols) {
   const M = [];
   for (let i = 0; i < rows; i++) {
@@ -266,13 +260,13 @@ function getMatrixFull(prefix, rows, cols) {
   return M;
 }
 
-/** Helper: nama variabel */
+// == Helper: nama variabel == //
 function varName(i, n) {
   if (n <= 3) return ['x', 'y', 'z'][i];
   return 'x' + (i + 1);
 }
 
-/** Helper: render matriks augmented sebagai tabel HTML */
+// == Helper: render matriks augmented sebagai tabel HTML == //
 function matrixToTable(M, n, isAugmented) {
   // isAugmented: menandakan M berisi [A | b] (kolom terakhir adalah konstanta)
   let html = '<table class="result-table" style="margin:4px 0"><tbody>';
@@ -288,7 +282,7 @@ function matrixToTable(M, n, isAugmented) {
   return html;
 }
 
-/* 1. GAUSS-JORDAN — PERBAIKAN LENGKAP */
+// == 1. GAUSS-JORDAN ==
 function solveGaussJordan() {
   clearErr('gj');
   clearResult('gj');
@@ -448,7 +442,6 @@ function solveGaussJordan() {
     6. Kolom terakhir = solusi <b>${names.join(', ')}</b>.
   </div>`;
 
-  // 5. TABEL LANGKAH-LANGKAH DETAIL
   html += `<div style="margin-top:20px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// LANGKAH-LANGKAH PENGERJAAN</div>`;
 
   stepLog.forEach((step, idx) => {
@@ -463,13 +456,11 @@ function solveGaussJordan() {
     </div>`;
   });
 
-  // 6. MATRIKS HASIL AKHIR (RREF)
   html += `<div style="margin-top:16px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent3);">
     <div style="font-size:11px;color:var(--accent3);margin-bottom:6px;font-weight:700;">✅ HASIL AKHIR — RREF</div>
     ${matrixToTable(M, n, true)}
   </div>`;
 
-  // Tampilkan hasil
   showResult('gj', html);
 
   // Simpan ke histori
@@ -479,7 +470,8 @@ function solveGaussJordan() {
     solusi.map((v, i) => `${names[i]}=${fmtDec(v, 6)}`).join(', ')
   );
 }
-/* 2. INVERS MATRIKS — PERBAIKAN LENGKAP */
+
+// === 2. INVERS MATRIKS  ===
 function solveInvers() {
   clearErr('inv');
   clearResult('inv');
@@ -500,11 +492,6 @@ function solveInvers() {
     return;
   }
 
-  // --- Cek determinan (pendahuluan) ---
-  // Untuk n=1, det = A[0][0]
-  // Untuk n>1, kita cek singularitas saat proses
-
-  // --- Bangun [A | I] ---
   const M = A.map((row, i) => {
     const id = new Array(n).fill(0);
     id[i] = 1;
@@ -522,7 +509,6 @@ function solveInvers() {
   let singular = false;
 
   for (let k = 0; k < n; k++) {
-    // --- Partial Pivoting ---
     let maxIdx = k;
     for (let i = k + 1; i < n; i++) {
       if (Math.abs(M[i][k]) > Math.abs(M[maxIdx][k])) maxIdx = i;
@@ -644,7 +630,7 @@ function solveInvers() {
   addHistory('Invers Matriks', `n=${n}`, 'A⁻¹ berhasil dihitung');
 }
 
-/* 3. REGULA FALSI — PERBAIKAN LENGKAP */
+// === 3. REGULA FALSI — PERBAIKAN LENGKAP ===
 function solveRegulaFalsi() {
   clearErr('rf');
   clearResult('rf');
@@ -780,7 +766,7 @@ function solveRegulaFalsi() {
   addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 6)}`);
 }
 
-/* 4. NEWTON-RAPHSON — PERBAIKAN LENGKAP */
+// === 4. NEWTON-RAPHSON — PERBAIKAN LENGKAP ===
 function solveNewtonRaphson() {
   clearErr('nr');
   clearResult('nr');
@@ -879,7 +865,7 @@ function solveNewtonRaphson() {
   addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(x, 6)}`);
 }
 
-/* 5. INTERPOLASI LAGRANGE — PERBAIKAN LENGKAP */
+// === 5. INTERPOLASI LAGRANGE === //
 function solveLagrange() {
   clearErr('lag');
   clearResult('lag');
@@ -1006,7 +992,7 @@ function solveLagrange() {
   addHistory('Interpolasi Lagrange', `x=${fmtDec(xt, 4)}, n=${n}`, `P(${fmtDec(xt, 4)})≈${fmtDec(Px, 6)}`);
 }
 
-/* 6. SIMPSON 1/3 — PERBAIKAN LENGKAP */
+// === 6. SIMPSON 1/3 === //
 function solveSimpson() {
   clearErr('simp');
   clearResult('simp');
@@ -1132,13 +1118,13 @@ function solveSimpson() {
         <span style="font-size:9px;color:var(--text-faint);"> (f⁽⁴⁾ diaproksimasi numerik di titik tengah)</span>
       </div>`;
     }
-  } catch (e) { /* estimasi gagal, lewati */ }
+  } catch (e) { /* untuk estimasi gagal, maka lewati */ }
 
   showResult('simp', html);
   addHistory('Simpson 1/3', `[${fmtDec(a, 4)},${fmtDec(b, 4)}], n=${n}`, `∫≈${fmtDec(I, 6)}`);
 }
 
-/* 7. METODE EULER — PERBAIKAN LENGKAP */
+// === 7. METODE EULER  === 
 function solveEuler() {
   clearErr('eu');
   clearResult('eu');
@@ -1243,7 +1229,6 @@ function solveEuler() {
   });
   html += `</tbody></table></div>`;
 
-  // 5. RINGKASAN
   html += `<div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:2;">
     <b style="color:var(--accent3);">📊 Ringkasan:</b><br>
     Nilai awal: (x₀, y₀) = (${fmtDec(x0, 4)}, ${fmtDec(y0, 4)})<br>
@@ -1255,11 +1240,8 @@ function solveEuler() {
   addHistory('Metode Euler', `y′=${fxyStr.substring(0, 30)}, h=${fmtDec(h, 4)}`, `y(${fmtDec(x, 4)})≈${fmtDec(y, 6)}`);
 }
 
-/* =====================================================================
-   INISIALISASI & EVENT BINDING
-   ===================================================================== */
+/* INISIALISASI & EVENT BINDING */
 function initEvents() {
-  // Toggle nav menu (dropdown)
   const navToggle = document.getElementById('navToggle');
   if (navToggle) {
     navToggle.addEventListener('click', () => {
@@ -1293,11 +1275,9 @@ function initEvents() {
   const histBtn = document.getElementById('mobileHistoryBtn');
   if (histBtn) histBtn.addEventListener('click', openMobileHistory);
 
-  // Tutup history
   const closeHistBtn = document.getElementById('closeHistory');
   if (closeHistBtn) closeHistBtn.addEventListener('click', closeMobileHistory);
 
-  // Overlay klik → tutup semua drawer
   const overlay = document.getElementById('mobileOverlay');
   if (overlay) {
     overlay.addEventListener('click', () => {
@@ -1306,7 +1286,6 @@ function initEvents() {
     });
   }
 
-  // Auto-select input saat fokus
   document.addEventListener('focusin', e => {
     if (e.target && e.target.tagName === 'INPUT' &&
       (e.target.type === 'number' || e.target.type === 'text')) {
@@ -1316,23 +1295,19 @@ function initEvents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Build komponen awal
   buildGJMatrix();
   buildMatrix('inv');
   buildLagrangePoints();
 
-  // Render histori
   renderHistory();
 
-  // Bind semua event
   initEvents();
 
-  // Tampilkan welcome screen
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
 });
 
-/* ===== Expose ke global (untuk onclick di HTML) ===== */
+/* = untuk onclick dari HTML = */
 window.showPanel = showPanel;
 window.buildGJMatrix = buildGJMatrix;
 window.buildMatrix = buildMatrix;
