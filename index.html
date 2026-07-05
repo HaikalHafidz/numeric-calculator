@@ -247,33 +247,35 @@
         Karena metode numerik bekerja dengan pendekatan/aproksimasi, hasilnya hampir selalu mengandung selisih dari nilai sebenarnya. Selisih inilah yang disebut <b style="color:var(--text)">galat</b>. Memahami jenis dan ukuran galat penting untuk menentukan kapan iterasi boleh dihentikan (kriteria konvergensi) dan seberapa bisa dipercaya suatu hasil.
       </p>
 
-      <table class="galat-table">
-        <thead>
-          <tr><th>Jenis Galat</th><th>Definisi</th><th>Contoh Penyebab</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Galat Pemotongan (Truncation Error)</td>
-            <td>Selisih akibat menggunakan rumus aproksimasi (deret terpotong) menggantikan proses eksak/tak terhingga</td>
-            <td>Memotong deret Taylor pada beberapa suku saja, langkah h yang tidak nol pada metode Euler</td>
-          </tr>
-          <tr>
-            <td>Galat Pembulatan (Round-off Error)</td>
-            <td>Selisih akibat keterbatasan representasi angka pada komputer (presisi digit terbatas)</td>
-            <td>Komputer hanya menyimpan sejumlah digit desimal saat menyimpan bilangan real</td>
-          </tr>
-          <tr>
-            <td>Galat Mutlak</td>
-            <td>|nilai sebenarnya − nilai aproksimasi|</td>
-            <td>Mengukur seberapa jauh hasil hitung dari nilai eksak</td>
-          </tr>
-          <tr>
-            <td>Galat Relatif</td>
-            <td>Galat mutlak dibagi nilai sebenarnya (sering dinyatakan dalam %)</td>
-            <td>Lebih bermakna dibanding galat mutlak saja, karena memperhitungkan skala nilai</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="galat-table">
+          <thead>
+            <tr><th>Jenis Galat</th><th>Definisi</th><th>Contoh Penyebab</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Galat Pemotongan (Truncation Error)</td>
+              <td>Selisih akibat menggunakan rumus aproksimasi (deret terpotong) menggantikan proses eksak/tak terhingga</td>
+              <td>Memotong deret Taylor pada beberapa suku saja, langkah h yang tidak nol pada metode Euler</td>
+            </tr>
+            <tr>
+              <td>Galat Pembulatan (Round-off Error)</td>
+              <td>Selisih akibat keterbatasan representasi angka pada komputer (presisi digit terbatas)</td>
+              <td>Komputer hanya menyimpan sejumlah digit desimal saat menyimpan bilangan real</td>
+            </tr>
+            <tr>
+              <td>Galat Mutlak</td>
+              <td>|nilai sebenarnya − nilai aproksimasi|</td>
+              <td>Mengukur seberapa jauh hasil hitung dari nilai eksak</td>
+            </tr>
+            <tr>
+              <td>Galat Relatif</td>
+              <td>Galat mutlak dibagi nilai sebenarnya (sering dinyatakan dalam %)</td>
+              <td>Lebih bermakna dibanding galat mutlak saja, karena memperhitungkan skala nilai</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="theory-grid" style="margin-top:20px">
         <div class="formula-card">
@@ -568,14 +570,16 @@
         </div>
       </div>
 
-      <table class="galat-table">
-        <thead><tr><th>Titik</th><th>Koefisien</th><th>Keterangan</th></tr></thead>
-        <tbody>
-          <tr><td>f(x₀), f(xₙ)</td><td>1</td><td>Titik ujung interval</td></tr>
-          <tr><td>f(x ganjil)</td><td>4</td><td>Titik tengah tiap pias parabola</td></tr>
-          <tr><td>f(x genap, bukan ujung)</td><td>2</td><td>Titik batas antar-pias</td></tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="galat-table">
+          <thead><tr><th>Titik</th><th>Koefisien</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td>f(x₀), f(xₙ)</td><td>1</td><td>Titik ujung interval</td></tr>
+            <tr><td>f(x ganjil)</td><td>4</td><td>Titik tengah tiap pias parabola</td></tr>
+            <tr><td>f(x genap, bukan ujung)</td><td>2</td><td>Titik batas antar-pias</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <div class="example-box">
         <div class="ex-label">Catatan akurasi</div>
