@@ -168,6 +168,7 @@ header {
   font-size: 12px;
   font-family: 'JetBrains Mono', monospace;
   transition: border-color 0.15s;
+  touch-action: manipulation;
 }
 
 .nav-toggle:hover {
@@ -255,6 +256,7 @@ header {
   color: var(--text-dim);
   transition: all 0.15s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .nav-link:hover {
