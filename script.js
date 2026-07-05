@@ -244,6 +244,32 @@ function buildGJMatrix() {
   }
 }
 
+// == BANGUN INPUT TITIK DATA UNTUK LAGRANGE ==
+function buildLagrangePoints() {
+  const nInput = document.getElementById('lag-n');
+  if (!nInput) return;
+  const n = parseInt(nInput.value) || 4;
+  const container = document.getElementById('lag-points-container');
+  if (!container) return;
+
+  let html = '<label style="display:block;margin-bottom:8px">Titik data (xᵢ, yᵢ)</label><div class="input-grid">';
+  for (let i = 0; i < n; i++) {
+    const xVal = i;
+    const yVal = i * i;
+    html += `
+      <div class="field">
+        <label>x<sub>${i}</sub></label>
+        <input type="number" id="lag-x${i}" value="${xVal}" step="any">
+      </div>
+      <div class="field">
+        <label>y<sub>${i}</sub></label>
+        <input type="number" id="lag-y${i}" value="${yVal}" step="any">
+      </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
 // == AMBIL NILAI MATRIKS DARI DOM ==
 function getMatrixFull(prefix, rows, cols) {
   const M = [];
