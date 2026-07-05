@@ -1268,33 +1268,36 @@ function solveEuler() {
 
 /* INISIALISASI & EVENT BINDING */
 function initEvents() {
-  const navToggle = document.getElementById('navToggle');
-  if (navToggle) {
-    navToggle.addEventListener('click', () => {
-      const sidebar = document.getElementById('sidebar');
-      if (!sidebar) return;
-      const isOpen = sidebar.classList.contains('nav-open');
-      sidebar.classList.toggle('nav-open', !isOpen);
-      navToggle.setAttribute('aria-expanded', String(!isOpen));
-    });
-  }
+  // -- Toggle menu "Pilih Metode" --
+  // Pakai event delegation di document supaya tetap jalan walau ada
+  // masalah timing render/DOM di browser tertentu (Safari iOS, WebView Android, dll).
+  document.addEventListener('click', e => {
+    const toggle = e.target.closest('#navToggle');
+    if (!toggle) return;
+    e.preventDefault();
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    const isOpen = sidebar.classList.contains('nav-open');
+    sidebar.classList.toggle('nav-open', !isOpen);
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
 
-  // Bind semua nav-link
-  document.querySelectorAll('.nav-link[data-method]').forEach(link => {
+  // -- Pilih metode dari daftar (delegation, bukan bind satu-satu) --
+  document.addEventListener('click', e => {
+    const link = e.target.closest('.nav-link[data-method]');
+    if (!link) return;
+    e.preventDefault();
+    e.stopPropagation();
     const methodId = link.getAttribute('data-method');
-    if (!methodId) return;
-
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      showPanel(methodId);
-    });
-    link.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        showPanel(methodId);
-      }
-    });
+    if (methodId) showPanel(methodId);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const link = e.target.closest('.nav-link[data-method]');
+    if (!link) return;
+    e.preventDefault();
+    const methodId = link.getAttribute('data-method');
+    if (methodId) showPanel(methodId);
   });
 
   // History button mobile
@@ -1320,14 +1323,20 @@ function initEvents() {
   });
 }
 
+/* Jalankan fn dan catat ke console jika gagal, tanpa menghentikan
+   inisialisasi bagian lain (mis. supaya tombol menu tetap ter-bind
+   walau salah satu komponen gagal dibangun). */
+function safeInit(name, fn) {
+  try { fn(); }
+  catch (e) { console.error(`Gagal inisialisasi "${name}":`, e); }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  buildGJMatrix();
-  buildMatrix('inv');
-  buildLagrangePoints();
-
-  renderHistory();
-
-  initEvents();
+  safeInit('gauss-jordan matrix', buildGJMatrix);
+  safeInit('invers matrix', () => buildMatrix('inv'));
+  safeInit('lagrange points', buildLagrangePoints);
+  safeInit('history', renderHistory);
+  safeInit('event bindings', initEvents);
 
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
