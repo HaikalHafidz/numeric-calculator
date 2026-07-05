@@ -151,26 +151,28 @@
       <!-- ===== INVERS MATRIKS ===== -->
       <div id="panel-invers" class="panel" style="display:none">
         <div class="panel-title">Invers Matriks <span class="tag t-inv">A⁻¹</span></div>
-        <div class="panel-desc">Hitung invers matriks A menggunakan metode Gauss-Jordan dengan matriks identitas [A | I]
-          → [I | A⁻¹].</div>
+        <div class="panel-desc">Selesaikan sistem persamaan linear Ax = b menggunakan metode invers matriks: hitung
+          A⁻¹ lebih dulu (via [A | I] → [I | A⁻¹]), lalu x = A⁻¹ · b.</div>
         <div class="card">
           <div class="card-title">INPUT</div>
           <div class="input-grid cols-1">
             <div class="field">
-              <label>Ukuran matriks n×n</label>
-              <input type="number" id="inv-n" value="3" min="1" max="5" onchange="buildMatrix('inv')">
+              <label>Jumlah persamaan & variabel (n)</label>
+              <input type="number" id="inv-n" value="3" min="1" max="5" onchange="buildInversMatrix()">
             </div>
           </div>
           <div style="margin-top:12px">
-            <label style="font-size:10px;color:var(--text-dim)">Matriks A</label>
+            <label style="font-size:10px;color:var(--text-dim)">Susunan persamaan: koefisien A · x = konstanta b</label>
             <div class="matrix-container">
               <div id="inv-matrix" class="matrix-grid"></div>
             </div>
+            <div class="hint" style="margin-top:8px">* Kolom kiri (a₁, a₂, a₃, …) = koefisien soal, kolom "x" = penanda
+              variabel baris, kolom "b" = konstanta ruas kanan</div>
           </div>
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="solveInvers()">▶ HITUNG</button>
-          <button class="btn btn-secondary" onclick="buildMatrix('inv')">↺ Reset</button>
+          <button class="btn btn-secondary" onclick="buildInversMatrix()">↺ Reset</button>
         </div>
         <div class="err-msg" id="inv-err"></div>
         <div class="result-box" id="inv-result"></div>
@@ -185,11 +187,11 @@
           <div class="card-title">INPUT</div>
           <div class="input-grid">
             <div class="field span-2">
-              <label>f(x) — gunakan: ^ untuk pangkat, sin/cos/tan/sqrt/log/exp, konstanta pi/e</label>
+              <label>F(X) = — gunakan: ^ untuk pangkat, sin/cos/tan/sqrt/log/exp, konstanta pi/e</label>
               <input type="text" id="rf-fx" placeholder="x^3 - x - 2" value="x^3 - x - 2">
             </div>
-            <div class="field"><label>a (batas kiri)</label><input type="number" id="rf-a" value="1" step="any"></div>
-            <div class="field"><label>b (batas kanan)</label><input type="number" id="rf-b" value="2" step="any"></div>
+            <div class="field"><label>Batas Kiri (a)</label><input type="number" id="rf-a" value="1" step="any"></div>
+            <div class="field"><label>Batas Kanan (b)</label><input type="number" id="rf-b" value="2" step="any"></div>
             <div class="field"><label>Iterasi maksimum (otomatis)</label><div class="hint">Iterasi dihentikan berdasarkan jumlah iterasi sistem (tanpa input)</div></div>
           </div>
         </div>
