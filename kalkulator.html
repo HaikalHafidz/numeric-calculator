@@ -192,7 +192,9 @@
             </div>
             <div class="field"><label>Batas Kiri (a)</label><input type="number" id="rf-a" value="1" step="any"></div>
             <div class="field"><label>Batas Kanan (b)</label><input type="number" id="rf-b" value="2" step="any"></div>
-            <div class="field"><label>Iterasi maksimum (otomatis)</label><div class="hint">Iterasi dihentikan berdasarkan jumlah iterasi sistem (tanpa input)</div></div>
+            <div class="field"><label>Iterasi maksimum (otomatis)</label>
+              <div class="hint">Iterasi dihentikan berdasarkan jumlah iterasi sistem (tanpa input)</div>
+            </div>
           </div>
         </div>
         <div class="btn-row">
@@ -223,7 +225,12 @@
             </div>
             <div class="field"><label>Toleransi (ε)</label><input type="number" id="nr-tol" value="0.0001" step="any">
             </div>
-            <div class="field"><label>Maks. Iterasi</label><input type="number" id="nr-iter" value="50" min="1"></div>
+            <div class="field"><label>Iterasi</label>
+              <div
+                style="padding:12px 14px;background:rgba(255,255,255,0.05);border-radius:8px;font-size:11px;line-height:1.5;">
+                Iterasi dihentikan secara internal ketika f(xₙ) ≈ 0 atau perubahan xₙ menjadi sangat kecil. Tidak
+                diperlukan input jumlah iterasi.</div>
+            </div>
           </div>
         </div>
         <div class="btn-row">
@@ -244,7 +251,13 @@
           <div class="input-grid">
             <div class="field">
               <label>Jumlah titik data (n)</label>
-              <input type="number" id="lag-n" value="4" min="2" max="10" onchange="buildLagrangePoints()">
+              <input type="number" id="lag-n" value="3" min="2" max="10" onchange="buildLagrangePoints()">
+              <div class="hint" style="margin-top:6px">Catatan: untuk n=3 (derajat 2) nilai y0,y1,y2 dihitung dari f(x).
+              </div>
+            </div>
+            <div class="field span-2">
+              <label>f(x) — digunakan untuk menghitung yᵢ (khusus n=3)</label>
+              <input type="text" id="lag-fx" placeholder="x^2" value="x^2" step="any">
             </div>
             <div class="field">
               <label>x yang dicari (x taksir)</label>
