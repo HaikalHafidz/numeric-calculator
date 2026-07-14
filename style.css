@@ -815,6 +815,38 @@ textarea:focus {
   display: block;
 }
 
+footer.portfolio-footer {
+  text-align: center;
+  padding: 18px 0;
+  font-size: 12px;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+footer.portfolio-footer .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+  padding: 0 16px;
+}
+
+footer.portfolio-footer p {
+  margin: 0;
+  color: var(--text-faint);
+}
+
+footer.portfolio-footer p a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+footer.portfolio-footer p a:hover {
+  text-decoration: underline;
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 4px;
