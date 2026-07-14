@@ -124,6 +124,14 @@ function fmtDec(n, d = 6) {
   return n.toFixed(d);
 }
 
+// Format angka gaya Indonesia: koma sebagai desimal, 4 angka di belakang koma (0,0000)
+function fmtID(n, d = 4) {
+  if (typeof n !== 'number' || isNaN(n)) return '—';
+  if (Math.abs(n) < 1e-10) n = 0;
+  const sign = n < 0 ? '-' : '';
+  return sign + Math.abs(n).toFixed(d).replace('.', ',');
+}
+
 // == NAVIGASI PANEL == //
 let currentPanel = null;
 
@@ -728,16 +736,16 @@ function solveRegulaFalsi() {
 
   if (Math.abs(fa) < 1e-14) {
     showResult('rf', `<div class="result-header">✅ HASIL — REGULA FALSI</div>
-      <div class="result-value">x = ${fmtDec(a, 8)}</div>
+      <div class="result-value">x = ${fmtDec(a, 4)}</div>
       <div style="font-size:11px;color:var(--accent3);">✅ f(a) = 0 — a adalah akar!</div>`);
-    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(a, 6)}`);
+    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(a, 4)}`);
     return;
   }
   if (Math.abs(fb) < 1e-14) {
     showResult('rf', `<div class="result-header">✅ HASIL — REGULA FALSI</div>
-      <div class="result-value">x = ${fmtDec(b, 8)}</div>
+      <div class="result-value">x = ${fmtDec(b, 4)}</div>
       <div style="font-size:11px;color:var(--accent3);">✅ f(b) = 0 — b adalah akar!</div>`);
-    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(b, 6)}`);
+    addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(b, 4)}`);
     return;
   }
 
@@ -787,10 +795,10 @@ function solveRegulaFalsi() {
   html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
     <div style="display:flex;gap:12px;font-size:16px;">
       <span style="color:var(--text-dim);">x ≈</span>
-      <span style="color:var(--accent3);font-weight:700;">${fmtDec(c, 10)}</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtDec(c, 4)}</span>
     </div>
     <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
-      <span>f(x) = ${fmtDec(fc, 10)}</span>
+      <span>f(x) = ${fmtDec(fc, 4)}</span>
       <span>Iterasi: ${iterUsed}</span>
       <span style="color:${converged ? 'var(--accent3)' : 'var(--warn)'};">${converged ? '✅ Konvergen' : '⚠️ Batas iterasi'}</span>
     </div>
@@ -813,19 +821,19 @@ function solveRegulaFalsi() {
     const isConverged = Math.abs(r.fc) < tol;
     html += `<tr>
       <td>${r.i}</td>
-      <td>${fmtDec(r.a, 6)}</td>
-      <td>${fmtDec(r.b, 6)}</td>
-      <td>${fmtDec(r.fa, 6)}</td>
-      <td>${fmtDec(r.fb, 6)}</td>
-      <td style="color:${isConverged ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtDec(r.c, 8)}</td>
-      <td style="color:${Math.abs(r.fc) < tol ? 'var(--accent3)' : 'var(--text-dim)'};">${fmtDec(r.fc, 8)}</td>
-      <td>${r.err === null ? '—' : fmtDec(r.err, 8)}</td>
+      <td>${fmtDec(r.a, 4)}</td>
+      <td>${fmtDec(r.b, 4)}</td>
+      <td>${fmtDec(r.fa, 4)}</td>
+      <td>${fmtDec(r.fb, 4)}</td>
+      <td style="color:${isConverged ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtDec(r.c, 4)}</td>
+      <td style="color:${Math.abs(r.fc) < tol ? 'var(--accent3)' : 'var(--text-dim)'};">${fmtDec(r.fc, 4)}</td>
+      <td>${r.err === null ? '—' : fmtDec(r.err, 4)}</td>
     </tr>`;
   });
   html += `</tbody></table></div>`;
 
   showResult('rf', html);
-  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 6)}`);
+  addHistory('Regula Falsi', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(c, 4)}`);
 }
 
 // ============================================================
@@ -838,20 +846,20 @@ function solveNewtonRaphson() {
   const fxStr = document.getElementById('nr-fx').value.trim();
   const dfxStr = document.getElementById('nr-dfx').value.trim();
   let x = parseFloat(document.getElementById('nr-x0').value);
-  const tol = parseFloat(document.getElementById('nr-tol').value) || 1e-8;
+  const tolInput = parseFloat(document.getElementById('nr-tol').value);
+  const tol = (isNaN(tolInput) || tolInput <= 0) ? 1e-6 : tolInput; // toleransi (ε) galat, dari input pengguna
   const maxIter = parseInt(document.getElementById('nr-iter').value) || 50;
 
   if (!fxStr || !dfxStr) { showErr('nr', 'Masukkan f(x) dan f′(x)'); return; }
   if (isNaN(x)) { showErr('nr', 'x₀ tidak valid'); return; }
-  if (isNaN(tol) || tol <= 0) { showErr('nr', 'Toleransi harus > 0'); return; }
   if (isNaN(maxIter) || maxIter < 1) { showErr('nr', 'Maks iterasi minimal 1'); return; }
 
   const rows = [];
   let fx, dfx, xNew = x;
-  let converged = false;
+  let stopReason = null; // 'fx0' | 'galat' | 'maxIter'
   let iterUsed = 0;
 
-  for (let i = 0; i < maxIter; i++) {
+  for (let i = 1; i <= maxIter; i++) {
     try {
       fx = evalFn(fxStr, x);
       dfx = evalFn(dfxStr, x);
@@ -861,29 +869,32 @@ function solveNewtonRaphson() {
     }
 
     if (Math.abs(dfx) < 1e-12) {
-      showErr('nr', `❌ f′(x) ≈ 0 pada iterasi ${i} di x = ${fmtDec(x, 6)}`);
+      showErr('nr', `❌ f′(xₙ) ≈ 0 pada iterasi ke-${i} di xₙ = ${fmtID(x)} — Newton-Raphson gagal (garis singgung mendatar).`);
       return;
     }
 
     xNew = x - fx / dfx;
-    const err = Math.abs(xNew - x);
+    iterUsed = i;
 
-    rows.push({ i, x, fx, dfx, xNew, err });
-    iterUsed = i + 1;
+    // Galat (error) antar iterasi — dicari setiap langkah, dibandingkan dengan toleransi (ε) dari input
+    const galat = Math.abs(xNew - x);
 
-    if (Math.abs(fx) < tol || err < tol) {
-      converged = true;
-      x = xNew;
-      break;
-    }
+    // Kriteria berhenti:
+    // 1) f(xₙ) = 0 (xₙ sudah akar persis)
+    // 2) galat = |xₙ₊₁ − xₙ| < toleransi (ε) yang dimasukkan pengguna
+    const fxIsZero = fx === 0;
+    const galatKecil = galat < tol;
+
+    rows.push({ i, x, fx, dfx, xNew, galat, fxIsZero, galatKecil });
+
+    if (fxIsZero) { stopReason = 'fx0'; x = xNew; break; }
+    if (galatKecil) { stopReason = 'galat'; x = xNew; break; }
 
     x = xNew;
   }
 
-  // Jika belum konvergen, ambil nilai terakhir
-  if (!converged) {
-    x = xNew;
-  }
+  if (!stopReason) stopReason = 'maxIter';
+  const converged = stopReason !== 'maxIter';
 
   let html = '';
   html += `<div class="result-header">✅ HASIL — NEWTON-RAPHSON</div>`;
@@ -891,41 +902,45 @@ function solveNewtonRaphson() {
   html += `<div style="margin:10px 0;padding:12px 16px;background:var(--surface3);border-radius:6px;">
     <div style="display:flex;gap:12px;font-size:16px;">
       <span style="color:var(--text-dim);">x ≈</span>
-      <span style="color:var(--accent3);font-weight:700;">${fmtDec(x, 10)}</span>
+      <span style="color:var(--accent3);font-weight:700;">${fmtID(x)}</span>
     </div>
     <div style="display:flex;gap:20px;margin-top:6px;font-size:11px;color:var(--text-dim);">
-      <span>f(x) = ${fmtDec(evalFnSafe(fxStr, x), 10)}</span>
+      <span>f(x) = ${fmtID(evalFnSafe(fxStr, x))}</span>
       <span>Iterasi: ${iterUsed}</span>
-      <span style="color:${converged ? 'var(--accent3)' : 'var(--warn)'};">${converged ? '✅ Konvergen' : '⚠️ Batas iterasi'}</span>
+      <span style="color:${converged ? 'var(--accent3)' : 'var(--warn)'};">
+        ${stopReason === 'fx0' ? '✅ Berhenti: f(xₙ) = 0' : stopReason === 'galat' ? `✅ Berhenti: galat < ε (${fmtID(tol)})` : '⚠️ Batas iterasi tercapai'}
+      </span>
     </div>
   </div>`;
 
   html += `<div style="margin-top:14px;padding:10px 14px;background:var(--surface3);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.9;">
     <b style="color:var(--accent3);">📘 Rumus Newton-Raphson:</b><br>
-    xₙ₊₁ = xₙ − <span style="color:var(--text);">f(xₙ) / f′(xₙ)</span><br>
-    <span style="font-size:10px;color:var(--text-faint);">Metode terbuka — konvergensi kuadratik jika tebakan awal baik.</span>
+    x<sub>n+1</sub> = x<sub>n</sub> − <span style="color:var(--text);">f(x<sub>n</sub>) / f′(x<sub>n</sub>)</span><br>
+    Galat: |x<sub>n+1</sub> − x<sub>n</sub>|<br>
+    <b style="color:var(--accent3);">Syarat berhenti:</b> f(x<sub>n</sub>) = 0 &nbsp;atau&nbsp; galat &lt; toleransi (ε = ${fmtID(tol)})<br>
+    <span style="font-size:10px;color:var(--text-faint);">Metode terbuka — konvergensi kuadratik jika tebakan awal cukup dekat dengan akar.</span>
   </div>`;
 
   // ===== LANGKAH-LANGKAH PER ITERASI =====
   html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// LANGKAH-LANGKAH PER ITERASI</div>`;
 
   rows.forEach((r, idx) => {
-    const sub = r.i;       // subscript xₙ untuk iterasi ini
-    const subNext = r.i + 1; // subscript xₙ₊₁ hasil iterasi ini
-    html += `<div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid ${idx === rows.length - 1 && converged ? 'var(--accent3)' : 'var(--accent)'};">`;
+    const isLast = idx === rows.length - 1;
+    html += `<div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:6px;border-left:3px solid ${isLast && converged ? 'var(--accent3)' : 'var(--accent)'};">`;
     html += `<div style="font-size:11px;color:var(--text-dim);">
-      <span style="color:var(--accent);font-weight:700;">Iterasi ${r.i + 1}:</span>
-    </div>`;
-    html += `<div style="font-size:12px;color:var(--text);font-weight:500;margin-top:4px;">
-      x<sub>${sub}</sub> = ${fmtDec(r.x, 8)}
+      <span style="color:var(--accent);font-weight:700;">Iterasi ke-${r.i}:</span> x<sub>${r.i - 1}</sub> = ${fmtID(r.x)}
     </div>`;
     html += `<div style="font-size:11px;color:var(--text-dim);margin-top:4px;line-height:1.8;">`;
-    html += `f(x<sub>${sub}</sub>) = ${fmtDec(r.fx, 8)}<br>`;
-    html += `f′(x<sub>${sub}</sub>) = ${fmtDec(r.dfx, 8)}<br>`;
-    html += `<span style="color:var(--accent3);">x<sub>${subNext}</sub> = ${fmtDec(r.x, 8)} − (${fmtDec(r.fx, 8)} / ${fmtDec(r.dfx, 8)}) = ${fmtDec(r.xNew, 8)}</span><br>`;
-    html += `|Δx| = ${fmtDec(r.err, 8)}`;
-    if (r.err < tol) {
-      html += ` <span style="color:var(--accent3);font-weight:700;">✅ Konvergen!</span>`;
+    html += `f(x<sub>${r.i - 1}</sub>) = f(${fmtID(r.x)}) = ${fmtID(r.fx)}<br>`;
+    html += `f′(x<sub>${r.i - 1}</sub>) = f′(${fmtID(r.x)}) = ${fmtID(r.dfx)}<br>`;
+    html += `x<sub>${r.i}</sub> = x<sub>${r.i - 1}</sub> − f(x<sub>${r.i - 1}</sub>) / f′(x<sub>${r.i - 1}</sub>)<br>`;
+    html += `x<sub>${r.i}</sub> = ${fmtID(r.x)} − (${fmtID(r.fx)} / ${fmtID(r.dfx)})<br>`;
+    html += `<span style="color:var(--accent3);">x<sub>${r.i}</sub> = ${fmtID(r.xNew)}</span><br>`;
+    html += `Galat = |x<sub>${r.i}</sub> − x<sub>${r.i - 1}</sub>| = |${fmtID(r.xNew)} − ${fmtID(r.x)}| = <b>${fmtID(r.galat)}</b>`;
+    if (r.fxIsZero) {
+      html += `<br><span style="color:var(--accent3);font-weight:700;">✅ f(x<sub>${r.i - 1}</sub>) = 0 → xₙ adalah akar, iterasi berhenti.</span>`;
+    } else if (r.galatKecil) {
+      html += `<br><span style="color:var(--accent3);font-weight:700;">✅ Galat (${fmtID(r.galat)}) &lt; ε (${fmtID(tol)}) → iterasi berhenti.</span>`;
     }
     html += `</div>`;
     html += `</div>`;
@@ -935,24 +950,24 @@ function solveNewtonRaphson() {
   html += `<div style="margin-top:16px;font-size:10px;color:var(--text-faint);letter-spacing:1px;">// TABEL RINGKASAN ITERASI</div>`;
   html += `<div style="overflow-x:auto;margin-top:6px;"><table class="result-table"><thead><tr>
     <th>n</th><th>xₙ</th><th>f(xₙ)</th><th>f′(xₙ)</th>
-    <th style="color:var(--accent3);">xₙ₊₁</th><th>|Δx|</th>
+    <th style="color:var(--accent3);">xₙ₊₁</th><th>Galat</th>
   </tr></thead><tbody>`;
 
   rows.forEach(r => {
-    const isConverged = r.err < tol;
+    const isStop = r.fxIsZero || r.galatKecil;
     html += `<tr>
-      <td>${r.i}</td>
-      <td>${fmtDec(r.x, 8)}</td>
-      <td>${fmtDec(r.fx, 8)}</td>
-      <td>${fmtDec(r.dfx, 8)}</td>
-      <td style="color:${isConverged ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtDec(r.xNew, 8)}</td>
-      <td>${fmtDec(r.err, 8)}</td>
+      <td>${r.i - 1}</td>
+      <td>${fmtID(r.x)}</td>
+      <td>${fmtID(r.fx)}</td>
+      <td>${fmtID(r.dfx)}</td>
+      <td style="color:${isStop ? 'var(--accent3)' : 'var(--text)'};font-weight:600;">${fmtID(r.xNew)}</td>
+      <td style="color:${isStop ? 'var(--accent3)' : 'var(--text-dim)'};">${fmtID(r.galat)}</td>
     </tr>`;
   });
   html += `</tbody></table></div>`;
 
   showResult('nr', html);
-  addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtDec(x, 6)}`);
+  addHistory('Newton-Raphson', `f(x)=${fxStr.substring(0, 30)}`, `x ≈ ${fmtID(x)}`);
 }
 
 // ============================================================
