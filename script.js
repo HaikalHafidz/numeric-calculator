@@ -313,31 +313,21 @@ function buildLagrangePoints() {
   let html = '<label style="display:block;margin-bottom:8px">Titik data (xᵢ, yᵢ)</label><div class="input-grid">';
   for (let i = 0; i < n; i++) {
     const xVal = i;
-
-    if (n === 3) {
-      // yᵢ dihitung dari f(xᵢ), jadi yang ditampilkan hanya input xᵢ.
-      html += `
-        <div class="field">
-          <label>x<sub>${i}</sub></label>
-          <input type="number" id="lag-x${i}" value="${xVal}" step="any">
-        </div>
-        <div class="field">
-          <label>y<sub>${i}</sub> = f(x<sub>${i}</sub>)</label>
-          <input type="text" id="lag-y${i}" value="${fxStr ? `f(x_${i})` : ''}" readonly step="any">
-        </div>`;
-    } else {
-      // Mode umum: user input xᵢ dan yᵢ
-      const yVal = i * i;
-      html += `
-        <div class="field">
-          <label>x<sub>${i}</sub></label>
-          <input type="number" id="lag-x${i}" value="${xVal}" step="any">
-        </div>
-        <div class="field">
-          <label>y<sub>${i}</sub></label>
-          <input type="number" id="lag-y${i}" value="${yVal}" step="any">
-        </div>`;
+    let yVal = '';
+    if (fxStr) {
+      const computed = evalFnSafe(fxStr, xVal);
+      yVal = isNaN(computed) ? '' : fmtDec(computed, 6);
     }
+
+    html += `
+      <div class="field">
+        <label>x<sub>${i}</sub></label>
+        <input type="number" id="lag-x${i}" value="${xVal}" step="any">
+      </div>
+      <div class="field">
+        <label>y<sub>${i}</sub></label>
+        <input type="number" id="lag-y${i}" value="${yVal}" step="any">
+      </div>`;
   }
   html += '</div>';
   container.innerHTML = html;
@@ -1067,27 +1057,31 @@ function solveLagrange() {
 
   for (let i = 0; i < n; i++) {
     const xi = parseFloat(document.getElementById(`lag-x${i}`).value);
+    const yEl = document.getElementById(`lag-y${i}`);
+    const yRaw = yEl ? yEl.value.trim() : '';
+    let yi = parseFloat(yRaw);
 
-    if (n === 3) {
-      // yᵢ dihitung dari yᵢ = f(xᵢ)
-      if (!lagFxStr) { showErr('lag', 'Untuk n=3, masukkan ekspresi f(x)'); return; }
-      if (isNaN(xi)) { showErr('lag', `Nilai x${i} tidak valid`); return; }
-      let yi;
-      try { yi = evalFn(lagFxStr, xi); } catch (e) { showErr('lag', e.message); return; }
-      xs.push(xi);
-      ys.push(yi);
-      // sinkronkan tampilan yᵢ
-      const yEl = document.getElementById(`lag-y${i}`);
-      if (yEl) yEl.value = fmtDec(yi, 6);
-    } else {
-      const yi = parseFloat(document.getElementById(`lag-y${i}`).value);
-      if (isNaN(xi) || isNaN(yi)) {
-        showErr('lag', `Nilai titik ${i + 1} tidak valid`);
+    if (isNaN(xi)) {
+      showErr('lag', `Nilai x${i} tidak valid`);
+      return;
+    }
+
+    if (isNaN(yi)) {
+      if (!lagFxStr) {
+        showErr('lag', `Nilai y${i} tidak valid`);
         return;
       }
-      xs.push(xi);
-      ys.push(yi);
+      try {
+        yi = evalFn(lagFxStr, xi);
+      } catch (e) {
+        showErr('lag', e.message);
+        return;
+      }
+      if (yEl) yEl.value = fmtDec(yi, 6);
     }
+
+    xs.push(xi);
+    ys.push(yi);
   }
 
   for (let i = 0; i < n; i++) {
