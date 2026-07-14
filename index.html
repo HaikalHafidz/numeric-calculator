@@ -1,674 +1,895 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0f">
-<title>NumCalc — Materi Metode Numerik</title>
-<meta name="description" content="Materi lengkap metode numerik: pengertian, percabangan metode, SPL, galat, OBE, hingga rumus dan langkah perhitungan setiap metode.">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20260705">
-<link rel="stylesheet" href="materi.css?v=20260705">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>NumCalc — Materi Metode Numerik</title>
+  <meta name="description"
+    content="Materi lengkap metode numerik: pengertian, percabangan metode, SPL, galat, OBE, hingga rumus dan langkah perhitungan setiap metode.">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20260705">
+  <link rel="stylesheet" href="materi.css?v=20260705">
 </head>
+
 <body class="materi-page">
 
-<!-- NAVBAR -->
-<nav class="materi-nav">
-  <button class="toc-toggle-btn" id="tocToggle" aria-label="Daftar isi">☰</button>
-  <div class="logo">Num<span>Calc</span></div>
-  <div class="materi-nav-links">
-    <a href="#pengertian">Pengertian</a>
-    <a href="#spl">SPL</a>
-    <a href="#galat">Galat</a>
-    <a href="#obe">OBE</a>
-    <a href="#metode">Metode</a>
-  </div>
-  <div class="materi-nav-cta">
-    <a class="btn-kalkulator" href="kalkulator.html">▶ Buka Kalkulator <span class="arrow">→</span></a>
-  </div>
-</nav>
+  <!-- NAVBAR -->
+  <nav class="materi-nav">
+    <button class="toc-toggle-btn" id="tocToggle" aria-label="Daftar isi">☰</button>
+    <div class="logo">Num<span>Calc</span></div>
+    <div class="materi-nav-links">
+      <a href="#pengertian">Pengertian</a>
+      <a href="#spl">SPL</a>
+      <a href="#galat">Galat</a>
+      <a href="#obe">OBE</a>
+      <a href="#metode">Metode</a>
+    </div>
+    <div class="materi-nav-cta">
+      <a class="btn-kalkulator" href="kalkulator.html">▶ Buka Kalkulator <span class="arrow">→</span></a>
+    </div>
+  </nav>
 
-<div class="toc-overlay" id="tocOverlay"></div>
+  <div class="toc-overlay" id="tocOverlay"></div>
 
-<div class="materi-shell">
-  <!-- TOC SIDEBAR -->
-  <aside class="toc" id="tocSidebar">
-    <div class="toc-section">Dasar Teori</div>
-    <a href="#pengertian"><span class="toc-num">00</span>Apa itu Metode Numerik</a>
-    <a href="#percabangan"><span class="toc-num">01</span>Percabangan Metode</a>
-    <a href="#spl"><span class="toc-num">02</span>Sistem Persamaan Linear</a>
-    <a href="#galat"><span class="toc-num">03</span>Galat (Error)</a>
-    <a href="#obe"><span class="toc-num">04</span>Operasi Baris Elementer</a>
+  <div class="materi-shell">
+    <!-- TOC SIDEBAR -->
+    <aside class="toc" id="tocSidebar">
+      <div class="toc-section">Dasar Teori</div>
+      <a href="#pengertian"><span class="toc-num">00</span>Apa itu Metode Numerik</a>
+      <a href="#percabangan"><span class="toc-num">01</span>Percabangan Metode</a>
+      <a href="#spl"><span class="toc-num">02</span>Sistem Persamaan Linear</a>
+      <a href="#galat"><span class="toc-num">03</span>Galat (Error)</a>
+      <a href="#obe"><span class="toc-num">04</span>Operasi Baris Elementer</a>
 
-    <div class="toc-section" style="margin-top:10px">Sistem Persamaan Linear</div>
-    <a href="#gauss-jordan"><span class="toc-num">1.1</span>Gauss-Jordan</a>
-    <a href="#gauss-seidel"><span class="toc-num">1.2</span>Gauss-Seidel</a>
-    <a href="#invers"><span class="toc-num">1.3</span>Invers Matriks</a>
+      <div class="toc-section" style="margin-top:10px">Sistem Persamaan Linear</div>
+      <a href="#gauss-jordan"><span class="toc-num">1.1</span>Gauss-Jordan</a>
+      <a href="#gauss-seidel"><span class="toc-num">1.2</span>Gauss-Seidel</a>
+      <a href="#invers"><span class="toc-num">1.3</span>Invers Matriks</a>
 
-    <div class="toc-section" style="margin-top:10px">Akar Persamaan</div>
-    <a href="#regula-falsi"><span class="toc-num">2.1</span>Regula Falsi</a>
-    <a href="#newton-raphson"><span class="toc-num">2.2</span>Newton-Raphson</a>
+      <div class="toc-section" style="margin-top:10px">Akar Persamaan</div>
+      <a href="#regula-falsi"><span class="toc-num">2.1</span>Regula Falsi</a>
+      <a href="#newton-raphson"><span class="toc-num">2.2</span>Newton-Raphson</a>
 
-    <div class="toc-section" style="margin-top:10px">Interpolasi & Integrasi</div>
-    <a href="#lagrange"><span class="toc-num">3.1</span>Interpolasi Lagrange</a>
-    <a href="#simpson"><span class="toc-num">3.2</span>Simpson 1/3</a>
+      <div class="toc-section" style="margin-top:10px">Interpolasi & Integrasi</div>
+      <a href="#lagrange"><span class="toc-num">3.1</span>Interpolasi Lagrange</a>
+      <a href="#simpson"><span class="toc-num">3.2</span>Simpson 1/3</a>
 
-    <div class="toc-section" style="margin-top:10px">Persamaan Diferensial</div>
-    <a href="#euler"><span class="toc-num">4.1</span>Metode Euler</a>
-  </aside>
+      <div class="toc-section" style="margin-top:10px">Persamaan Diferensial</div>
+      <a href="#euler"><span class="toc-num">4.1</span>Metode Euler</a>
+    </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="materi-content">
+    <!-- MAIN CONTENT -->
+    <main class="materi-content">
 
-    <!-- HERO -->
-    <section class="hero" id="pengertian">
-      <div class="hero-eyebrow">● CATATAN KULIAH — METODE NUMERIK</div>
-      <h1>Menyelesaikan persamaan yang <span class="hl">tidak bisa</span> diselesaikan secara eksak.</h1>
-      <p class="hero-sub">
-        Metode numerik adalah teknik untuk mengubah masalah matematis — yang sering kali mustahil atau terlalu rumit diselesaikan secara analitik — menjadi serangkaian operasi aritmatika sederhana yang diulang (iteratif) sehingga menghasilkan solusi pendekatan (aproksimasi) dengan tingkat akurasi yang bisa dikontrol.
-      </p>
-      <p class="hero-sub">
-        Alih-alih mencari satu jawaban pasti dalam satu langkah, metode numerik bekerja dengan <b style="color:var(--text)">mendekati</b> jawaban itu sedikit demi sedikit — baik melalui iterasi berulang, pembagian interval, maupun pendekatan fungsi — sampai galatnya cukup kecil untuk diterima.
-      </p>
-      <div class="hero-actions">
-        <a href="#percabangan" class="hero-btn-primary">Lihat Percabangan Metode ↓</a>
-        <a href="kalkulator.html" class="hero-btn-secondary">Langsung ke Kalkulator</a>
-      </div>
-
-      <!-- BRANCH DIAGRAM -->
-      <div class="branch-diagram" id="percabangan">
-        <svg viewBox="0 0 1180 420" xmlns="http://www.w3.org/2000/svg">
-          <!-- root -->
-          <rect x="500" y="10" width="180" height="44" rx="8" fill="#1a1a24" stroke="#7c6aff" stroke-width="1.5"/>
-          <text x="590" y="37" text-anchor="middle" fill="#e8e8f0" font-family="Syne, sans-serif" font-weight="800" font-size="13">METODE NUMERIK</text>
-
-          <!-- connectors from root -->
-          <path d="M590,54 L590,75 L100,75 L100,95" stroke="#2a2a3a" stroke-width="1.5" fill="none"/>
-          <path d="M590,54 L590,75 L355,75 L355,95" stroke="#2a2a3a" stroke-width="1.5" fill="none"/>
-          <path d="M590,54 L590,95" stroke="#2a2a3a" stroke-width="1.5" fill="none"/>
-          <path d="M590,54 L590,75 L825,75 L825,95" stroke="#2a2a3a" stroke-width="1.5" fill="none"/>
-          <path d="M590,54 L590,75 L1060,75 L1060,95" stroke="#2a2a3a" stroke-width="1.5" fill="none"/>
-
-          <!-- 5 branch headers -->
-          <g font-family="Syne, sans-serif" font-weight="700" font-size="11.5" text-anchor="middle">
-            <rect x="20" y="98" width="160" height="38" rx="7" fill="rgba(124,106,255,0.1)" stroke="#7c6aff"/>
-            <text x="100" y="121" fill="#9d8fff">Sistem Pers. Linear</text>
-
-            <rect x="275" y="98" width="160" height="38" rx="7" fill="rgba(255,106,155,0.1)" stroke="#ff6a9b"/>
-            <text x="355" y="121" fill="#ff8fb3">Akar Persamaan</text>
-
-            <rect x="510" y="98" width="160" height="38" rx="7" fill="rgba(106,255,184,0.1)" stroke="#6affb8"/>
-            <text x="590" y="121" fill="#6affb8">Interpolasi</text>
-
-            <rect x="745" y="98" width="160" height="38" rx="7" fill="rgba(251,191,36,0.1)" stroke="#fbbf24"/>
-            <text x="825" y="121" fill="#fbbf24">Integrasi Numerik</text>
-
-            <rect x="980" y="98" width="160" height="38" rx="7" fill="rgba(248,113,113,0.1)" stroke="#f87171"/>
-            <text x="1060" y="121" fill="#f87171">Pers. Diferensial</text>
-          </g>
-
-          <!-- leaves: SPL -->
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
-            <path d="M100,136 L100,150 L40,150 L40,164" stroke="#2a2a3a" fill="none"/>
-            <path d="M100,136 L100,150 L100,164" stroke="#2a2a3a" fill="none"/>
-            <path d="M100,136 L100,150 L160,150 L160,164" stroke="#2a2a3a" fill="none"/>
-            <a href="#gauss-jordan" class="branch-node">
-              <rect x="0" y="164" width="80" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="40" y="183" text-anchor="middle">Gauss-Jordan</text>
-            </a>
-            <a href="#gauss-seidel" class="branch-node">
-              <rect x="90" y="164" width="80" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="130" y="183" text-anchor="middle">Gauss-Seidel</text>
-            </a>
-            <a href="#invers" class="branch-node">
-              <rect x="180" y="164" width="90" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="225" y="183" text-anchor="middle">Invers Matriks</text>
-            </a>
-          </g>
-
-          <!-- leaves: Akar -->
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
-            <path d="M355,136 L355,150 L320,150 L320,164" stroke="#2a2a3a" fill="none"/>
-            <path d="M355,136 L355,150 L405,150 L405,164" stroke="#2a2a3a" fill="none"/>
-            <a href="#regula-falsi" class="branch-node">
-              <rect x="270" y="164" width="100" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="320" y="183" text-anchor="middle">Regula Falsi</text>
-            </a>
-            <a href="#newton-raphson" class="branch-node">
-              <rect x="355" y="164" width="110" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="410" y="183" text-anchor="middle">Newton-Raphson</text>
-            </a>
-          </g>
-
-          <!-- leaves: Interpolasi -->
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
-            <path d="M590,136 L590,164" stroke="#2a2a3a" fill="none"/>
-            <a href="#lagrange" class="branch-node">
-              <rect x="530" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="590" y="183" text-anchor="middle">Lagrange</text>
-            </a>
-          </g>
-
-          <!-- leaves: Integrasi -->
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
-            <path d="M825,136 L825,164" stroke="#2a2a3a" fill="none"/>
-            <a href="#simpson" class="branch-node">
-              <rect x="765" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="825" y="183" text-anchor="middle">Simpson 1/3</text>
-            </a>
-          </g>
-
-          <!-- leaves: PDB -->
-          <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
-            <path d="M1060,136 L1060,164" stroke="#2a2a3a" fill="none"/>
-            <a href="#euler" class="branch-node">
-              <rect x="1000" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a"/>
-              <text x="1060" y="183" text-anchor="middle">Metode Euler</text>
-            </a>
-          </g>
-
-          <!-- caption row -->
-          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#444455">
-            <text x="100" y="252" text-anchor="middle">Ax = b</text>
-            <text x="355" y="252" text-anchor="middle">f(x) = 0</text>
-            <text x="590" y="252" text-anchor="middle">P(x) ≈ f(x)</text>
-            <text x="825" y="252" text-anchor="middle">∫f(x)dx</text>
-            <text x="1060" y="252" text-anchor="middle">dy/dx = f(x,y)</text>
-          </g>
-
-          <line x1="0" y1="280" x2="1180" y2="280" stroke="#1a1a24" stroke-width="1"/>
-          <text x="0" y="305" fill="#444455" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.5">CATATAN</text>
-          <text x="0" y="325" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Gauss-Seidel adalah metode iteratif — berbeda dari Gauss-Jordan yang merupakan metode langsung (direct method).</text>
-          <text x="0" y="345" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Regula Falsi &amp; Newton-Raphson menyelesaikan persoalan yang berbeda dari SPL: mencari x dengan f(x)=0, bukan Ax=b.</text>
-          <text x="0" y="365" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Semua cabang bertumpu pada gagasan yang sama: ubah masalah eksak menjadi proses berulang yang konvergen ke solusi.</text>
-        </svg>
-      </div>
-    </section>
-
-    <!-- SPL -->
-    <section class="section" id="spl">
-      <div class="section-head">
-        <span class="section-eq">§ 02</span>
-        <h2>Sistem Persamaan Linear (SPL)</h2>
-        <span class="tag">FONDASI</span>
-      </div>
-      <p class="section-intro">
-        Sistem Persamaan Linear adalah kumpulan dua atau lebih persamaan linear yang melibatkan variabel-variabel yang sama. Dalam bentuk matriks, SPL ditulis ringkas sebagai <b style="color:var(--text)">Ax = b</b>, dan semua metode pada cabang "Sistem Persamaan Linear" (Gauss, Gauss-Jordan, Gauss-Seidel, Invers) pada dasarnya mencoba mencari vektor x yang sama — hanya beda strategi.
-      </p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">BENTUK UMUM</div>
-          <div class="formula-main">
-            a₁₁x₁ + a₁₂x₂ + ⋯ + a₁ₙxₙ = b₁<br>
-            a₂₁x₁ + a₂₂x₂ + ⋯ + a₂ₙxₙ = b₂<br>
-            ⋮<br>
-            aₙ₁x₁ + aₙ₂x₂ + ⋯ + aₙₙxₙ = bₙ
-          </div>
-          <div class="formula-note">n persamaan dengan n variabel yang tidak diketahui (x₁ … xₙ). Koefisien aᵢⱼ membentuk matriks A berukuran n×n.</div>
+      <!-- HERO -->
+      <section class="hero" id="pengertian">
+        <div class="hero-eyebrow">● CATATAN KULIAH — METODE NUMERIK</div>
+        <h1>Menyelesaikan persamaan yang <span class="hl">tidak bisa</span> diselesaikan secara eksak.</h1>
+        <p class="hero-sub">
+          Metode numerik adalah teknik untuk mengubah masalah matematis — yang sering kali mustahil atau terlalu rumit
+          diselesaikan secara analitik — menjadi serangkaian operasi aritmatika sederhana yang diulang (iteratif)
+          sehingga menghasilkan solusi pendekatan (aproksimasi) dengan tingkat akurasi yang bisa dikontrol.
+        </p>
+        <p class="hero-sub">
+          Alih-alih mencari satu jawaban pasti dalam satu langkah, metode numerik bekerja dengan <b
+            style="color:var(--text)">mendekati</b> jawaban itu sedikit demi sedikit — baik melalui iterasi berulang,
+          pembagian interval, maupun pendekatan fungsi — sampai galatnya cukup kecil untuk diterima.
+        </p>
+        <div class="hero-actions">
+          <a href="#percabangan" class="hero-btn-primary">Lihat Percabangan Metode ↓</a>
+          <a href="kalkulator.html" class="hero-btn-secondary">Langsung ke Kalkulator</a>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">BENTUK MATRIKS</div>
-          <div class="formula-main">A · x = b</div>
-          <div class="formula-note">
-            A = matriks koefisien (n×n)<br>
-            x = vektor variabel yang dicari (n×1)<br>
-            b = vektor konstanta ruas kanan (n×1)<br>
-            Matriks gabungan [A | b] disebut <b style="color:var(--text)">matriks augmented</b> — bentuk inilah yang dipakai langsung sebagai input pada kalkulator Gauss-Jordan.
-          </div>
-        </div>
-      </div>
 
-      <div class="theory-grid single" style="margin-top:16px">
-        <div class="formula-card">
-          <div class="formula-card-label">DUA PENDEKATAN MENYELESAIKAN SPL</div>
-          <div class="pc-grid" style="margin-top:0">
-            <div class="pc-box good">
-              <div class="pc-label">Metode Langsung (Direct)</div>
-              Menghasilkan solusi eksak (hingga pembulatan) dalam jumlah langkah yang pasti &amp; terbatas. Contoh: <b>Gauss-Jordan</b>, <b>Invers Matriks</b>. Cocok untuk sistem berukuran kecil–menengah.
+        <!-- BRANCH DIAGRAM -->
+        <div class="branch-diagram" id="percabangan">
+          <svg viewBox="0 0 1180 420" xmlns="http://www.w3.org/2000/svg">
+            <!-- root -->
+            <rect x="500" y="10" width="180" height="44" rx="8" fill="#1a1a24" stroke="#7c6aff" stroke-width="1.5" />
+            <text x="590" y="37" text-anchor="middle" fill="#e8e8f0" font-family="Syne, sans-serif" font-weight="800"
+              font-size="13">METODE NUMERIK</text>
+
+            <!-- connectors from root -->
+            <path d="M590,54 L590,75 L100,75 L100,95" stroke="#2a2a3a" stroke-width="1.5" fill="none" />
+            <path d="M590,54 L590,75 L355,75 L355,95" stroke="#2a2a3a" stroke-width="1.5" fill="none" />
+            <path d="M590,54 L590,95" stroke="#2a2a3a" stroke-width="1.5" fill="none" />
+            <path d="M590,54 L590,75 L825,75 L825,95" stroke="#2a2a3a" stroke-width="1.5" fill="none" />
+            <path d="M590,54 L590,75 L1060,75 L1060,95" stroke="#2a2a3a" stroke-width="1.5" fill="none" />
+
+            <!-- 5 branch headers -->
+            <g font-family="Syne, sans-serif" font-weight="700" font-size="11.5" text-anchor="middle">
+              <rect x="20" y="98" width="160" height="38" rx="7" fill="rgba(124,106,255,0.1)" stroke="#7c6aff" />
+              <text x="100" y="121" fill="#9d8fff">Sistem Pers. Linear</text>
+
+              <rect x="275" y="98" width="160" height="38" rx="7" fill="rgba(255,106,155,0.1)" stroke="#ff6a9b" />
+              <text x="355" y="121" fill="#ff8fb3">Akar Persamaan</text>
+
+              <rect x="510" y="98" width="160" height="38" rx="7" fill="rgba(106,255,184,0.1)" stroke="#6affb8" />
+              <text x="590" y="121" fill="#6affb8">Interpolasi</text>
+
+              <rect x="745" y="98" width="160" height="38" rx="7" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" />
+              <text x="825" y="121" fill="#fbbf24">Integrasi Numerik</text>
+
+              <rect x="980" y="98" width="160" height="38" rx="7" fill="rgba(248,113,113,0.1)" stroke="#f87171" />
+              <text x="1060" y="121" fill="#f87171">Pers. Diferensial</text>
+            </g>
+
+            <!-- leaves: SPL -->
+            <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
+              <path d="M100,136 L100,150 L40,150 L40,164" stroke="#2a2a3a" fill="none" />
+              <path d="M100,136 L100,150 L100,164" stroke="#2a2a3a" fill="none" />
+              <path d="M100,136 L100,150 L160,150 L160,164" stroke="#2a2a3a" fill="none" />
+              <a href="#gauss-jordan" class="branch-node">
+                <rect x="0" y="164" width="80" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="40" y="183" text-anchor="middle">Gauss-Jordan</text>
+              </a>
+              <a href="#gauss-seidel" class="branch-node">
+                <rect x="90" y="164" width="80" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="130" y="183" text-anchor="middle">Gauss-Seidel</text>
+              </a>
+              <a href="#invers" class="branch-node">
+                <rect x="180" y="164" width="90" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="225" y="183" text-anchor="middle">Invers Matriks</text>
+              </a>
+            </g>
+
+            <!-- leaves: Akar -->
+            <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
+              <path d="M355,136 L355,150 L320,150 L320,164" stroke="#2a2a3a" fill="none" />
+              <path d="M355,136 L355,150 L405,150 L405,164" stroke="#2a2a3a" fill="none" />
+              <a href="#regula-falsi" class="branch-node">
+                <rect x="270" y="164" width="100" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="320" y="183" text-anchor="middle">Regula Falsi</text>
+              </a>
+              <a href="#newton-raphson" class="branch-node">
+                <rect x="355" y="164" width="110" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="410" y="183" text-anchor="middle">Newton-Raphson</text>
+              </a>
+            </g>
+
+            <!-- leaves: Interpolasi -->
+            <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
+              <path d="M590,136 L590,164" stroke="#2a2a3a" fill="none" />
+              <a href="#lagrange" class="branch-node">
+                <rect x="530" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="590" y="183" text-anchor="middle">Lagrange</text>
+              </a>
+            </g>
+
+            <!-- leaves: Integrasi -->
+            <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
+              <path d="M825,136 L825,164" stroke="#2a2a3a" fill="none" />
+              <a href="#simpson" class="branch-node">
+                <rect x="765" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="825" y="183" text-anchor="middle">Simpson 1/3</text>
+              </a>
+            </g>
+
+            <!-- leaves: PDB -->
+            <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#888899">
+              <path d="M1060,136 L1060,164" stroke="#2a2a3a" fill="none" />
+              <a href="#euler" class="branch-node">
+                <rect x="1000" y="164" width="120" height="30" rx="6" fill="#111118" stroke="#2a2a3a" />
+                <text x="1060" y="183" text-anchor="middle">Metode Euler</text>
+              </a>
+            </g>
+
+            <!-- caption row -->
+            <g font-family="JetBrains Mono, monospace" font-size="10" fill="#444455">
+              <text x="100" y="252" text-anchor="middle">Ax = b</text>
+              <text x="355" y="252" text-anchor="middle">f(x) = 0</text>
+              <text x="590" y="252" text-anchor="middle">P(x) ≈ f(x)</text>
+              <text x="825" y="252" text-anchor="middle">∫f(x)dx</text>
+              <text x="1060" y="252" text-anchor="middle">dy/dx = f(x,y)</text>
+            </g>
+
+            <line x1="0" y1="280" x2="1180" y2="280" stroke="#1a1a24" stroke-width="1" />
+            <text x="0" y="305" fill="#444455" font-family="JetBrains Mono, monospace" font-size="10"
+              letter-spacing="1.5">CATATAN</text>
+            <text x="0" y="325" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Gauss-Seidel
+              adalah metode iteratif — berbeda dari Gauss-Jordan yang merupakan metode langsung (direct method).</text>
+            <text x="0" y="345" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Regula Falsi
+              &amp; Newton-Raphson menyelesaikan persoalan yang berbeda dari SPL: mencari x dengan f(x)=0, bukan
+              Ax=b.</text>
+            <text x="0" y="365" fill="#888899" font-family="JetBrains Mono, monospace" font-size="10.5">Semua cabang
+              bertumpu pada gagasan yang sama: ubah masalah eksak menjadi proses berulang yang konvergen ke
+              solusi.</text>
+          </svg>
+        </div>
+      </section>
+
+      <!-- SPL -->
+      <section class="section" id="spl">
+        <div class="section-head">
+          <span class="section-eq">§ 02</span>
+          <h2>Sistem Persamaan Linear (SPL)</h2>
+          <span class="tag">FONDASI</span>
+        </div>
+        <p class="section-intro">
+          Sistem Persamaan Linear adalah kumpulan dua atau lebih persamaan linear yang melibatkan variabel-variabel yang
+          sama. Dalam bentuk matriks, SPL ditulis ringkas sebagai <b style="color:var(--text)">Ax = b</b>, dan semua
+          metode pada cabang "Sistem Persamaan Linear" (Gauss, Gauss-Jordan, Gauss-Seidel, Invers) pada dasarnya mencoba
+          mencari vektor x yang sama — hanya beda strategi.
+        </p>
+
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">BENTUK UMUM</div>
+            <div class="formula-main">
+              a₁₁x₁ + a₁₂x₂ + ⋯ + a₁ₙxₙ = b₁<br>
+              a₂₁x₁ + a₂₂x₂ + ⋯ + a₂ₙxₙ = b₂<br>
+              ⋮<br>
+              aₙ₁x₁ + aₙ₂x₂ + ⋯ + aₙₙxₙ = bₙ
             </div>
-            <div class="pc-box bad">
-              <div class="pc-label">Metode Iteratif</div>
-              Dimulai dari tebakan awal, lalu diperbaiki berulang kali hingga konvergen ke solusi. Contoh: <b>Gauss-Seidel</b>. Lebih efisien untuk sistem besar &amp; matriks jarang (sparse), tapi tidak selalu konvergen.
+            <div class="formula-note">n persamaan dengan n variabel yang tidak diketahui (x₁ … xₙ). Koefisien aᵢⱼ
+              membentuk matriks A berukuran n×n.</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">BENTUK MATRIKS</div>
+            <div class="formula-main">A · x = b</div>
+            <div class="formula-note">
+              A = matriks koefisien (n×n)<br>
+              x = vektor variabel yang dicari (n×1)<br>
+              b = vektor konstanta ruas kanan (n×1)<br>
+              Matriks gabungan [A | b] disebut <b style="color:var(--text)">matriks augmented</b> — bentuk inilah yang
+              dipakai langsung sebagai input pada kalkulator Gauss-Jordan.
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- GALAT -->
-    <section class="section" id="galat">
-      <div class="section-head">
-        <span class="section-eq">§ 03</span>
-        <h2>Galat (Error)</h2>
-        <span class="tag">AKURASI</span>
-      </div>
-      <p class="section-intro">
-        Karena metode numerik bekerja dengan pendekatan/aproksimasi, hasilnya hampir selalu mengandung selisih dari nilai sebenarnya. Selisih inilah yang disebut <b style="color:var(--text)">galat</b>. Memahami jenis dan ukuran galat penting untuk menentukan kapan iterasi boleh dihentikan (kriteria konvergensi) dan seberapa bisa dipercaya suatu hasil.
-      </p>
-
-      <div class="table-scroll">
-        <table class="galat-table">
-          <thead>
-            <tr><th>Jenis Galat</th><th>Definisi</th><th>Contoh Penyebab</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Galat Pemotongan (Truncation Error)</td>
-              <td>Selisih akibat menggunakan rumus aproksimasi (deret terpotong) menggantikan proses eksak/tak terhingga</td>
-              <td>Memotong deret Taylor pada beberapa suku saja, langkah h yang tidak nol pada metode Euler</td>
-            </tr>
-            <tr>
-              <td>Galat Pembulatan (Round-off Error)</td>
-              <td>Selisih akibat keterbatasan representasi angka pada komputer (presisi digit terbatas)</td>
-              <td>Komputer hanya menyimpan sejumlah digit desimal saat menyimpan bilangan real</td>
-            </tr>
-            <tr>
-              <td>Galat Mutlak</td>
-              <td>|nilai sebenarnya − nilai aproksimasi|</td>
-              <td>Mengukur seberapa jauh hasil hitung dari nilai eksak</td>
-            </tr>
-            <tr>
-              <td>Galat Relatif</td>
-              <td>Galat mutlak dibagi nilai sebenarnya (sering dinyatakan dalam %)</td>
-              <td>Lebih bermakna dibanding galat mutlak saja, karena memperhitungkan skala nilai</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="theory-grid" style="margin-top:20px">
-        <div class="formula-card">
-          <div class="formula-card-label">GALAT MUTLAK</div>
-          <div class="formula-main">Eₐ = | x_sebenarnya − x_aproksimasi |</div>
+        <div class="theory-grid single" style="margin-top:16px">
+          <div class="formula-card">
+            <div class="formula-card-label">DUA PENDEKATAN MENYELESAIKAN SPL</div>
+            <div class="pc-grid" style="margin-top:0">
+              <div class="pc-box good">
+                <div class="pc-label">Metode Langsung (Direct)</div>
+                Menghasilkan solusi eksak (hingga pembulatan) dalam jumlah langkah yang pasti &amp; terbatas. Contoh:
+                <b>Gauss-Jordan</b>, <b>Invers Matriks</b>. Cocok untuk sistem berukuran kecil–menengah.
+              </div>
+              <div class="pc-box bad">
+                <div class="pc-label">Metode Iteratif</div>
+                Dimulai dari tebakan awal, lalu diperbaiki berulang kali hingga konvergen ke solusi. Contoh:
+                <b>Gauss-Seidel</b>. Lebih efisien untuk sistem besar &amp; matriks jarang (sparse), tapi tidak selalu
+                konvergen.
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">GALAT RELATIF (%)</div>
-          <div class="formula-main">Eᵣ = (Eₐ / |x_sebenarnya|) × 100%</div>
+      </section>
+
+      <!-- GALAT -->
+      <section class="section" id="galat">
+        <div class="section-head">
+          <span class="section-eq">§ 03</span>
+          <h2>Galat (Error)</h2>
+          <span class="tag">AKURASI</span>
         </div>
-      </div>
+        <p class="section-intro">
+          Karena metode numerik bekerja dengan pendekatan/aproksimasi, hasilnya hampir selalu mengandung selisih dari
+          nilai sebenarnya. Selisih inilah yang disebut <b style="color:var(--text)">galat</b>. Memahami jenis dan
+          ukuran galat penting untuk menentukan kapan iterasi boleh dihentikan (kriteria konvergensi) dan seberapa bisa
+          dipercaya suatu hasil.
+        </p>
 
-      <div class="example-box">
-        <div class="ex-label">Mengapa ini penting di kalkulator</div>
-        Pada metode iteratif seperti Newton-Raphson, Regula Falsi, dan Gauss-Seidel, iterasi dihentikan ketika galat (biasanya selisih antar-iterasi |xₙ₊₁ − xₙ| atau |f(xᵣ)|) sudah lebih kecil dari nilai <b>toleransi</b> yang kamu masukkan — itulah kenapa setiap form metode tersebut punya kolom "Toleransi" dan "Maks. Iterasi".
-      </div>
-    </section>
-
-    <!-- OBE -->
-    <section class="section" id="obe">
-      <div class="section-head">
-        <span class="section-eq">§ 04</span>
-        <h2>Operasi Baris Elementer (OBE)</h2>
-        <span class="tag">ALAT UTAMA SPL</span>
-      </div>
-      <p class="section-intro">
-        OBE adalah tiga jenis operasi sederhana yang boleh dilakukan pada baris-baris matriks tanpa mengubah himpunan solusi dari sistem persamaan. Gauss-Jordan dan pencarian Invers Matriks semuanya dibangun murni dari OBE yang diulang secara sistematis.
-      </p>
-
-      <div class="step-list" style="margin-top:20px">
-        <div class="step-row">
-          <div class="step-tag">1</div>
-          <div class="step-body"><b>Pertukaran baris</b> — Rᵢ ↔ Rⱼ. Menukar posisi dua baris matriks. Dipakai saat elemen pivot bernilai 0 atau sangat kecil (partial pivoting) agar proses tetap stabil secara numerik.</div>
+        <div class="table-scroll">
+          <table class="galat-table">
+            <thead>
+              <tr>
+                <th>Jenis Galat</th>
+                <th>Definisi</th>
+                <th>Contoh Penyebab</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Galat Pemotongan (Truncation Error)</td>
+                <td>Selisih akibat menggunakan rumus aproksimasi (deret terpotong) menggantikan proses eksak/tak
+                  terhingga</td>
+                <td>Memotong deret Taylor pada beberapa suku saja, langkah h yang tidak nol pada metode Euler</td>
+              </tr>
+              <tr>
+                <td>Galat Pembulatan (Round-off Error)</td>
+                <td>Selisih akibat keterbatasan representasi angka pada komputer (presisi digit terbatas)</td>
+                <td>Komputer hanya menyimpan sejumlah digit desimal saat menyimpan bilangan real</td>
+              </tr>
+              <tr>
+                <td>Galat Mutlak</td>
+                <td>|nilai sebenarnya − nilai aproksimasi|</td>
+                <td>Mengukur seberapa jauh hasil hitung dari nilai eksak</td>
+              </tr>
+              <tr>
+                <td>Galat Relatif</td>
+                <td>Galat mutlak dibagi nilai sebenarnya (sering dinyatakan dalam %)</td>
+                <td>Lebih bermakna dibanding galat mutlak saja, karena memperhitungkan skala nilai</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="step-row">
-          <div class="step-tag">2</div>
-          <div class="step-body"><b>Perkalian baris dengan skalar tak-nol</b> — Rᵢ → k·Rᵢ (k ≠ 0). Mengalikan seluruh elemen satu baris dengan konstanta. Dipakai untuk menormalisasi baris pivot menjadi 1 pada Gauss-Jordan.</div>
+
+        <div class="theory-grid" style="margin-top:20px">
+          <div class="formula-card">
+            <div class="formula-card-label">GALAT MUTLAK</div>
+            <div class="formula-main">Eₐ = | x_sebenarnya − x_aproksimasi |</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">GALAT RELATIF (%)</div>
+            <div class="formula-main">Eᵣ = (Eₐ / |x_sebenarnya|) × 100%</div>
+          </div>
         </div>
-        <div class="step-row">
-          <div class="step-tag">3</div>
-          <div class="step-body"><b>Penjumlahan kelipatan baris</b> — Rᵢ → Rᵢ + k·Rⱼ. Menambahkan kelipatan satu baris ke baris lain. Inilah operasi inti yang dipakai untuk "menghapus" (membuat nol) elemen di bawah atau di atas pivot.</div>
+
+        <div class="example-box">
+          <div class="ex-label">Mengapa ini penting di kalkulator</div>
+          Pada metode iteratif seperti Newton-Raphson, Regula Falsi, dan Gauss-Seidel, iterasi dihentikan ketika galat
+          (biasanya selisih antar-iterasi |xₙ₊₁ − xₙ| atau |f(xᵣ)|) sudah lebih kecil dari nilai <b>toleransi</b> yang
+          kamu masukkan — itulah kenapa setiap form metode tersebut punya kolom "Toleransi" dan "Maks. Iterasi".
         </div>
-      </div>
+      </section>
 
-      <div class="example-box">
-        <div class="ex-label">Keterkaitan dengan kalkulator</div>
-        Baris log seperti <code style="color:var(--accent3)">R2 → R2 − (faktor) × R1</code> yang muncul di hasil perhitungan Gauss-Jordan adalah penerapan langsung OBE jenis ke-3 di atas — dilakukan berulang untuk setiap kolom pivot sampai matriks berbentuk identitas penuh (RREF).
-      </div>
-    </section>
-
-    <!-- METHOD OVERVIEW -->
-    <section class="section" id="metode">
-      <div class="section-head">
-        <span class="section-eq">§ 05</span>
-        <h2>Daftar Metode</h2>
-        <span class="tag">8 METODE</span>
-      </div>
-      <p class="section-intro">
-        Berikut seluruh metode yang dibahas di halaman ini, dikelompokkan sesuai jenis persoalan yang diselesaikan. Klik kartu untuk langsung melompat ke pembahasan lengkap rumus dan langkahnya.
-      </p>
-      <div class="method-overview">
-        <a href="#gauss-jordan" class="method-card"><div class="mc-icon">⊞</div><div class="mc-name">Gauss-Jordan</div><div class="mc-desc">Reduksi penuh ke bentuk identitas (RREF), solusi langsung terbaca.</div><div class="mc-meta">SPL · LANGSUNG</div></a>
-        <a href="#gauss-seidel" class="method-card"><div class="mc-icon">↻</div><div class="mc-name">Gauss-Seidel</div><div class="mc-desc">Iterasi memperbaiki tebakan awal memakai nilai terbaru tiap variabel.</div><div class="mc-meta">SPL · ITERATIF</div></a>
-        <a href="#invers" class="method-card"><div class="mc-icon">A⁻¹</div><div class="mc-name">Invers Matriks</div><div class="mc-desc">Mencari A⁻¹ via Gauss-Jordan pada matriks augmented [A | I].</div><div class="mc-meta">SPL · LANGSUNG</div></a>
-        <a href="#regula-falsi" class="method-card"><div class="mc-icon">⟨x⟩</div><div class="mc-name">Regula Falsi</div><div class="mc-desc">Interpolasi linear pada interval kurung [a,b] untuk mendekati akar.</div><div class="mc-meta">AKAR · TERTUTUP</div></a>
-        <a href="#newton-raphson" class="method-card"><div class="mc-icon">∂f</div><div class="mc-name">Newton-Raphson</div><div class="mc-desc">Memakai garis singgung (turunan) untuk konvergensi kuadratik ke akar.</div><div class="mc-meta">AKAR · TERBUKA</div></a>
-        <a href="#lagrange" class="method-card"><div class="mc-icon">Pₙ</div><div class="mc-name">Interpolasi Lagrange</div><div class="mc-desc">Membangun polinom yang melalui semua titik data tanpa sistem persamaan.</div><div class="mc-meta">INTERPOLASI</div></a>
-        <a href="#simpson" class="method-card"><div class="mc-icon">∫</div><div class="mc-name">Simpson 1/3</div><div class="mc-desc">Pendekatan integral memakai potongan-potongan kurva parabola.</div><div class="mc-meta">INTEGRASI</div></a>
-        <a href="#euler" class="method-card"><div class="mc-icon">dy</div><div class="mc-name">Metode Euler</div><div class="mc-desc">Skema paling sederhana untuk menyelesaikan PDB orde satu secara numerik.</div><div class="mc-meta">PDB</div></a>
-      </div>
-    </section>
-
-    <!-- 1.1 GAUSS -->
-    <!-- 1.1 GAUSS-JORDAN -->
-    <section class="section" id="gauss-jordan">
-      <div class="section-head">
-        <span class="section-eq">Eq. 1.1</span>
-        <h2>Gauss-Jordan</h2>
-        <span class="tag">RREF</span>
-      </div>
-      <p class="section-intro">Menyelesaikan Ax = b dengan mereduksi matriks augmented [A|b] langsung menjadi Reduced Row Echelon Form (RREF) — matriks identitas di sisi kiri — melalui OBE, sehingga solusi langsung terbaca tanpa perlu substitusi mundur.</p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">NORMALISASI PIVOT</div>
-          <div class="formula-main">baris ₖ ← baris ₖ / aₖₖ</div>
-          <div class="formula-note">Membuat elemen pivot bernilai tepat 1.</div>
+      <!-- OBE -->
+      <section class="section" id="obe">
+        <div class="section-head">
+          <span class="section-eq">§ 04</span>
+          <h2>Operasi Baris Elementer (OBE)</h2>
+          <span class="tag">ALAT UTAMA SPL</span>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">ELIMINASI DUA ARAH</div>
-          <div class="formula-main">baris ᵢ ← baris ᵢ − aᵢₖ · baris ₖ</div>
-          <div class="formula-note">untuk semua i ≠ k (di atas <i>dan</i> di bawah pivot), sehingga seluruh kolom selain pivot otomatis menjadi nol.</div>
+        <p class="section-intro">
+          OBE adalah tiga jenis operasi sederhana yang boleh dilakukan pada baris-baris matriks tanpa mengubah himpunan
+          solusi dari sistem persamaan. Gauss-Jordan dan pencarian Invers Matriks semuanya dibangun murni dari OBE yang
+          diulang secara sistematis.
+        </p>
+
+        <div class="step-list" style="margin-top:20px">
+          <div class="step-row">
+            <div class="step-tag">1</div>
+            <div class="step-body"><b>Pertukaran baris</b> — Rᵢ ↔ Rⱼ. Menukar posisi dua baris matriks. Dipakai saat
+              elemen pivot bernilai 0 atau sangat kecil (partial pivoting) agar proses tetap stabil secara numerik.
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">2</div>
+            <div class="step-body"><b>Perkalian baris dengan skalar tak-nol</b> — Rᵢ → k·Rᵢ (k ≠ 0). Mengalikan seluruh
+              elemen satu baris dengan konstanta. Dipakai untuk menormalisasi baris pivot menjadi 1 pada Gauss-Jordan.
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">3</div>
+            <div class="step-body"><b>Penjumlahan kelipatan baris</b> — Rᵢ → Rᵢ + k·Rⱼ. Menambahkan kelipatan satu baris
+              ke baris lain. Inilah operasi inti yang dipakai untuk "menghapus" (membuat nol) elemen di bawah atau di
+              atas pivot.</div>
+          </div>
         </div>
-      </div>
 
-      <div class="step-list">
-        <div class="step-row"><div class="step-tag">1</div><div class="step-body">Bentuk matriks augmented [A | b].</div></div>
-        <div class="step-row"><div class="step-tag">2</div><div class="step-body">Untuk setiap kolom pivot k: jika perlu, tukar baris (partial pivoting) agar elemen pivot bukan nol/sekecil mungkin galat.</div></div>
-        <div class="step-row"><div class="step-tag">3</div><div class="step-body">Normalisasi baris pivot agar elemen pivotnya menjadi 1.</div></div>
-        <div class="step-row"><div class="step-tag">4</div><div class="step-body">Eliminasi seluruh baris lain (atas <b>dan</b> bawah) pada kolom tersebut sampai bernilai 0.</div></div>
-        <div class="step-row"><div class="step-tag">5</div><div class="step-body">Ulangi langkah 2–4 untuk setiap kolom; setelah selesai, kolom terakhir matriks adalah solusi x, y, z (atau x₁,x₂,…,xₙ untuk sistem &gt;3 variabel).</div></div>
-      </div>
-
-      <div class="example-box">
-        <div class="ex-label">Contoh soal</div>
-        Selesaikan sistem: 2x + y − z = 8, −3x − y + 2z = −11, −2x + y + 2z = −3.<br>
-        Matriks augmented awal: [2 1 −1 | 8], [−3 −1 2 | −11], [−2 1 2 | −3].<br>
-        Setelah OBE lengkap, diperoleh hasil <b style="color:var(--text)">x = 2, y = 3, z = −1</b>. Coba masukkan soal ini langsung di kalkulator untuk melihat seluruh tabel langkahnya.
-      </div>
-
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Solusi langsung terbaca dari kolom terakhir tanpa substitusi mundur; cocok juga sebagai dasar mencari invers matriks.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Membutuhkan lebih banyak operasi aritmatika dibanding metode yang hanya mereduksi ke bentuk segitiga, karena mengeliminasi dua arah sekaligus.</div>
-      </div>
-    </section>
-
-    <!-- 1.2 GAUSS-SEIDEL -->
-    <section class="section" id="gauss-seidel">
-      <div class="section-head">
-        <span class="section-eq">Eq. 1.2</span>
-        <h2>Gauss-Seidel</h2>
-        <span class="tag">ITERATIF</span>
-      </div>
-      <p class="section-intro">
-        Berbeda dari Gauss-Jordan yang merupakan metode langsung, Gauss-Seidel adalah metode <b style="color:var(--text)">iteratif</b>: dimulai dari tebakan awal untuk semua variabel, lalu nilai-nilai itu diperbaiki berulang kali — dan setiap variabel langsung memakai nilai terbaru dari variabel lain yang sudah dihitung pada iterasi yang sama.
-      </p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">RUMUS ITERASI (BARIS KE-i)</div>
-          <div class="formula-main">xᵢ⁽ᵏ⁺¹⁾ = ( bᵢ − Σⱼ&lt;ᵢ aᵢⱼxⱼ⁽ᵏ⁺¹⁾ − Σⱼ&gt;ᵢ aᵢⱼxⱼ⁽ᵏ⁾ ) / aᵢᵢ</div>
-          <div class="formula-note">Untuk j &lt; i, dipakai nilai xⱼ yang <i>baru saja</i> dihitung di iterasi ke-(k+1). Untuk j &gt; i, masih dipakai nilai lama dari iterasi ke-k. Inilah yang membedakan Gauss-Seidel dari metode Jacobi (yang selalu memakai nilai iterasi sebelumnya untuk semua variabel).</div>
+        <div class="example-box">
+          <div class="ex-label">Keterkaitan dengan kalkulator</div>
+          Baris log seperti <code style="color:var(--accent3)">R2 → R2 − (faktor) × R1</code> yang muncul di hasil
+          perhitungan Gauss-Jordan adalah penerapan langsung OBE jenis ke-3 di atas — dilakukan berulang untuk setiap
+          kolom pivot sampai matriks berbentuk identitas penuh (RREF).
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">SYARAT KONVERGENSI (CUKUP)</div>
-          <div class="formula-main">|aᵢᵢ| &gt; Σⱼ≠ᵢ |aᵢⱼ|</div>
-          <div class="formula-note">Matriks A sebaiknya <b style="color:var(--text)">dominan diagonal</b> — nilai mutlak elemen diagonal lebih besar dari jumlah nilai mutlak elemen lain di barisnya. Bila tidak terpenuhi, iterasi masih bisa konvergen tapi tidak terjamin.</div>
+      </section>
+
+      <!-- METHOD OVERVIEW -->
+      <section class="section" id="metode">
+        <div class="section-head">
+          <span class="section-eq">§ 05</span>
+          <h2>Daftar Metode</h2>
+          <span class="tag">8 METODE</span>
         </div>
-      </div>
-
-      <div class="step-list">
-        <div class="step-row"><div class="step-tag">1</div><div class="step-body">Tentukan tebakan awal untuk semua variabel, biasanya x⁽⁰⁾ = 0.</div></div>
-        <div class="step-row"><div class="step-tag">2</div><div class="step-body">Hitung x₁⁽ᵏ⁺¹⁾ memakai nilai-nilai lama x₂⁽ᵏ⁾, x₃⁽ᵏ⁾, … dari persamaan pertama.</div></div>
-        <div class="step-row"><div class="step-tag">3</div><div class="step-body">Hitung x₂⁽ᵏ⁺¹⁾ dari persamaan kedua, tapi kali ini <b>pakai x₁⁽ᵏ⁺¹⁾</b> yang baru saja diperbarui, bukan x₁⁽ᵏ⁾.</div></div>
-        <div class="step-row"><div class="step-tag">4</div><div class="step-body">Lanjutkan pola ini untuk seluruh variabel — setiap variabel baru langsung "dipakai" oleh perhitungan variabel berikutnya di iterasi yang sama.</div></div>
-        <div class="step-row"><div class="step-tag">5</div><div class="step-body">Ulangi seluruh siklus sampai selisih |xᵢ⁽ᵏ⁺¹⁾ − xᵢ⁽ᵏ⁾| untuk semua i lebih kecil dari toleransi, atau mencapai batas iterasi maksimum.</div></div>
-      </div>
-
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Konvergensi umumnya lebih cepat dari Jacobi karena langsung memakai nilai terbaru; hemat memori untuk sistem besar &amp; sparse.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Tidak menjamin konvergen bila matriks tidak dominan diagonal (atau tidak simetris definit positif); urutan persamaan memengaruhi kecepatan konvergensi.</div>
-      </div>
-
-      <div class="example-box">
-        <div class="ex-label">Status di kalkulator</div>
-        Metode ini belum tersedia sebagai modul perhitungan interaktif pada kalkulator NumCalc — bagian ini disediakan sebagai materi pembanding terhadap metode langsung (Gauss-Jordan) di atas.
-      </div>
-    </section>
-
-    <!-- 1.4 INVERS -->
-    <section class="section" id="invers">
-      <div class="section-head">
-        <span class="section-eq">Eq. 1.3</span>
-        <h2>Invers Matriks</h2>
-        <span class="tag">A⁻¹</span>
-      </div>
-      <p class="section-intro">Mencari matriks invers A⁻¹ sehingga A · A⁻¹ = I, menggunakan operasi Gauss-Jordan pada matriks augmented [A | I].</p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">PRINSIP DASAR</div>
-          <div class="formula-main">[A | I] →(OBE)→ [I | A⁻¹]</div>
-          <div class="formula-note">Tempelkan matriks identitas I di sebelah kanan A, lalu lakukan OBE (sama seperti Gauss-Jordan) sampai sisi kiri menjadi identitas. Sisi kanan yang tersisa adalah A⁻¹.</div>
+        <p class="section-intro">
+          Berikut seluruh metode yang dibahas di halaman ini, dikelompokkan sesuai jenis persoalan yang diselesaikan.
+          Klik kartu untuk langsung melompat ke pembahasan lengkap rumus dan langkahnya.
+        </p>
+        <div class="method-overview">
+          <a href="#gauss-jordan" class="method-card">
+            <div class="mc-icon">⊞</div>
+            <div class="mc-name">Gauss-Jordan</div>
+            <div class="mc-desc">Reduksi penuh ke bentuk identitas (RREF), solusi langsung terbaca.</div>
+            <div class="mc-meta">SPL · LANGSUNG</div>
+          </a>
+          <a href="#gauss-seidel" class="method-card">
+            <div class="mc-icon">↻</div>
+            <div class="mc-name">Gauss-Seidel</div>
+            <div class="mc-desc">Iterasi memperbaiki tebakan awal memakai nilai terbaru tiap variabel.</div>
+            <div class="mc-meta">SPL · ITERATIF</div>
+          </a>
+          <a href="#invers" class="method-card">
+            <div class="mc-icon">A⁻¹</div>
+            <div class="mc-name">Invers Matriks</div>
+            <div class="mc-desc">Mencari A⁻¹ via Gauss-Jordan pada matriks augmented [A | I].</div>
+            <div class="mc-meta">SPL · LANGSUNG</div>
+          </a>
+          <a href="#regula-falsi" class="method-card">
+            <div class="mc-icon">⟨x⟩</div>
+            <div class="mc-name">Regula Falsi</div>
+            <div class="mc-desc">Interpolasi linear pada interval kurung [a,b] untuk mendekati akar.</div>
+            <div class="mc-meta">AKAR · TERTUTUP</div>
+          </a>
+          <a href="#newton-raphson" class="method-card">
+            <div class="mc-icon">∂f</div>
+            <div class="mc-name">Newton-Raphson</div>
+            <div class="mc-desc">Memakai garis singgung (turunan) untuk konvergensi kuadratik ke akar.</div>
+            <div class="mc-meta">AKAR · TERBUKA</div>
+          </a>
+          <a href="#lagrange" class="method-card">
+            <div class="mc-icon">Pₙ</div>
+            <div class="mc-name">Interpolasi Lagrange</div>
+            <div class="mc-desc">Membangun polinom yang melalui semua titik data tanpa sistem persamaan.</div>
+            <div class="mc-meta">INTERPOLASI</div>
+          </a>
+          <a href="#simpson" class="method-card">
+            <div class="mc-icon">∫</div>
+            <div class="mc-name">Simpson 1/3</div>
+            <div class="mc-desc">Pendekatan integral memakai potongan-potongan kurva parabola.</div>
+            <div class="mc-meta">INTEGRASI</div>
+          </a>
+          <a href="#euler" class="method-card">
+            <div class="mc-icon">dy</div>
+            <div class="mc-name">Metode Euler</div>
+            <div class="mc-desc">Skema paling sederhana untuk menyelesaikan PDB orde satu secara numerik.</div>
+            <div class="mc-meta">PDB</div>
+          </a>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">SYARAT</div>
-          <div class="formula-main">A harus persegi &amp; det(A) ≠ 0</div>
-          <div class="formula-note">Jika ditemukan pivot 0 yang tak bisa ditukar dengan baris valid lain, matriks bersifat singular dan tidak memiliki invers.</div>
+      </section>
+
+      <!-- 1.1 GAUSS -->
+      <!-- 1.1 GAUSS-JORDAN -->
+      <section class="section" id="gauss-jordan">
+        <div class="section-head">
+          <span class="section-eq">Eq. 1.1</span>
+          <h2>Gauss-Jordan</h2>
+          <span class="tag">RREF</span>
         </div>
-      </div>
+        <p class="section-intro">Menyelesaikan Ax = b dengan mereduksi matriks augmented [A|b] langsung menjadi Reduced
+          Row Echelon Form (RREF) — matriks identitas di sisi kiri — melalui OBE, sehingga solusi langsung terbaca tanpa
+          perlu substitusi mundur.</p>
 
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Sekali A⁻¹ ditemukan, bisa dipakai berulang untuk Ax=b dengan b berbeda-beda: x = A⁻¹b.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Komputasi O(n³) — lebih mahal dibanding menyelesaikan sistem langsung jika hanya butuh satu kali solusi.</div>
-      </div>
-    </section>
-
-    <!-- 2.1 REGULA FALSI -->
-    <section class="section" id="regula-falsi">
-      <div class="section-head">
-        <span class="section-eq">Eq. 2.1</span>
-        <h2>Regula Falsi</h2>
-        <span class="tag">ROOT FINDING</span>
-      </div>
-      <p class="section-intro">Mencari akar f(x) = 0 pada interval [a,b] yang mengurung akar — yaitu f(a)·f(b) &lt; 0 — menggunakan interpolasi garis lurus.</p>
-
-      <div class="theory-grid single">
-        <div class="formula-card">
-          <div class="formula-card-label">RUMUS ITERASI</div>
-          <div class="formula-main">xᵣ = (a·f(b) − b·f(a)) / (f(b) − f(a))</div>
-          <div class="formula-note">Titik potong garis yang menghubungkan (a, f(a)) dan (b, f(b)) dengan sumbu x.</div>
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">NORMALISASI PIVOT</div>
+            <div class="formula-main">baris ₖ ← baris ₖ / aₖₖ</div>
+            <div class="formula-note">Membuat elemen pivot bernilai tepat 1.</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">ELIMINASI DUA ARAH</div>
+            <div class="formula-main">baris ᵢ ← baris ᵢ − aᵢₖ · baris ₖ</div>
+            <div class="formula-note">untuk semua i ≠ k (di atas <i>dan</i> di bawah pivot), sehingga seluruh kolom
+              selain pivot otomatis menjadi nol.</div>
+          </div>
         </div>
-      </div>
 
-      <div class="step-list">
-        <div class="step-row"><div class="step-tag">1</div><div class="step-body">Pastikan f(a)·f(b) &lt; 0 — akar berada di antara a dan b.</div></div>
-        <div class="step-row"><div class="step-tag">2</div><div class="step-body">Hitung xᵣ memakai rumus interpolasi di atas, lalu evaluasi f(xᵣ).</div></div>
-        <div class="step-row"><div class="step-tag">3</div><div class="step-body">Jika f(a)·f(xᵣ) &lt; 0 → akar di [a, xᵣ], maka b = xᵣ. Jika f(b)·f(xᵣ) &lt; 0 → akar di [xᵣ, b], maka a = xᵣ.</div></div>
-        <div class="step-row"><div class="step-tag">4</div><div class="step-body">Ulangi sampai |f(xᵣ)| &lt; toleransi atau mencapai batas iterasi maksimum.</div></div>
-      </div>
-
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Selalu konvergen karena akar selalu terkurung dalam interval; tidak memerlukan turunan fungsi.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Bisa konvergen lambat jika salah satu ujung interval "macet" — terutama untuk fungsi yang melengkung tajam di salah satu sisi.</div>
-      </div>
-    </section>
-
-    <!-- 2.2 NEWTON-RAPHSON -->
-    <section class="section" id="newton-raphson">
-      <div class="section-head">
-        <span class="section-eq">Eq. 2.2</span>
-        <h2>Newton-Raphson</h2>
-        <span class="tag">DERIVATIVE</span>
-      </div>
-      <p class="section-intro">Metode terbuka (tanpa interval kurung) yang memakai turunan fungsi untuk mencari kemiringan garis singgung, lalu memotongkannya dengan sumbu x.</p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">RUMUS ITERASI</div>
-          <div class="formula-main">xₙ₊₁ = xₙ − f(xₙ) / f'(xₙ)</div>
-          <div class="formula-note">Diturunkan dari ekspansi deret Taylor: f(xₙ₊₁) ≈ f(xₙ) + f'(xₙ)(xₙ₊₁−xₙ) = 0.</div>
+        <div class="step-list">
+          <div class="step-row">
+            <div class="step-tag">1</div>
+            <div class="step-body">Bentuk matriks augmented [A | b].</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">2</div>
+            <div class="step-body">Untuk setiap kolom pivot k: jika perlu, tukar baris (partial pivoting) agar elemen
+              pivot bukan nol/sekecil mungkin galat.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">3</div>
+            <div class="step-body">Normalisasi baris pivot agar elemen pivotnya menjadi 1.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">4</div>
+            <div class="step-body">Eliminasi seluruh baris lain (atas <b>dan</b> bawah) pada kolom tersebut sampai
+              bernilai 0.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">5</div>
+            <div class="step-body">Ulangi langkah 2–4 untuk setiap kolom; setelah selesai, kolom terakhir matriks adalah
+              solusi x, y, z (atau x₁,x₂,…,xₙ untuk sistem &gt;3 variabel).</div>
+          </div>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">SYARAT &amp; LAJU KONVERGENSI</div>
-          <div class="formula-main">f'(xₙ) ≠ 0, konvergensi kuadratik</div>
-          <div class="formula-note">x₀ harus cukup dekat dengan akar. Laju konvergensi kuadratik berarti εₙ₊₁ ∝ εₙ² — jauh lebih cepat dari metode tertutup seperti Regula Falsi.</div>
+
+        <div class="example-box">
+          <div class="ex-label">Contoh soal</div>
+          Selesaikan sistem: 2x + y − z = 8, −3x − y + 2z = −11, −2x + y + 2z = −3.<br>
+          Matriks augmented awal: [2 1 −1 | 8], [−3 −1 2 | −11], [−2 1 2 | −3].<br>
+          Setelah OBE lengkap, diperoleh hasil <b style="color:var(--text)">x = 2, y = 3, z = −1</b>. Coba masukkan soal
+          ini langsung di kalkulator untuk melihat seluruh tabel langkahnya.
         </div>
-      </div>
 
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Konvergensi sangat cepat jika tebakan awal baik.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Membutuhkan turunan fungsi secara eksplisit dan bisa divergen jika tebakan awal buruk.</div>
-      </div>
-    </section>
-
-    <!-- 3.1 LAGRANGE -->
-    <section class="section" id="lagrange">
-      <div class="section-head">
-        <span class="section-eq">Eq. 3.1</span>
-        <h2>Interpolasi Lagrange</h2>
-        <span class="tag">POLYNOMIAL</span>
-      </div>
-      <p class="section-intro">Membangun polinom derajat n yang melalui n+1 titik data, tanpa perlu menyelesaikan sistem persamaan untuk mencari koefisiennya.</p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">POLINOM LAGRANGE</div>
-          <div class="formula-main">P(x) = Σᵢ yᵢ · Lᵢ(x)</div>
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Solusi langsung terbaca dari kolom terakhir tanpa substitusi mundur;
+            cocok juga sebagai dasar mencari invers matriks.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Membutuhkan lebih banyak operasi aritmatika dibanding metode yang hanya
+            mereduksi ke bentuk segitiga, karena mengeliminasi dua arah sekaligus.
+          </div>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">BASIS LAGRANGE</div>
-          <div class="formula-main">Lᵢ(x) = Πⱼ≠ᵢ (x−xⱼ) / (xᵢ−xⱼ)</div>
-          <div class="formula-note">Sifat penting: Lᵢ(xⱼ) = 1 jika i=j, dan 0 jika i≠j.</div>
+      </section>
+
+      <!-- 1.2 GAUSS-SEIDEL -->
+      <section class="section" id="gauss-seidel">
+        <div class="section-head">
+          <span class="section-eq">Eq. 1.2</span>
+          <h2>Gauss-Seidel</h2>
+          <span class="tag">ITERATIF</span>
         </div>
-      </div>
+        <p class="section-intro">
+          Berbeda dari Gauss-Jordan yang merupakan metode langsung, Gauss-Seidel adalah metode <b
+            style="color:var(--text)">iteratif</b>: dimulai dari tebakan awal untuk semua variabel, lalu nilai-nilai itu
+          diperbaiki berulang kali — dan setiap variabel langsung memakai nilai terbaru dari variabel lain yang sudah
+          dihitung pada iterasi yang sama.
+        </p>
 
-      <div class="example-box">
-        <div class="ex-label">Contoh untuk n = 3 titik</div>
-        P(x) = y₀ (x−x₁)(x−x₂)/((x₀−x₁)(x₀−x₂)) + y₁ (x−x₀)(x−x₂)/((x₁−x₀)(x₁−x₂)) + y₂ (x−x₀)(x−x₁)/((x₂−x₀)(x₂−x₁))
-      </div>
-
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Tidak perlu menyelesaikan sistem persamaan untuk mencari koefisien polinom.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Komputasi berat untuk n besar, O(n²).</div>
-      </div>
-    </section>
-
-    <!-- 3.2 SIMPSON -->
-    <section class="section" id="simpson">
-      <div class="section-head">
-        <span class="section-eq">Eq. 3.2</span>
-        <h2>Simpson 1/3 (Komposit)</h2>
-        <span class="tag">INTEGRATION</span>
-      </div>
-      <p class="section-intro">Menghampiri nilai integral ∫f(x)dx dengan membagi area menjadi pias-pias parabola, bukan trapesium lurus seperti pada metode Trapesium.</p>
-
-      <div class="theory-grid single">
-        <div class="formula-card">
-          <div class="formula-card-label">RUMUS KOMPOSIT</div>
-          <div class="formula-main">∫ₐᵇ f(x)dx ≈ (h/3)[f(x₀) + 4Σf(xganjil) + 2Σf(xgenap) + f(xₙ)]</div>
-          <div class="formula-note">dengan h = (b−a)/n, n harus genap, dan xᵢ = a + i·h untuk i = 0, 1, …, n.</div>
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">RUMUS ITERASI (BARIS KE-i)</div>
+            <div class="formula-main">xᵢ⁽ᵏ⁺¹⁾ = ( bᵢ − Σⱼ&lt;ᵢ aᵢⱼxⱼ⁽ᵏ⁺¹⁾ − Σⱼ&gt;ᵢ aᵢⱼxⱼ⁽ᵏ⁾ ) / aᵢᵢ</div>
+            <div class="formula-note">Untuk j &lt; i, dipakai nilai xⱼ yang <i>baru saja</i> dihitung di iterasi
+              ke-(k+1). Untuk j &gt; i, masih dipakai nilai lama dari iterasi ke-k. Inilah yang membedakan Gauss-Seidel
+              dari metode Jacobi (yang selalu memakai nilai iterasi sebelumnya untuk semua variabel).</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">SYARAT KONVERGENSI (CUKUP)</div>
+            <div class="formula-main">|aᵢᵢ| &gt; Σⱼ≠ᵢ |aᵢⱼ|</div>
+            <div class="formula-note">Matriks A sebaiknya <b style="color:var(--text)">dominan diagonal</b> — nilai
+              mutlak elemen diagonal lebih besar dari jumlah nilai mutlak elemen lain di barisnya. Bila tidak terpenuhi,
+              iterasi masih bisa konvergen tapi tidak terjamin.</div>
+          </div>
         </div>
-      </div>
 
-      <div class="table-scroll">
-        <table class="galat-table">
-          <thead><tr><th>Titik</th><th>Koefisien</th><th>Keterangan</th></tr></thead>
-          <tbody>
-            <tr><td>f(x₀), f(xₙ)</td><td>1</td><td>Titik ujung interval</td></tr>
-            <tr><td>f(x ganjil)</td><td>4</td><td>Titik tengah tiap pias parabola</td></tr>
-            <tr><td>f(x genap, bukan ujung)</td><td>2</td><td>Titik batas antar-pias</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="example-box">
-        <div class="ex-label">Catatan akurasi</div>
-        Galat E ≈ −(b−a)⁵/(180n⁴) · f⁽⁴⁾(ξ). Simpson 1/3 eksak untuk polinom berderajat ≤ 3.
-      </div>
-    </section>
-
-    <!-- 4.1 EULER -->
-    <section class="section" id="euler">
-      <div class="section-head">
-        <span class="section-eq">Eq. 4.1</span>
-        <h2>Metode Euler</h2>
-        <span class="tag">ODE SOLVER</span>
-      </div>
-      <p class="section-intro">Skema paling sederhana untuk menyelesaikan persamaan diferensial biasa dy/dx = f(x,y) dengan kondisi awal y(x₀) = y₀, secara numerik.</p>
-
-      <div class="theory-grid">
-        <div class="formula-card">
-          <div class="formula-card-label">SKEMA ITERASI</div>
-          <div class="formula-main">yₙ₊₁ = yₙ + h · f(xₙ, yₙ)</div>
-          <div class="formula-note">Mengaproksimasi turunan dengan beda maju: (yₙ₊₁−yₙ)/h ≈ f(xₙ,yₙ). xₙ₊₁ = xₙ + h.</div>
+        <div class="step-list">
+          <div class="step-row">
+            <div class="step-tag">1</div>
+            <div class="step-body">Tentukan tebakan awal untuk semua variabel, biasanya x⁽⁰⁾ = 0.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">2</div>
+            <div class="step-body">Hitung x₁⁽ᵏ⁺¹⁾ memakai nilai-nilai lama x₂⁽ᵏ⁾, x₃⁽ᵏ⁾, … dari persamaan pertama.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">3</div>
+            <div class="step-body">Hitung x₂⁽ᵏ⁺¹⁾ dari persamaan kedua, tapi kali ini <b>pakai x₁⁽ᵏ⁺¹⁾</b> yang baru
+              saja diperbarui, bukan x₁⁽ᵏ⁾.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">4</div>
+            <div class="step-body">Lanjutkan pola ini untuk seluruh variabel — setiap variabel baru langsung "dipakai"
+              oleh perhitungan variabel berikutnya di iterasi yang sama.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">5</div>
+            <div class="step-body">Ulangi seluruh siklus sampai selisih |xᵢ⁽ᵏ⁺¹⁾ − xᵢ⁽ᵏ⁾| untuk semua i lebih kecil dari
+              toleransi, atau mencapai batas iterasi maksimum.</div>
+          </div>
         </div>
-        <div class="formula-card">
-          <div class="formula-card-label">ORDE GALAT</div>
-          <div class="formula-main">Lokal O(h²), global O(h)</div>
-          <div class="formula-note">Metode orde-1 — konvergensi linear terhadap step size h. Semakin kecil h, semakin akurat tapi semakin banyak langkah dibutuhkan.</div>
+
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Konvergensi umumnya lebih cepat dari Jacobi karena langsung memakai
+            nilai terbaru; hemat memori untuk sistem besar &amp; sparse.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Tidak menjamin konvergen bila matriks tidak dominan diagonal (atau
+            tidak simetris definit positif); urutan persamaan memengaruhi kecepatan konvergensi.
+          </div>
         </div>
-      </div>
 
-      <div class="example-box">
-        <div class="ex-label">Contoh</div>
-        Untuk y' = x + y dengan y(0) = 1, h = 0.1: y₁ = y₀ + 0.1·(x₀+y₀) = 1 + 0.1·(0+1) = 1.1
-      </div>
+        <div class="example-box">
+          <div class="ex-label">Status di kalkulator</div>
+          Metode ini belum tersedia sebagai modul perhitungan interaktif pada kalkulator NumCalc — bagian ini disediakan
+          sebagai materi pembanding terhadap metode langsung (Gauss-Jordan) di atas.
+        </div>
+      </section>
 
-      <div class="pc-grid">
-        <div class="pc-box good"><div class="pc-label">Keunggulan</div>Sederhana dan mudah diimplementasikan.</div>
-        <div class="pc-box bad"><div class="pc-label">Kelemahan</div>Membutuhkan step size kecil untuk akurasi yang baik, sehingga komputasi lebih lama.</div>
-      </div>
-    </section>
+      <!-- 1.4 INVERS -->
+      <section class="section" id="invers">
+        <div class="section-head">
+          <span class="section-eq">Eq. 1.3</span>
+          <h2>Invers Matriks</h2>
+          <span class="tag">A⁻¹</span>
+        </div>
+        <p class="section-intro">Mencari matriks invers A⁻¹ sehingga A · A⁻¹ = I, menggunakan operasi Gauss-Jordan pada
+          matriks augmented [A | I].</p>
 
-  </main>
-</div>
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">PRINSIP DASAR</div>
+            <div class="formula-main">[A | I] →(OBE)→ [I | A⁻¹]</div>
+            <div class="formula-note">Tempelkan matriks identitas I di sebelah kanan A, lalu lakukan OBE (sama seperti
+              Gauss-Jordan) sampai sisi kiri menjadi identitas. Sisi kanan yang tersisa adalah A⁻¹.</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">SYARAT</div>
+            <div class="formula-main">A harus persegi &amp; det(A) ≠ 0</div>
+            <div class="formula-note">Jika ditemukan pivot 0 yang tak bisa ditukar dengan baris valid lain, matriks
+              bersifat singular dan tidak memiliki invers.</div>
+          </div>
+        </div>
 
-<!-- CLOSING CTA -->
-<div class="cta-end">
-  <h3>Sudah paham teorinya?</h3>
-  <p>Saatnya praktik — masukkan angkamu sendiri dan lihat setiap langkah perhitungan secara langsung di kalkulator.</p>
-  <a href="kalkulator.html" class="hero-btn-primary">▶ Buka Kalkulator NumCalc</a>
-</div>
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Sekali A⁻¹ ditemukan, bisa dipakai berulang untuk Ax=b dengan b
+            berbeda-beda: x = A⁻¹b.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Komputasi O(n³) — lebih mahal dibanding menyelesaikan sistem langsung
+            jika hanya butuh satu kali solusi.
+          </div>
+        </div>
+      </section>
 
-<footer class="materi-footer">NumCalc — Materi &amp; Kalkulator Metode Numerik</footer>
+      <!-- 2.1 REGULA FALSI -->
+      <section class="section" id="regula-falsi">
+        <div class="section-head">
+          <span class="section-eq">Eq. 2.1</span>
+          <h2>Regula Falsi</h2>
+          <span class="tag">ROOT FINDING</span>
+        </div>
+        <p class="section-intro">Mencari akar f(x) = 0 pada interval [a,b] yang mengurung akar — yaitu f(a)·f(b) &lt; 0
+          — menggunakan interpolasi garis lurus.</p>
 
-<script>
-  // Mobile TOC toggle
-  const tocToggle = document.getElementById('tocToggle');
-  const tocSidebar = document.getElementById('tocSidebar');
-  const tocOverlay = document.getElementById('tocOverlay');
+        <div class="theory-grid single">
+          <div class="formula-card">
+            <div class="formula-card-label">RUMUS ITERASI</div>
+            <div class="formula-main">xᵣ = (a·f(b) − b·f(a)) / (f(b) − f(a))</div>
+            <div class="formula-note">Titik potong garis yang menghubungkan (a, f(a)) dan (b, f(b)) dengan sumbu x.
+            </div>
+          </div>
+        </div>
 
-  function openToc() {
-    tocSidebar.classList.add('open');
-    tocOverlay.classList.add('active');
-  }
-  function closeToc() {
-    tocSidebar.classList.remove('open');
-    tocOverlay.classList.remove('active');
-  }
-  if (tocToggle) tocToggle.addEventListener('click', openToc);
-  if (tocOverlay) tocOverlay.addEventListener('click', closeToc);
-  tocSidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeToc));
+        <div class="step-list">
+          <div class="step-row">
+            <div class="step-tag">1</div>
+            <div class="step-body">Pastikan f(a)·f(b) &lt; 0 — akar berada di antara a dan b.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">2</div>
+            <div class="step-body">Hitung xᵣ memakai rumus interpolasi di atas, lalu evaluasi f(xᵣ).</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">3</div>
+            <div class="step-body">Jika f(a)·f(xᵣ) &lt; 0 → akar di [a, xᵣ], maka b = xᵣ. Jika f(b)·f(xᵣ) &lt; 0 → akar
+              di [xᵣ, b], maka a = xᵣ.</div>
+          </div>
+          <div class="step-row">
+            <div class="step-tag">4</div>
+            <div class="step-body">Ulangi sampai |f(xᵣ)| &lt; toleransi atau mencapai batas iterasi maksimum.</div>
+          </div>
+        </div>
 
-  // Scroll-spy: highlight active TOC link
-  const sections = document.querySelectorAll('.section, .hero');
-  const tocLinks = document.querySelectorAll('.toc a');
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Selalu konvergen karena akar selalu terkurung dalam interval; tidak
+            memerlukan turunan fungsi.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Bisa konvergen lambat jika salah satu ujung interval "macet" — terutama
+            untuk fungsi yang melengkung tajam di salah satu sisi.
+          </div>
+        </div>
+      </section>
 
-  function onScroll() {
-    let currentId = '';
-    sections.forEach(sec => {
-      const rect = sec.getBoundingClientRect();
-      if (rect.top <= 100 && rect.bottom > 100) {
-        currentId = sec.id;
-      }
-    });
-    tocLinks.forEach(link => {
-      link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
-    });
-  }
-  document.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-</script>
+      <!-- 2.2 NEWTON-RAPHSON -->
+      <section class="section" id="newton-raphson">
+        <div class="section-head">
+          <span class="section-eq">Eq. 2.2</span>
+          <h2>Newton-Raphson</h2>
+          <span class="tag">DERIVATIVE</span>
+        </div>
+        <p class="section-intro">Metode terbuka (tanpa interval kurung) yang memakai turunan fungsi untuk mencari
+          kemiringan garis singgung, lalu memotongkannya dengan sumbu x.</p>
+
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">RUMUS ITERASI</div>
+            <div class="formula-main">xₙ₊₁ = xₙ − f(xₙ) / f'(xₙ)</div>
+            <div class="formula-note">Diturunkan dari ekspansi deret Taylor: f(xₙ₊₁) ≈ f(xₙ) + f'(xₙ)(xₙ₊₁−xₙ) = 0.
+            </div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">SYARAT &amp; LAJU KONVERGENSI</div>
+            <div class="formula-main">f'(xₙ) ≠ 0, konvergensi kuadratik</div>
+            <div class="formula-note">x₀ harus cukup dekat dengan akar. Laju konvergensi kuadratik berarti εₙ₊₁ ∝ εₙ² —
+              jauh lebih cepat dari metode tertutup seperti Regula Falsi.</div>
+          </div>
+        </div>
+
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Konvergensi sangat cepat jika tebakan awal baik.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Membutuhkan turunan fungsi secara eksplisit dan bisa divergen jika
+            tebakan awal buruk.
+          </div>
+        </div>
+      </section>
+
+      <!-- 3.1 LAGRANGE -->
+      <section class="section" id="lagrange">
+        <div class="section-head">
+          <span class="section-eq">Eq. 3.1</span>
+          <h2>Interpolasi Lagrange</h2>
+          <span class="tag">POLYNOMIAL</span>
+        </div>
+        <p class="section-intro">Membangun polinom derajat n yang melalui n+1 titik data, tanpa perlu menyelesaikan
+          sistem persamaan untuk mencari koefisiennya.</p>
+
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">POLINOM LAGRANGE</div>
+            <div class="formula-main">P(x) = Σᵢ yᵢ · Lᵢ(x)</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">BASIS LAGRANGE</div>
+            <div class="formula-main">Lᵢ(x) = Πⱼ≠ᵢ (x−xⱼ) / (xᵢ−xⱼ)</div>
+            <div class="formula-note">Sifat penting: Lᵢ(xⱼ) = 1 jika i=j, dan 0 jika i≠j.</div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="ex-label">Contoh untuk n = 3 titik</div>
+          P(x) = y₀ (x−x₁)(x−x₂)/((x₀−x₁)(x₀−x₂)) + y₁ (x−x₀)(x−x₂)/((x₁−x₀)(x₁−x₂)) + y₂ (x−x₀)(x−x₁)/((x₂−x₀)(x₂−x₁))
+        </div>
+
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Tidak perlu menyelesaikan sistem persamaan untuk mencari koefisien
+            polinom.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Komputasi berat untuk n besar, O(n²).
+          </div>
+        </div>
+      </section>
+
+      <!-- 3.2 SIMPSON -->
+      <section class="section" id="simpson">
+        <div class="section-head">
+          <span class="section-eq">Eq. 3.2</span>
+          <h2>Simpson 1/3 (Komposit)</h2>
+          <span class="tag">INTEGRATION</span>
+        </div>
+        <p class="section-intro">Menghampiri nilai integral ∫f(x)dx dengan membagi area menjadi pias-pias parabola,
+          bukan trapesium lurus seperti pada metode Trapesium.</p>
+
+        <div class="theory-grid single">
+          <div class="formula-card">
+            <div class="formula-card-label">RUMUS KOMPOSIT</div>
+            <div class="formula-main">∫ₐᵇ f(x)dx ≈ (h/3)[f(x₀) + 4Σf(xganjil) + 2Σf(xgenap) + f(xₙ)]</div>
+            <div class="formula-note">dengan h = (b−a)/n, n harus genap, dan xᵢ = a + i·h untuk i = 0, 1, …, n.</div>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="galat-table">
+            <thead>
+              <tr>
+                <th>Titik</th>
+                <th>Koefisien</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>f(x₀), f(xₙ)</td>
+                <td>1</td>
+                <td>Titik ujung interval</td>
+              </tr>
+              <tr>
+                <td>f(x ganjil)</td>
+                <td>4</td>
+                <td>Titik tengah tiap pias parabola</td>
+              </tr>
+              <tr>
+                <td>f(x genap, bukan ujung)</td>
+                <td>2</td>
+                <td>Titik batas antar-pias</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="example-box">
+          <div class="ex-label">Catatan akurasi</div>
+          Galat E ≈ −(b−a)⁵/(180n⁴) · f⁽⁴⁾(ξ). Simpson 1/3 eksak untuk polinom berderajat ≤ 3.
+        </div>
+      </section>
+
+      <!-- 4.1 EULER -->
+      <section class="section" id="euler">
+        <div class="section-head">
+          <span class="section-eq">Eq. 4.1</span>
+          <h2>Metode Euler</h2>
+          <span class="tag">ODE SOLVER</span>
+        </div>
+        <p class="section-intro">Skema paling sederhana untuk menyelesaikan persamaan diferensial biasa dy/dx = f(x,y)
+          dengan kondisi awal y(x₀) = y₀, secara numerik.</p>
+
+        <div class="theory-grid">
+          <div class="formula-card">
+            <div class="formula-card-label">SKEMA ITERASI</div>
+            <div class="formula-main">yₙ₊₁ = yₙ + h · f(xₙ, yₙ)</div>
+            <div class="formula-note">Mengaproksimasi turunan dengan beda maju: (yₙ₊₁−yₙ)/h ≈ f(xₙ,yₙ). xₙ₊₁ = xₙ + h.
+            </div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-card-label">ORDE GALAT</div>
+            <div class="formula-main">Lokal O(h²), global O(h)</div>
+            <div class="formula-note">Metode orde-1 — konvergensi linear terhadap step size h. Semakin kecil h, semakin
+              akurat tapi semakin banyak langkah dibutuhkan.</div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <div class="ex-label">Contoh</div>
+          Untuk y' = x + y dengan y(0) = 1, h = 0.1: y₁ = y₀ + 0.1·(x₀+y₀) = 1 + 0.1·(0+1) = 1.1
+        </div>
+
+        <div class="pc-grid">
+          <div class="pc-box good">
+            <div class="pc-label">Keunggulan</div>Sederhana dan mudah diimplementasikan.
+          </div>
+          <div class="pc-box bad">
+            <div class="pc-label">Kelemahan</div>Membutuhkan step size kecil untuk akurasi yang baik, sehingga komputasi
+            lebih lama.
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- CLOSING CTA -->
+  <div class="cta-end">
+    <h3>Sudah paham teorinya?</h3>
+    <p>Saatnya praktik — masukkan angkamu sendiri dan lihat setiap langkah perhitungan secara langsung di kalkulator.
+    </p>
+    <a href="kalkulator.html" class="hero-btn-primary">▶ Buka Kalkulator NumCalc</a>
+  </div>
+
+  <footer class="materi-footer">© 2026 Haikal Hafidz — Portofolio: <a
+      href="https://haikalhafidz.github.io/MyPortofolio/" target="_blank"
+      rel="noopener">haikalhafidz.github.io/MyPortofolio</a></footer>
+
+  <script>
+    // Mobile TOC toggle
+    const tocToggle = document.getElementById('tocToggle');
+    const tocSidebar = document.getElementById('tocSidebar');
+    const tocOverlay = document.getElementById('tocOverlay');
+
+    function openToc() {
+      tocSidebar.classList.add('open');
+      tocOverlay.classList.add('active');
+    }
+    function closeToc() {
+      tocSidebar.classList.remove('open');
+      tocOverlay.classList.remove('active');
+    }
+    if (tocToggle) tocToggle.addEventListener('click', openToc);
+    if (tocOverlay) tocOverlay.addEventListener('click', closeToc);
+    tocSidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeToc));
+
+    // Scroll-spy: highlight active TOC link
+    const sections = document.querySelectorAll('.section, .hero');
+    const tocLinks = document.querySelectorAll('.toc a');
+
+    function onScroll() {
+      let currentId = '';
+      sections.forEach(sec => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= 100 && rect.bottom > 100) {
+          currentId = sec.id;
+        }
+      });
+      tocLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+      });
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  </script>
 
 </body>
+
 </html>
